@@ -4,6 +4,12 @@ This might not exactly fit your needs, but maybe you can learn / rip something f
 
 The [test](/test) subdirectory contains tests for some of the math / memory / etc. functions on GBA and PC.
 
+If you find a bug or make an improvement your pull requests are appreciated.
+
+## License
+
+All of this is under the [MIT License](LICENSE).
+
 ## How to build?
 
 ### From the command line
@@ -18,11 +24,14 @@ cmake .. -DCMAKE_TOOLCHAIN_FILE=DevkitArmGBA.cmake
 make -j $(grep -c '^processor' /proc/cpuinfo 2>/dev/null)
 ```
 
-to compiel the GBA version. Use ```cmake ..``` for the PC version. If you want to switch versions, you need to delete the build directory, because currently only on toolchain file can be used.
+to compile the GBA version. Use ```cmake ..``` for the PC version. If you want to switch versions, you need to delete the build directory, because currently only on toolchain file can be used.
 
 # Todo
 
 * Clean up and improve code
 * Make examples
+* Make debugging from VS Code work
+* Add amap task
+* Disassenmbler task / info
 * More tests
 * Finish 3D stuff
