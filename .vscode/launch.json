@@ -1,0 +1,31 @@
+{
+    // Verwendet IntelliSense zum Ermitteln möglicher Attribute.
+    // Zeigen Sie auf vorhandene Attribute, um die zugehörigen Beschreibungen anzuzeigen.
+    // Weitere Informationen finden Sie unter https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run gbatv in mgba",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/usr/local/bin/mgba-qt",
+            "args": [
+                "-2",
+                "${command:cmake.launchTargetPath}"
+            ],
+            "cwd": "${command:cmake.buildDirectory}"
+        },
+        {
+            "name": "Run gbatv in vba",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/usr/bin/vba",
+            "args": [
+                "${command:cmake.launchTargetPath}",
+                "-2",
+                "--agb-print"
+            ],
+            "cwd": "${command:cmake.buildDirectory}"
+        }
+    ]
+}

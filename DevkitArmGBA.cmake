@@ -1,0 +1,83 @@
+set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_SYSTEM_PROCESSOR armv4t)
+set(GBA TRUE)
+
+# DevkitPro Paths are broken on windows, so we have to fix those
+macro(msys_to_cmake_path MsysPath ResultingPath)
+	if(WIN32)
+		string(REGEX REPLACE "^/([a-zA-Z])/" "\\1:/" ${ResultingPath} "${MsysPath}")
+	else()
+		set(${ResultingPath} "${MsysPath}")
+	endif()
+endmacro()
+
+msys_to_cmake_path("$ENV{DEVKITPRO}" DEVKITPRO)
+if(NOT IS_DIRECTORY ${DEVKITPRO})
+    message(FATAL_ERROR "Please set DEVKITPRO in your environment")
+else()
+    message("DevKitPro from " ${DEVKITPRO} " will be used.")
+endif()
+
+msys_to_cmake_path("$ENV{DEVKITARM}" DEVKITARM)
+if(NOT IS_DIRECTORY ${DEVKITARM})
+    message(FATAL_ERROR "Please set DEVKITARM in your environment")
+else()
+    message("DevKitARM from " ${DEVKITARM} " will be used.")
+endif()
+
+# Prefix detection only works with compiler id "GNU"
+# CMake will look for prefixed g++, cpp, ld, etc. automatically
+if(WIN32)
+    set(CMAKE_C_COMPILER "${DEVKITARM}/bin/arm-none-eabi-gcc.exe")
+    set(CMAKE_CXX_COMPILER "${DEVKITARM}/bin/arm-none-eabi-g++.exe")
+    set(CMAKE_LINKER "${DEVKITARM}/bin/arm-none-eabi-ld.exe")
+    set(CMAKE_OBJCOPY "${DEVKITARM}/bin/arm-none-eabi-objcopy.exe")
+    set(CMAKE_AR "${DEVKITARM}/bin/arm-none-eabi-gcc-ar.exe" CACHE STRING "")
+    set(CMAKE_AS "${DEVKITARM}/bin/arm-none-eabi-as.exe" CACHE STRING "")
+    set(CMAKE_NM "${DEVKITARM}/bin/arm-none-eabi-gcc-mn.exe" CACHE STRING "")
+    set(CMAKE_RANLIB "${DEVKITARM}/bin/arm-none-eabi-gcc-ranlib.exe" CACHE STRING "")
+else()
+    set(CMAKE_C_COMPILER "${DEVKITARM}/bin/arm-none-eabi-gcc")
+    set(CMAKE_CXX_COMPILER "${DEVKITARM}/bin/arm-none-eabi-g++")
+    set(CMAKE_LINKER "${DEVKITARM}/bin/arm-none-eabi-ld")
+    set(CMAKE_OBJCOPY "${DEVKITARM}/bin/arm-none-eabi-objcopy")
+    set(CMAKE_AR "${DEVKITARM}/bin/arm-none-eabi-gcc-ar" CACHE STRING "")
+    set(CMAKE_AS "${DEVKITARM}/bin/arm-none-eabi-as" CACHE STRING "")
+    set(CMAKE_NM "${DEVKITARM}/bin/arm-none-eabi-gcc-mn" CACHE STRING "")
+    set(CMAKE_RANLIB "${DEVKITARM}/bin/arm-none-eabi-gcc-ranlib" CACHE STRING "")
+endif()
+
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Shared libs not available" )
+
+add_definitions(-DARM4 -D_GBA)
+
+# See: https://gcc.gnu.org/onlinedocs/gcc/ARM-Options.html
+# Link-time optimization: -flto
+# Assembly output: -save-temps (delete build directory first!)
+# Minimum library includes: -ffreestanding -nostartfiles -nostdlib -nodefaultlibs
+set(ARCH "-march=armv4t -mthumb -mthumb-interwork -mlong-calls -Wl,--wrap=malloc,--wrap=free,--wrap=alloc,--wrap=calloc")
+set(COMPILERFLAGS "-save-temps -Wall -mcpu=arm7tdmi -mtune=arm7tdmi -fomit-frame-pointer -ffast-math -fno-aggressive-loop-optimizations -no-pie -fno-stack-protector")
+set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -Wa,--warn -x assembler-with-cpp ${ARCH}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ARCH} ${COMPILERFLAGS} -std=c11")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -Og -g")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ARCH} ${COMPILERFLAGS} -std=c++14 -fconserve-space -fno-threadsafe-statics -fno-rtti -fno-exceptions")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Og -g")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${ARCH}")
+set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS} -s")
+
+# message("CMAKE_BUILD_TYPE: " ${CMAKE_BUILD_TYPE})
+# message("CMAKE_C_FLAGS: " ${CMAKE_C_FLAGS})
+# message("CMAKE_C_FLAGS_RELEASE: " ${CMAKE_C_FLAGS_RELEASE})
+# message("CMAKE_C_FLAGS_DEBUG: " ${CMAKE_C_FLAGS_DEBUG})
+# message("CMAKE_CXX_FLAGS: " ${CMAKE_CXX_FLAGS})
+# message("CMAKE_CXX_FLAGS_RELEASE: " ${CMAKE_CXX_FLAGS_RELEASE})
+# message("CMAKE_CXX_FLAGS_DEBUG: " ${CMAKE_CXX_FLAGS_DEBUG})
+# message("CMAKE_EXE_LINKER_FLAGS: " ${CMAKE_EXE_LINKER_FLAGS})
