@@ -5,15 +5,13 @@
             "includePath": [
                 "${workspaceFolder}/src/**",
                 "${env:DEVKITPRO}/libgba/include/**",
-                "${env:DEVKITARM}/arm-none-eabi/include/**",
-                "${env:DEVKITARM}/arm-none-eabi/include/c++/9.1.0/**",
-                "${env:DEVKITARM}/lib/gcc/arm-none-eabi/9.1.0/include/**"
+                "${env:DEVKITARM}/arm-none-eabi/include/**"
             ],
             "defines": [],
             "compilerPath": "${env:DEVKITARM}/bin/arm-none-eabi-g++",
             "cStandard": "c11",
             "cppStandard": "c++14",
-            "intelliSenseMode": "gcc-x64",
+            "intelliSenseMode": "gcc-arm",
             "compileCommands": "${workspaceFolder}/build/compile_commands.json"
         }
     ],

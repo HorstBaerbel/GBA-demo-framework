@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run gbatv in mgba",
+            "name": "Run in mgba",
             "type": "cppdbg",
             "request": "launch",
             "program": "/usr/local/bin/mgba-qt",
@@ -16,7 +16,21 @@
             "cwd": "${command:cmake.buildDirectory}"
         },
         {
-            "name": "Run gbatv in vba",
+            "name": "Debug in mgba",
+            "type": "gdb",
+            "request": "attach",
+            "gdbpath": "${env:DEVKITARM}/bin/arm-none-eabi-gdb",
+            "executable": "${command:cmake.launchTargetPath}",
+            "target": ":2345",
+            "cwd": "${command:cmake.buildDirectory}",
+            "remote": true,
+            "valuesFormatting": "parseText",
+            "printCalls": true,
+            "showDevDebugOutput": true,
+            "preLaunchTask": "Run mgba (with gdbserver)"
+        },
+        {
+            "name": "Run in vba",
             "type": "cppdbg",
             "request": "launch",
             "program": "/usr/bin/vba",
