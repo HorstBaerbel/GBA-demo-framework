@@ -15,9 +15,10 @@ if (GBA)
 	include(ToolsGBA)
 	# Using some special compiler flags for GBA
 	include(CompilerFlagsGBA)
+	# add the framework library subdirectory
+	add_subdirectory(src)
 else()
 	message("Building for host")
 endif()
 
-add_subdirectory(src)
 add_subdirectory(test)

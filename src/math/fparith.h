@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 extern const uint32_t rcp_sqrt_tab[96];
 extern const uint32_t rcp_tab[8];

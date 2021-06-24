@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 // Count leading zeros from start to end
 // returns 32 when x is empty

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 using color8 = uint8_t;
 using color16 = uint16_t;

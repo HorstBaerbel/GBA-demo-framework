@@ -1,7 +1,7 @@
 #pragma once
 
 #include <gba_base.h>
-#include <stdint.h>
+#include <cstdint>
 
 /// @brief Use for default 0 initialized static variables
 #define STATIC_BSS static EWRAM_BSS

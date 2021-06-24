@@ -4,7 +4,7 @@
 #ifdef TARGET_PC
 #include <string>
 #endif
-#include <stdint.h>
+#include <cstdint>
 
 namespace Render
 {

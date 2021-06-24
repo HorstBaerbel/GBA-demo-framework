@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 // Interrupt system compatible with libgba
 
@@ -24,18 +24,18 @@ using IntFunc = void (*)(void);
 /// and with REG_IF to acknowledge interrupts have been serviced.
 enum class IRQMask : uint16_t
 {
-    IRQ_VBLANK = (1 << 0), /*!< vertical blank interrupt mask */
-    IRQ_HBLANK = (1 << 1), /*!< horizontal blank interrupt mask */
-    IRQ_VCOUNT = (1 << 2), /*!< vcount match interrupt mask */
-    IRQ_TIMER0 = (1 << 3), /*!< timer 0 interrupt mask */
-    IRQ_TIMER1 = (1 << 4), /*!< timer 1 interrupt mask */
-    IRQ_TIMER2 = (1 << 5), /*!< timer 2 interrupt mask */
-    IRQ_TIMER3 = (1 << 6), /*!< timer 3 interrupt mask */
-    IRQ_SERIAL = (1 << 7), /*!< serial interrupt mask */
-    IRQ_DMA0 = (1 << 8), /*!< DMA 0 interrupt mask */
-    IRQ_DMA1 = (1 << 9), /*!< DMA 1 interrupt mask */
-    IRQ_DMA2 = (1 << 10), /*!< DMA 2 interrupt mask */
-    IRQ_DMA3 = (1 << 11), /*!< DMA 3 interrupt mask */
+    IRQ_VBLANK = (1 << 0),  /*!< vertical blank interrupt mask */
+    IRQ_HBLANK = (1 << 1),  /*!< horizontal blank interrupt mask */
+    IRQ_VCOUNT = (1 << 2),  /*!< vcount match interrupt mask */
+    IRQ_TIMER0 = (1 << 3),  /*!< timer 0 interrupt mask */
+    IRQ_TIMER1 = (1 << 4),  /*!< timer 1 interrupt mask */
+    IRQ_TIMER2 = (1 << 5),  /*!< timer 2 interrupt mask */
+    IRQ_TIMER3 = (1 << 6),  /*!< timer 3 interrupt mask */
+    IRQ_SERIAL = (1 << 7),  /*!< serial interrupt mask */
+    IRQ_DMA0 = (1 << 8),    /*!< DMA 0 interrupt mask */
+    IRQ_DMA1 = (1 << 9),    /*!< DMA 1 interrupt mask */
+    IRQ_DMA2 = (1 << 10),   /*!< DMA 2 interrupt mask */
+    IRQ_DMA3 = (1 << 11),   /*!< DMA 3 interrupt mask */
     IRQ_KEYPAD = (1 << 12), /*!< Keypad interrupt mask */
     IRQ_GAMEPAK = (1 << 13) /*!< horizontal blank interrupt mask */
 };

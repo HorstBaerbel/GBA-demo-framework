@@ -2,6 +2,10 @@
 # Link-time optimization: -flto
 # Assembly output: -save-temps / or -save-temps=obj (subdirectories) (delete build directory first!)
 # Minimum library includes: -ffreestanding -nostartfiles -nostdlib -nodefaultlibs
+# Analyze memory usage: -Wl,--print-memory-usage
+# Analyze stack usage: -fstack-usage
+# See also: https://github.com/PeterMcKinnis/WorstCaseStack for stack analysis
+# Change stack usage: -Wl,--stack,NR_OF_BYTES_OF_STACK
 # Replace compiler memory allocation with our own: -Wl,--wrap=malloc,--wrap=free,--wrap=alloc,--wrap=calloc
 # See also: https://gcc.gnu.org/onlinedocs/gcc/ARM-Options.html
 set(ARCH "-march=armv4t -mthumb -mthumb-interwork -mlong-calls -Wl,--wrap=malloc,--wrap=free,--wrap=alloc,--wrap=calloc")

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <utility>
-#include <stdint.h>
+#include <cstdint>
 #include "math/fp32.h"
 #include "math/fp16.h"
 #include "math/vec.h"

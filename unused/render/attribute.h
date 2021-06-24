@@ -2,7 +2,7 @@
 
 #include "common.h"
 
-#include <stdint.h>
+#include <cstdint>
 #ifdef TARGET_PC
 #include <string>
 #endif

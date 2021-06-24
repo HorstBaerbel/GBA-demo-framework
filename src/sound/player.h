@@ -3,7 +3,7 @@
 #include "effect.h"
 #include "fptime.h"
 
-#include <stdint.h>
+#include <cstdint>
 
 /// @brief Module / effect player functions
 /// You can add commands in the module by adding it SFx (or mod/xm EFx) commands.
@@ -36,72 +36,72 @@
 namespace Sound
 {
 
-/// @brief Initialize player. Call this before using the player!
-/// @param soundbank MaxMod binary soundbank data from soundbank_bin.h
-/// @param nrOfSongs Number of songs in soundbank. Use MSL_NSONGS from soundbank.h
-void init(const void *soundbank, uint32_t nrOfSongs);
+    /// @brief Initialize player. Call this before using the player!
+    /// @param soundbank MaxMod binary soundbank data from soundbank_bin.h
+    /// @param nrOfSongs Number of songs in soundbank. Use MSL_NSONGS from soundbank.h
+    void init(const void *soundbank, uint32_t nrOfSongs);
 
-/// @brief Get numer of files / modules available to player (from soundbank.bin)
-uint32_t getSongCount();
+    /// @brief Get numer of files / modules available to player (from soundbank.bin)
+    uint32_t getSongCount();
 
-/// @brief Get file / module currently beint played
-int32_t getCurrentSongNr();
+    /// @brief Get file / module currently beint played
+    int32_t getCurrentSongNr();
 
-/// @brief If looping, the current playing song / module will repeat after it ended
-bool isLooping();
+    /// @brief If looping, the current playing song / module will repeat after it ended
+    bool isLooping();
 
-/// @brief If true is passed the current playing song / module will repeat after it ended
-void setLooping(bool loop = false);
+    /// @brief If true is passed the current playing song / module will repeat after it ended
+    void setLooping(bool loop = false);
 
-/// @brief Get a slowly decreasing volume value
-/// @note Only usable if you add effect commands to your module, see above
-int32_t getVolume1s();
+    /// @brief Get a slowly decreasing volume value
+    /// @note Only usable if you add effect commands to your module, see above
+    int32_t getVolume1s();
 
-/// @brief Get a faster decreasing volume value
-/// @note Only usable if you add effect commands to your module, see above
-int32_t getVolume025s();
+    /// @brief Get a faster decreasing volume value
+    /// @note Only usable if you add effect commands to your module, see above
+    int32_t getVolume025s();
 
-/// @brief Maximum possible volume value
-constexpr int32_t VolumeMax = 65535;
+    /// @brief Maximum possible volume value
+    constexpr int32_t VolumeMax = 65535;
 
-/// @brief Check if a bass was detected
-/// @note Only usable if you add effect commands to your module, see above
-bool isBass();
+    /// @brief Check if a bass was detected
+    /// @note Only usable if you add effect commands to your module, see above
+    bool isBass();
 
-/// @brief Length of sound buffer returned in waveBuffer()
-uint32_t waveBufferLength();
+    /// @brief Length of sound buffer returned in waveBuffer()
+    uint32_t waveBufferLength();
 
-/// @brief Wave buffer data from player
-const uint8_t *waveBuffer();
+    /// @brief Wave buffer data from player
+    const uint8_t *waveBuffer();
 
-/// @brief Play sound effect from soundbank.bin
-Effect::Handle playEffect(const Effect *effect);
+    /// @brief Play sound effect from soundbank.bin
+    Effect::Handle playEffect(const Effect *effect);
 
-/// @brief Stop sound effect started via playEffect()
-void stopEffect(Effect::Handle handle);
+    /// @brief Stop sound effect started via playEffect()
+    void stopEffect(Effect::Handle handle);
 
-/// @brief Start playing song / module from soundbank.bin
-void playSong(int32_t fileNr);
+    /// @brief Start playing song / module from soundbank.bin
+    void playSong(int32_t fileNr);
 
-/// @brief Search to the song position indicated by position
-void setSongPosition(uint32_t position);
+    /// @brief Search to the song position indicated by position
+    void setSongPosition(uint32_t position);
 
-/// @brief Skip to previous song / module if any
-void skipPrevious();
+    /// @brief Skip to previous song / module if any
+    void skipPrevious();
 
-/// @brief Skip to previous song / module if any
-void skipNext();
+    /// @brief Skip to previous song / module if any
+    void skipNext();
 
-/// @brief Pause song / module playback. Sound effects will continue playing
-void pause();
+    /// @brief Pause song / module playback. Sound effects will continue playing
+    void pause();
 
-/// @brief Resume song / module playback
-void resume();
+    /// @brief Resume song / module playback
+    void resume();
 
-/// @brief Stop song / module playback. Sound effects will continue playing
-void stop();
+    /// @brief Stop song / module playback. Sound effects will continue playing
+    void stop();
 
-/// @brief Set a function to call on song events, e.g. a song has finished or a message was received (see above)
-void setSongEventHandler(unsigned int (*handler)(const unsigned int message, unsigned int parameter));
+    /// @brief Set a function to call on song events, e.g. a song has finished or a message was received (see above)
+    void setSongEventHandler(unsigned int (*handler)(const unsigned int message, unsigned int parameter));
 
 } //namespace Sound

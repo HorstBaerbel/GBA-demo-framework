@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 char *itoa(uint32_t value, char *result, uint32_t base = 10);
 char *itoa(int32_t value, char *result, uint32_t base = 10);

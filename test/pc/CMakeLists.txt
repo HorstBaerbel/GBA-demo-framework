@@ -28,20 +28,44 @@ endif()
 add_definitions(-DTARGET_PC)
 
 #-------------------------------------------------------------------------------
+# Find devKitPro
+
+# DevkitPro paths are broken on windows, so we have to fix those
+macro(msys_to_cmake_path MsysPath ResultingPath)
+    if(WIN32)
+        string(REGEX REPLACE "^/([a-zA-Z])/" "\\1:/" ${ResultingPath} "${MsysPath}")
+    else()
+        set(${ResultingPath} "${MsysPath}")
+    endif()
+endmacro()
+
+msys_to_cmake_path("$ENV{DEVKITPRO}" DEVKITPRO)
+if(NOT IS_DIRECTORY ${DEVKITPRO})
+    message(FATAL_ERROR "Please set DEVKITPRO in your environment")
+endif()
+
+msys_to_cmake_path("$ENV{DEVKITARM}" DEVKITARM)
+if(NOT IS_DIRECTORY ${DEVKITARM})
+    message(FATAL_ERROR "Please set DEVKITARM in your environment")
+endif()
+
+#-------------------------------------------------------------------------------
 # List all the source files in out directory
 
 LIST(APPEND TARGET_SOURCES
     main.cpp
     test_fp32.cpp
     test_vec.cpp
-    math/fp32.cpp
-    math/fp32_trig.cpp
-    debug/args.cpp
-    debug/output.cpp
-    debug/itoa.cpp
+    ../../src/math/fp32.cpp
+    ../../src/math/fp32_trig.cpp
+    ../../src/debug/args.cpp
+    ../../src/debug/output.cpp
+    ../../src/debug/itoa.cpp
 )
 
 LIST(APPEND TARGET_INCLUDE_DIRS
+    ../../src
+    ${DEVKITPRO}/libgba/include
 )
 
 #-------------------------------------------------------------------------------

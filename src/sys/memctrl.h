@@ -1,7 +1,7 @@
 #pragma once
 
 #include <gba_base.h>
-#include <stdint.h>
+#include <cstdint>
 
 /*#ifndef REG_WAITCNT
 #define REG_WAITCNT (*(volatile uint16_t *)(REG_BASE + 0x0204))

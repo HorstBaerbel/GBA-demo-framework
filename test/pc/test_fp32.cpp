@@ -1,6 +1,6 @@
-#include "debug/print.h"
-//#include "random.h"
-#include "math/fp32.h"
+#include <debug/print.h>
+//#include <random.h>
+#include <math/fp32.h>
 
 //disable GCC warnings for using char * here...
 #pragma GCC diagnostic ignored "-Wwrite-strings"
@@ -8,10 +8,10 @@
 namespace Test
 {
 
-using namespace Math;
+  using namespace Math;
 
-void math_fp32()
-{
+  void math_fp32()
+  {
     printf("Fundamental types...\n");
     printf("Size of unsigned char: %d\n", (uint32_t)sizeof(unsigned char));
     printf("Size of unsigned short: %d\n", (uint32_t)sizeof(unsigned short));
@@ -201,6 +201,6 @@ void math_fp32()
 			Video::setPixel(Video::frontBuffer(), x, (uint32_t)(verticalCenter - halfHeight * s), (uint8_t)255); //red
 			Video::setPixel(Video::frontBuffer(), x, (uint32_t)(verticalCenter - halfHeight * c), (uint8_t)1); //blue
 		}*/
-}
+  }
 
 } // namespace Test
