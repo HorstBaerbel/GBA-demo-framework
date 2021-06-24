@@ -1,6 +1,6 @@
-#include "debug/print.h"
-//#include "random.h"
-#include "math/fp32.h"
+#include <debug/print.h>
+//#include <random.h>
+#include <math/fp32.h>
 
 //disable GCC warnings for using char * here...
 #pragma GCC diagnostic ignored "-Wwrite-strings"

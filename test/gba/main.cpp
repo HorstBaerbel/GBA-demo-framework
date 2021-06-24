@@ -1,8 +1,9 @@
-#include "fptime.h"
-#include "sys/interrupts.h"
-#include "sys/memctrl.h"
 #include "tests.h"
-#include "video.h"
+
+#include <fptime.h>
+#include <sys/interrupts.h>
+#include <sys/memctrl.h>
+#include <video.h>
 
 int main()
 {

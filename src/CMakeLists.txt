@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.1.0)
 
 project(gbafw)
 
-# List all the source files in out directory
 file(GLOB_RECURSE TARGET_SOURCES *.cpp *.s)
 
 LIST(APPEND TARGET_INCLUDE_DIRS
@@ -17,4 +16,6 @@ LIST(APPEND TARGET_LIBS
 
 link_directories(${TARGET_LIBS})
 include_directories(${TARGET_INCLUDE_DIRS})
-add_library(${PROJECT_NAME} STATIC ${TARGET_SOURCES}) # Create the lib
+add_library(${PROJECT_NAME} STATIC ${TARGET_SOURCES})
+
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

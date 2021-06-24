@@ -34,15 +34,14 @@ LIST(APPEND TARGET_SOURCES
     main.cpp
     test_fp32.cpp
     test_vec.cpp
-    ${CMAKE_SOURCE_DIR}/src/math/fp32.cpp
-    ${CMAKE_SOURCE_DIR}/src/math/fp32_trig.cpp
-    ${CMAKE_SOURCE_DIR}/src/debug/args.cpp
-    ${CMAKE_SOURCE_DIR}/src/debug/output.cpp
-    ${CMAKE_SOURCE_DIR}/src/debug/itoa.cpp
+    math/fp32.cpp
+    math/fp32_trig.cpp
+    debug/args.cpp
+    debug/output.cpp
+    debug/itoa.cpp
 )
 
 LIST(APPEND TARGET_INCLUDE_DIRS
-    ${CMAKE_SOURCE_DIR}/src
 )
 
 #-------------------------------------------------------------------------------
