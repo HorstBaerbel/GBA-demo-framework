@@ -1,7 +1,7 @@
 {
     "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools",
     "disasexpl.associations": {
-        "**/*.c": "${workspaceFolder}/build/${relativeFile}.s",
-        "**/*.cpp": "${workspaceFolder}/build/${relativeFile}.s"
+        "**/*.c": "${workspaceFolder}build/${relativeFileDir}/${fileBasenameNoExtension}.s",
+        "**/*.cpp": "${workspaceFolder}/build/${relativeFileDir}/${fileBasenameNoExtension}.s"
     }
 }

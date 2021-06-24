@@ -10,8 +10,7 @@ if (GBA)
 	enable_language(ASM)
 	# Include all the macros and tools needed for GBA development.
 	include(ToolsGBA)
-	add_subdirectory(src)
-	add_subdirectory(test/gba)
-else()
-	add_subdirectory(test/pc)
 endif()
+
+add_subdirectory(src)
+add_subdirectory(test)

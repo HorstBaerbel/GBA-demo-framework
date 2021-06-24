@@ -58,7 +58,7 @@ add_definitions(-DARM4 -D_GBA)
 
 # See: https://gcc.gnu.org/onlinedocs/gcc/ARM-Options.html
 # Link-time optimization: -flto
-# Assembly output: -save-temps (delete build directory first!)
+# Assembly output: -save-temps / or -save-temps=obj (subdirectories) (delete build directory first!)
 # Minimum library includes: -ffreestanding -nostartfiles -nostdlib -nodefaultlibs
 set(ARCH "-march=armv4t -mthumb -mthumb-interwork -mlong-calls -Wl,--wrap=malloc,--wrap=free,--wrap=alloc,--wrap=calloc")
 set(COMPILERFLAGS "-save-temps -Wall -mcpu=arm7tdmi -mtune=arm7tdmi -fomit-frame-pointer -ffast-math -fno-aggressive-loop-optimizations -no-pie -fno-stack-protector")
