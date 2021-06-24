@@ -1,6 +1,6 @@
-# Game Boy Advance demo framework
+# Game Boy Advance C(++) demo framework
 
-This might not exactly fit your needs, but maybe you can learn / rip something from it. Uses devKitPro for its toolchain, linker scripts, headers and maxmod, but does not link libgba.
+This is unfinished and might not exactly fit your needs, but maybe you can learn / rip something from it. Uses devKitPro for its toolchain, linker scripts, headers and maxmod, but does not link libgba.
 
 The [test](/test) subdirectory contains tests for some of the math / memory / etc. functions on GBA and PC.
 
@@ -24,7 +24,7 @@ cmake .. -DCMAKE_TOOLCHAIN_FILE=DevkitArmGBA.cmake
 make -j $(grep -c '^processor' /proc/cpuinfo 2>/dev/null)
 ```
 
-to compile the GBA version. Use ```cmake ..``` for the PC version. If you want to switch versions, you need to delete the build directory, because currently only on toolchain file can be used.
+to compile the GBA version. Use ```cmake ..``` for the PC version. If you want to switch versions, you need to delete the build directory, because currently only one toolchain file can be used.
 
 ## Visual Studio Code extensions
 
