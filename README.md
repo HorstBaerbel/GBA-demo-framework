@@ -64,6 +64,7 @@ There's a nice writeup by James Grimwood [here](https://www.gamedev.net/blogs/en
 
 * Clean up and improve code
 * Add example source code
+* Make debugging with mGBA work reliably
 * Document files and usage
 * Try to get disassembly explorer to work
 * More tests
