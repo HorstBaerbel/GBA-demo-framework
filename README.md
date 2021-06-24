@@ -1,8 +1,8 @@
 # Game Boy Advance C(++) demo framework
 
-This is unfinished and might not exactly fit your needs, but maybe you can learn / rip something from it. Uses devKitPro for its toolchain, linker scripts, headers and maxmod, but does not link libgba.
+This is unfinished and might not exactly fit your needs, but maybe you can learn / rip something from it. Uses [devKitPro](https://devkitpro.org/) for its tools, compilers, linker scripts, headers and maxmod, but does not link libgba. Also cmake toolchain files from [3ds-cmake](https://github.com/Xtansia/3ds-cmake) are used.
 
-The [test](/test) subdirectory contains tests for some of the math / memory / etc. functions on GBA and PC.
+The [src](src) directory contains the framework while the [test](/test) directory contains tests for some of the math / memory / etc. functions on GBA and PC.
 
 If you find a bug or make an improvement your pull requests are appreciated.
 
@@ -14,7 +14,7 @@ All of this is under the [MIT License](LICENSE).
 
 ### From the command line
 
-* You need [CMake](https://cmake.org/)
+* You need [CMake](https://cmake.org/) 3.1.0 or higher
 * To compile for GBA you need [devkitPro / devKitARM](https://devkitpro.org) r52-1 or higher [installed](https://devkitpro.org/wiki/Getting_Started).
 * Navigate to the folder, then:
 
@@ -24,7 +24,7 @@ cmake .. -DCMAKE_TOOLCHAIN_FILE=3ds-cmake/DevkitArmGBA.cmake
 make -j $(grep -c '^processor' /proc/cpuinfo 2>/dev/null)
 ```
 
-to compile the GBA version. Use ```cmake ..``` for the PC version. If you want to switch versions, you need to delete the build directory, because currently only one toolchain file can be used.
+to compile the GBA version. Use ```cmake ..``` (aka default toolchain) for the PC version. If you want to switch versions, you need to delete the build directory, because currently only one toolchain file can be used.
 
 ## Visual Studio Code extensions
 
@@ -64,6 +64,7 @@ There's a nice writeup by James Grimwood [here](https://www.gamedev.net/blogs/en
 
 * Clean up and improve code
 * Add example source code
+* Document files and usage
 * Try to get disassembly explorer to work
 * More tests
-* Finish 3D stuff
+* Finish 2D and 3D stuff
