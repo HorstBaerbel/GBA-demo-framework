@@ -22,6 +22,10 @@ constexpr uint16_t WaitCntNormal = 0x4317;
 /// @brief Register for EWRAM wait states
 auto &RegWaitEwram{*reinterpret_cast<volatile uint32_t *>(REG_BASE + 0x0800)};
 
+/// @brief Wait states for EWRAM that crash the GBA (1/1/3)
+/// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
+constexpr uint32_t WaitEwramLudicrous = 0x0F000020;
+
 /// @brief Minimum wait states possible for EWRAM (2/2/4)
 /// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
 constexpr uint32_t WaitEwramFast = 0x0E000020;
