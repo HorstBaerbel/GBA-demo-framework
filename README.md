@@ -20,7 +20,7 @@ All of this is under the [MIT License](LICENSE).
 
 ```sh
 mkdir build && cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=3ds-cmake/DevkitArmGBA.cmake
+cmake -DCMAKE_TOOLCHAIN_FILE=3ds-cmake/DevkitArmGBA.cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j $(grep -c '^processor' /proc/cpuinfo 2>/dev/null)
 ```
 
