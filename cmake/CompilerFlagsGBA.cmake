@@ -8,7 +8,7 @@
 # Change stack usage: -Wl,--stack,NR_OF_BYTES_OF_STACK
 # Replace compiler memory allocation with our own: -Wl,--wrap=malloc,--wrap=free,--wrap=alloc,--wrap=calloc
 # See also: https://gcc.gnu.org/onlinedocs/gcc/ARM-Options.html
-set(ARCH "-march=armv4t -mthumb -mthumb-interwork -mlong-calls -Wl,--wrap=malloc,--wrap=free,--wrap=alloc,--wrap=calloc")
+set(ARCH "-march=armv4t -mthumb -mthumb-interwork -mlong-calls -Wl,--wrap=malloc,--wrap=free,--wrap=alloc,--wrap=calloc,--print-memory-usage,-Map=${PROJECT_NAME}.map")
 set(COMPILERFLAGS "-save-temps -Wall -mcpu=arm7tdmi -mtune=arm7tdmi -fomit-frame-pointer -ffast-math -fno-aggressive-loop-optimizations -no-pie -fno-stack-protector")
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -Wa,--warn -x assembler-with-cpp ${ARCH}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ARCH} ${COMPILERFLAGS} -std=c11")
