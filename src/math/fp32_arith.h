@@ -6,7 +6,7 @@
 #include "fphelpers.h"
 
 template <unsigned int F>
-inline fp32_t<F> & fp32_t<F>::operator+=(fp32_t<F> b)
+inline fp32_t<F> &fp32_t<F>::operator+=(fp32_t<F> b)
 {
 #ifdef CHECK_OVERFLOW
 	fpassert_overflow(is_add_safe(value, b.value), PRINT_MESSAGE);
@@ -24,7 +24,7 @@ inline fp32_t<F> operator+(fp32_t<F> a, fp32_t<F> b)
 }
 
 template <unsigned int F>
-inline fp32_t<F> & fp32_t<F>::operator+=(int32_t b)
+inline fp32_t<F> &fp32_t<F>::operator+=(int32_t b)
 {
 #ifdef CHECK_OVERFLOW
 	fpassert_overflow(highestBitSet(b) <= (31-F)), PRINT_MESSAGE);
@@ -49,7 +49,7 @@ inline fp32_t<F> operator+(int32_t a, fp32_t<F> b)
 }
 
 template <unsigned int F>
-inline fp32_t<F> & fp32_t<F>::operator-=(fp32_t<F> b)
+inline fp32_t<F> &fp32_t<F>::operator-=(fp32_t<F> b)
 {
 #ifdef CHECK_OVERFLOW
 	fpassert_overflow(is_add_safe(value, b.value), PRINT_MESSAGE);
@@ -67,7 +67,7 @@ inline fp32_t<F> operator-(fp32_t<F> a, fp32_t<F> b)
 }
 
 template <unsigned int F>
-inline fp32_t<F> & fp32_t<F>::operator-=(int32_t b)
+inline fp32_t<F> &fp32_t<F>::operator-=(int32_t b)
 {
 #ifdef CHECK_OVERFLOW
 	fpassert_overflow(highestBitSet(b) <= (31-F)), PRINT_MESSAGE);
@@ -101,13 +101,13 @@ inline fp32_t<F> operator-(fp32_t<F> a)
 }
 
 template <unsigned int F>
-inline fp32_t<F> & fp32_t<F>::operator*=(fp32_t<F> b)
+inline fp32_t<F> &fp32_t<F>::operator*=(fp32_t<F> b)
 {
 #ifdef CHECK_OVERFLOW
 	//We're using a 64 bit multiply, thus this is always safe. this will be different for 32bit multiplies, so we count the overflows
 	fpassert_overflow(is_mul_safe(value, b.value), false);
 #endif
-/*#if defined(__GNUC__) && defined(__arm__)
+	/*#if defined(__GNUC__) && defined(__arm__)
 	//Code from here: http://me.henri.net/fp-div.html
 	asm("smull r2, r3, %[a], %[b] @; i_fpmul()\n\t"
 		"mov %[c], r2, lsr #16\n\t"
@@ -117,8 +117,8 @@ inline fp32_t<F> & fp32_t<F>::operator*=(fp32_t<F> b)
 		: "r2", "r3"); //clobberred registers
 #else*/
 	//add 0.5 after multiplying to round result, then shift down
-	value = ((long long)value * b.value + (1 << (F-1))) >> F;
-//#endif
+	value = ((long long)value * b.value + (1 << (F - 1))) >> F;
+	//#endif
 	return *this;
 }
 
@@ -144,13 +144,13 @@ inline fp32_t<F> operator*(fp32_t<F> a, fp32_t<F> b)
 }
 
 template <unsigned int F>
-inline fp32_t<F> & fp32_t<F>::operator*=(int32_t b)
+inline fp32_t<F> &fp32_t<F>::operator*=(int32_t b)
 {
 #ifdef CHECK_OVERFLOW
 	fpassert_overflow(highestBitSet(b) <= (31-F)), PRINT_MESSAGE);
 	fpassert_overflow(is_mul_safe(value, b << F), false);
 #endif
-/*#if defined(__GNUC__) && defined(__arm__)
+	/*#if defined(__GNUC__) && defined(__arm__)
 	//Code from here: http://me.henri.net/fp-div.html
 	asm("smull r2, r3, %[a], %[b] @; i_fpmul()\n\t"
 		"mov %[c], r2, lsr #16\n\t"
@@ -160,7 +160,7 @@ inline fp32_t<F> & fp32_t<F>::operator*=(int32_t b)
 		: "r2", "r3"); //clobberred registers
 #else*/
 	//add 0.5 after multiplying to round result, then shift down
-	value = ((long long)value * (b << F) + (1 << (F-1))) >> F;
+	value = ((long long)value * (b << F) + (1 << (F - 1))) >> F;
 	//#endif
 	return *this;
 }
@@ -180,9 +180,10 @@ inline fp32_t<F> operator*(int32_t a, fp32_t<F> b)
 }
 
 template <unsigned int F>
-fp32_t<F> & fp32_t<F>::operator/=(fp32_t<F> b)
+fp32_t<F> &fp32_t<F>::operator/=(fp32_t<F> b)
 {
-	if (b.value == 0) {
+	if (b.value == 0)
+	{
 #ifdef CHECK_ERROR
 		fpassert_error(false, PRINT_MESSAGE);
 #endif
@@ -192,12 +193,12 @@ fp32_t<F> & fp32_t<F>::operator/=(fp32_t<F> b)
 #ifdef CHECK_OVERFLOW
 	fpassert_overflow(highestBitSet(b.value), PRINT_MESSAGE);
 #endif
-/*#if defined(__GNUC__) && defined(__arm__)
+	/*#if defined(__GNUC__) && defined(__arm__)
 	//Code from here: http://me.henri.net/fp-div.html
 	//TODO: Only for 16.16!!!
-	register int32_t numerator = value;
-	register int32_t denominator = b.value;
-	register int32_t quotient;
+	int32_t numerator = value;
+	int32_t denominator = b.value;
+	int32_t quotient;
 	asm("num     .req %[numerator]      @ Map Register Equates\n\t"
 		"den     .req %[denominator]\n\t"
 		"mod     .req r2\n\t"
@@ -290,7 +291,7 @@ fp32_t<F> & fp32_t<F>::operator/=(fp32_t<F> b)
 #else*/
 	//add 0.5 before division to round result before dividing
 	value = ((int64_t)value << F) / b.value;
-//#endif
+	//#endif
 	return *this;
 }
 
@@ -303,9 +304,10 @@ fp32_t<F> operator/(fp32_t<F> a, fp32_t<F> b)
 }
 
 template <unsigned int F>
-fp32_t<F> & fp32_t<F>::operator/=(int32_t b)
+fp32_t<F> &fp32_t<F>::operator/=(int32_t b)
 {
-	if (value == 0) {
+	if (value == 0)
+	{
 #ifdef CHECK_ERROR
 		fpassert_error(false, PRINT_MESSAGE);
 #endif
@@ -316,12 +318,12 @@ fp32_t<F> & fp32_t<F>::operator/=(int32_t b)
 	//We're using a 64 bit divident, thus this is always safe. this will be different for 32bit divides
 	fpassert_overflow(highestBitSet(b) <= (31-F)), PRINT_MESSAGE);
 #endif
-/*#if defined(__GNUC__) && defined(__arm__)
+	/*#if defined(__GNUC__) && defined(__arm__)
 	//Code from here: http://me.henri.net/fp-div.html
 	//TODO: Only for 16.16!!!
-	register int32_t numerator = value;
-	register int32_t denominator = b.value;
-	register int32_t quotient;
+	int32_t numerator = value;
+	int32_t denominator = b.value;
+	int32_t quotient;
 	asm("num     .req %[numerator]      @ Map Register Equates\n\t"
 		"den     .req %[denominator]\n\t"
 		"mod     .req r2\n\t"
@@ -414,7 +416,7 @@ fp32_t<F> & fp32_t<F>::operator/=(int32_t b)
 #else*/
 	//add 0.5 before division to round result before dividing
 	value = ((int64_t)value << F) / (b << F);
-//#endif
+	//#endif
 	return *this;
 }
 
@@ -435,7 +437,7 @@ fp32_t<F> operator/(int32_t a, fp32_t<F> b)
 }
 
 template <unsigned int F>
-inline fp32_t<F> & fp32_t<F>::operator<<=(uint32_t shift)
+inline fp32_t<F> &fp32_t<F>::operator<<=(uint32_t shift)
 {
 #ifdef CHECK_OVERFLOW
 	fpassert_overflow((highestBitSet(value) + shift) > 31, PRINT_MESSAGE);
@@ -453,7 +455,7 @@ inline fp32_t<F> operator<<(fp32_t<F> a, uint32_t shift)
 }
 
 template <unsigned int F>
-inline fp32_t<F> & fp32_t<F>::operator>>=(uint32_t shift)
+inline fp32_t<F> &fp32_t<F>::operator>>=(uint32_t shift)
 {
 #ifdef CHECK_PRECISION_LOSS
 	fpassert_precision((lowestBitSet(value) - shift) < 0, PRINT_MESSAGE);

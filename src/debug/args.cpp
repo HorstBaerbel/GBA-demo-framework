@@ -4,20 +4,37 @@
 #define PrintBufferSize 256
 char printBuffer[PrintBufferSize] = {0}; //buffer used for conversions and printf formatting
 
-void flushBuffer(uint8_t &charsInBuffer)
+static const uint8_t TypeToBitsF[] = {0,
+									  0,
+									  0,
+									  0,
+									  0,
+									  0,
+									  0,
+									  0,
+									  0,
+									  24,
+									  16,
+									  8,
+									  12,
+									  8,
+									  4,
+									  0};
+
+void flushBuffer(uint32_t &charsInBuffer)
 {
 	printBuffer[charsInBuffer] = '\0';
 	print(printBuffer);
 	charsInBuffer = 0;
 }
 
-void printToBuffer(char c, uint8_t &charsInBuffer)
+void printToBuffer(char c, uint32_t &charsInBuffer)
 {
 	printBuffer[charsInBuffer++] = c;
 	printBuffer[charsInBuffer] = '\0';
 }
 
-void printToBuffer(const char *s, uint8_t &charsInBuffer, uint8_t length = 0)
+void printToBuffer(const char *s, uint32_t &charsInBuffer, uint32_t length = 0)
 {
 	uint16_t count = 0;
 	while ((length == 0 || length > count) && *s != '\0')
@@ -192,7 +209,7 @@ Arg::Arg(const Math::fp124vec3_t &value) : m_type(Type::FIXED_124)
 }
 Arg::Arg(const char *value) : m_type(Type::STRING) { m_v0.p_value = value; }
 
-void Arg::do_print(const char format, uint8_t &charsInBuffer) const
+void Arg::do_print(const char format, uint32_t &charsInBuffer, uint32_t precision) const
 {
 	if (m_count > 1)
 	{
@@ -233,22 +250,19 @@ void Arg::do_print(const char format, uint8_t &charsInBuffer) const
 				break;
 			}
 			case Type::FIXED_824:
-				fptoa(reinterpret_cast<const int32_t *>(m_v0.p_value)[i], &printBuffer[charsInBuffer], Math::fp824_t::BITSF);
-				break;
 			case Type::FIXED_1616:
-				fptoa(reinterpret_cast<const int32_t *>(m_v0.p_value)[i], &printBuffer[charsInBuffer], Math::fp1616_t::BITSF);
-				break;
 			case Type::FIXED_248:
-				fptoa(reinterpret_cast<const int32_t *>(m_v0.p_value)[i], &printBuffer[charsInBuffer], Math::fp248_t::BITSF);
-				break;
 			case Type::FIXED_412:
-				fptoa(reinterpret_cast<const int16_t *>(m_v0.p_value)[i], &printBuffer[charsInBuffer], Math::fp412_t::BITSF);
-				break;
 			case Type::FIXED_88:
-				fptoa(reinterpret_cast<const int16_t *>(m_v0.p_value)[i], &printBuffer[charsInBuffer], Math::fp88_t::BITSF);
-				break;
 			case Type::FIXED_124:
-				fptoa(reinterpret_cast<const int16_t *>(m_v0.p_value)[i], &printBuffer[charsInBuffer], Math::fp124_t::BITSF);
+				if (format == 'd' || format == 'x')
+				{
+					itoa(reinterpret_cast<const int32_t *>(m_v0.p_value)[i], &printBuffer[charsInBuffer], format == 'x' ? 16 : 10);
+				}
+				else
+				{
+					fptoa(reinterpret_cast<const int32_t *>(m_v0.p_value)[i], &printBuffer[charsInBuffer], TypeToBitsF[static_cast<uint16_t>(m_type)], precision);
+				}
 				break;
 			default:
 				break;
@@ -303,22 +317,19 @@ void Arg::do_print(const char format, uint8_t &charsInBuffer) const
 			break;
 		}
 		case Type::FIXED_824:
-			fptoa(m_v0.int32_value, &printBuffer[charsInBuffer], Math::fp824_t::BITSF);
-			break;
 		case Type::FIXED_1616:
-			fptoa(m_v0.int32_value, &printBuffer[charsInBuffer], Math::fp1616_t::BITSF);
-			break;
 		case Type::FIXED_248:
-			fptoa(m_v0.int32_value, &printBuffer[charsInBuffer], Math::fp248_t::BITSF);
-			break;
 		case Type::FIXED_412:
-			fptoa(m_v0.int32_value, &printBuffer[charsInBuffer], Math::fp412_t::BITSF);
-			break;
 		case Type::FIXED_88:
-			fptoa(m_v0.int32_value, &printBuffer[charsInBuffer], Math::fp88_t::BITSF);
-			break;
 		case Type::FIXED_124:
-			fptoa(m_v0.int32_value, &printBuffer[charsInBuffer], Math::fp124_t::BITSF);
+			if (format == 'd' || format == 'x')
+			{
+				itoa(m_v0.uint32_value, &printBuffer[charsInBuffer], format == 'x' ? 16 : 10);
+			}
+			else
+			{
+				fptoa(m_v0.int32_value, &printBuffer[charsInBuffer], TypeToBitsF[static_cast<uint16_t>(m_type)], precision);
+			}
 			break;
 		case Type::STRING:
 			printToBuffer(reinterpret_cast<const char *>(m_v0.p_value), charsInBuffer);
@@ -336,10 +347,10 @@ void Arg::do_print(const char format, uint8_t &charsInBuffer) const
 	printBuffer[charsInBuffer] = '\0';
 }
 
-void do_printf(const char *s, const Arg *args, uint8_t numArgs)
+void do_printf(const char *s, const Arg *args, uint32_t numArgs)
 {
-	uint8_t charsInBuffer = 0;
-	uint8_t argIndex = 0;
+	uint32_t charsInBuffer = 0;
+	uint32_t argIndex = 0;
 	// step through characters
 	while (*s)
 	{
@@ -348,10 +359,19 @@ void do_printf(const char *s, const Arg *args, uint8_t numArgs)
 		{
 			// argument, read next char
 			++s;
+			// check for modifiers
+			uint32_t precision = 0;
+			if (*s == '.' && *(s + 1) >= '0' && *(s + 1) <= '9' && *(s + 2) == 'f')
+			{
+				// store precision modifier and remove modifier characters
+				precision = *(s + 1) - '0';
+				s += 2;
+			}
 			// check what argument type it is
 			switch (*s)
 			{
 			case 'd':
+			case 'f':
 			case 's':
 			case 'x':
 				// fetch argument, if any left and print
@@ -359,7 +379,7 @@ void do_printf(const char *s, const Arg *args, uint8_t numArgs)
 				{
 					// if we want to print an array, use the next argument as the count
 					auto &arg = args[argIndex++];
-					arg.do_print(*s, charsInBuffer);
+					arg.do_print(*s, charsInBuffer, precision);
 				}
 				break;
 			default:
@@ -367,6 +387,7 @@ void do_printf(const char *s, const Arg *args, uint8_t numArgs)
 				printToBuffer(*s, charsInBuffer);
 				break;
 			}
+			precision = 0;
 		}
 		else
 		{

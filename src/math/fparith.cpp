@@ -31,13 +31,11 @@ const uint32_t rcp_sqrt_tab[96] = {
 	0x273c359b, 0x2661dd98, 0x258ad195, 0x258af195,
 	0x24b71192, 0x24b6b192, 0x23e6058f, 0x2318118c,
 	0x2318718c, 0x224da189, 0x224dd989, 0x21860d86,
-	0x21862586, 0x20c19183, 0x20c1b183, 0x20001580
-};
+	0x21862586, 0x20c19183, 0x20c1b183, 0x20001580};
 
 const uint32_t rcp_tab[] = {
-	0x00008000, 0x000071c7, 0x00006666, 0x00005d17, 
-	0x00005555, 0x00004ec4, 0x00004924, 0x00004444
-};
+	0x00008000, 0x000071c7, 0x00006666, 0x00005d17,
+	0x00005555, 0x00004ec4, 0x00004924, 0x00004444};
 
 // Algorithm from here: http://www.codecodex.com/wiki/Calculate_an_integer_square_root
 // sqrt() does an extra pre-shift of the argument to retain full fixed-point precision
@@ -45,12 +43,12 @@ const uint32_t rcp_tab[] = {
 template <>
 uint32_t sqrt(uint32_t x, uint32_t fracBits)
 {
-	uint32_t shift = countLeadingZeros(x); // for extra precision we shift the number left if possible, thus we count the leading zero bits
-	shift ^= shift & 1; // make even, because we later halve it
+	uint32_t shift = countLeadingZeros(x);		 // for extra precision we shift the number left if possible, thus we count the leading zero bits
+	shift ^= shift & 1;							 // make even, because we later halve it
 	shift = shift > fracBits ? fracBits : shift; // clamp to maximum of fractional bits, there's no gain and it costs extra cycles...
-	register uint32_t root = 0;
-	register uint32_t remainder = x << shift;
-	register uint32_t place = 0x40000000;
+	uint32_t root = 0;
+	uint32_t remainder = x << shift;
+	uint32_t place = 0x40000000;
 	while (place > remainder)
 	{
 		place = place >> 2;
@@ -71,12 +69,12 @@ uint32_t sqrt(uint32_t x, uint32_t fracBits)
 template <>
 uint16_t sqrt(uint16_t x, uint32_t fracBits)
 {
-	uint32_t shift = countLeadingZeros(x); // for extra precision we shift the number left if possible, thus we count the leading zero bits
-	shift ^= shift & 1; // make even, because we later halve it
+	uint32_t shift = countLeadingZeros(x);		 // for extra precision we shift the number left if possible, thus we count the leading zero bits
+	shift ^= shift & 1;							 // make even, because we later halve it
 	shift = shift > fracBits ? fracBits : shift; // clamp to maximum of fractional bits, there's no gain and it costs extra cycles...
-	register uint32_t root = 0;
-	register uint32_t remainder = x << shift;
-	register uint32_t place = 0x00004000;
+	uint32_t root = 0;
+	uint32_t remainder = x << shift;
+	uint32_t place = 0x00004000;
 	while (place > remainder)
 	{
 		place = place >> 2;
@@ -97,8 +95,8 @@ uint16_t sqrt(uint16_t x, uint32_t fracBits)
 template <typename T>
 uint32_t sqrtFast(uint32_t x, uint32_t fracBits)
 {
-	register uint32_t root = 0;
-	register uint32_t place = 0x40000000;
+	uint32_t root = 0;
+	uint32_t place = 0x40000000;
 	while (place > x)
 	{
 		place = place >> 2;
@@ -119,8 +117,8 @@ uint32_t sqrtFast(uint32_t x, uint32_t fracBits)
 template <typename T>
 uint16_t sqrtFast(uint16_t x, uint32_t fracBits)
 {
-	register uint32_t root = 0;
-	register uint32_t place = 0x00004000;
+	uint32_t root = 0;
+	uint32_t place = 0x00004000;
 	while (place > x)
 	{
 		place = place >> 2;
@@ -139,9 +137,9 @@ uint16_t sqrtFast(uint16_t x, uint32_t fracBits)
 }
 
 // Algorithm from here: https://stackoverflow.com/questions/6286450/inverse-sqrt-for-fixed-point?noredirect=1&lq=1
-// This function computes the reciprocal square root of its fixed-point 
+// This function computes the reciprocal square root of its fixed-point
 // argument. After normalization of the argument if uses the most significant
-// bits of the argument for a table lookup to obtain an initial approximation 
+// bits of the argument for a table lookup to obtain an initial approximation
 // accurate to 8 bits. This is followed by two Newton-Raphson iterations with
 // quadratic convergence. Finally, the result is denormalized and some simple
 // rounding is applied to maximize accuracy.
@@ -151,76 +149,76 @@ uint16_t sqrtFast(uint16_t x, uint32_t fracBits)
 // a refined estimate r1 = 1.5 * r0 - x * r0^3. The second iteration computes
 // the final result as r2 = 0.5 * r1 * (3 - r1 * (r1 * x)).
 //
-// The accuracy for all arguments in [0x00000001, 0xffffffff] is as follows: 
+// The accuracy for all arguments in [0x00000001, 0xffffffff] is as follows:
 // 639 results are too small by one ulp, 1457 results are too big by one ulp.
 // A total of 2096 results deviate from the correctly rounded result.
 
 template <>
 uint32_t sqrtRecip(uint32_t x)
 {
-    // normalize argument
-    uint32_t scal = countLeadingZeros(x) & 0xfffffffe;
-    x <<= scal;
-    // initial approximation from table
-    uint32_t t = rcp_sqrt_tab[(x >> 25) - 32];
-    // first Newton-Raphson iteration
-    uint32_t r = (t << 22) - (uint32_t)(((uint64_t)t * x) >> 32);
-    // second Newton-Raphson iteration
-    uint32_t s = (uint32_t)(((uint64_t)r * x) >> 32);
-    s = 0x30000000 - (uint32_t)(((uint64_t)r * s) >> 32);
-    r = (uint32_t)(((uint64_t)r * s) >> 32);
-    // denormalize and round result
-    r = ((r >> (18 - (scal >> 1))) + 1) >> 1;
-    return r;
+	// normalize argument
+	uint32_t scal = countLeadingZeros(x) & 0xfffffffe;
+	x <<= scal;
+	// initial approximation from table
+	uint32_t t = rcp_sqrt_tab[(x >> 25) - 32];
+	// first Newton-Raphson iteration
+	uint32_t r = (t << 22) - (uint32_t)(((uint64_t)t * x) >> 32);
+	// second Newton-Raphson iteration
+	uint32_t s = (uint32_t)(((uint64_t)r * x) >> 32);
+	s = 0x30000000 - (uint32_t)(((uint64_t)r * s) >> 32);
+	r = (uint32_t)(((uint64_t)r * s) >> 32);
+	// denormalize and round result
+	r = ((r >> (18 - (scal >> 1))) + 1) >> 1;
+	return r;
 }
 
 template <>
 uint16_t sqrtRecip(uint16_t a)
 {
-    uint32_t x = (uint32_t)a;
-    // normalize argument
-    uint32_t scal = countLeadingZeros((uint16_t)a) & 0xfffffffe;
-    x <<= scal;
-    // initial approximation from table
-    uint32_t t = rcp_sqrt_tab[(x >> 9) - 32];
-    // first Newton-Raphson iteration
-    uint32_t r = (t << 6) - ((t * x) >> 16);
-    // second Newton-Raphson iteration
-    uint32_t s = ((r * x) >> 16);
-    s = 0x00003000 - ((r * s) >> 16);
-    r = (r * s) >> 16;
-    // denormalize and round result
-    r = ((r >> (2 - (scal >> 1))) + 1) >> 1;
-    return static_cast<uint16_t>(r);
+	uint32_t x = (uint32_t)a;
+	// normalize argument
+	uint32_t scal = countLeadingZeros((uint16_t)a) & 0xfffffffe;
+	x <<= scal;
+	// initial approximation from table
+	uint32_t t = rcp_sqrt_tab[(x >> 9) - 32];
+	// first Newton-Raphson iteration
+	uint32_t r = (t << 6) - ((t * x) >> 16);
+	// second Newton-Raphson iteration
+	uint32_t s = ((r * x) >> 16);
+	s = 0x00003000 - ((r * s) >> 16);
+	r = (r * s) >> 16;
+	// denormalize and round result
+	r = ((r >> (2 - (scal >> 1))) + 1) >> 1;
+	return static_cast<uint16_t>(r);
 }
 
 template <>
 uint32_t sqrtRecipFast(uint32_t x)
 {
-    // normalize argument
-    uint32_t scal = countLeadingZeros(x) & 0xfffffffe;
-    x <<= scal;
-    // initial approximation from table
-    uint32_t t = rcp_sqrt_tab[(x >> 25) - 32];
-    // first Newton-Raphson iteration
-    uint32_t r = (t << 22) - (uint32_t)(((uint64_t)t * x) >> 32);
-    // no second Newton-Raphson iteration. denormalize and round result
-    r = ((r >> (18 - (scal >> 1))) + 1) >> 1;
-    return r;
+	// normalize argument
+	uint32_t scal = countLeadingZeros(x) & 0xfffffffe;
+	x <<= scal;
+	// initial approximation from table
+	uint32_t t = rcp_sqrt_tab[(x >> 25) - 32];
+	// first Newton-Raphson iteration
+	uint32_t r = (t << 22) - (uint32_t)(((uint64_t)t * x) >> 32);
+	// no second Newton-Raphson iteration. denormalize and round result
+	r = ((r >> (18 - (scal >> 1))) + 1) >> 1;
+	return r;
 }
 
 template <>
 uint16_t sqrtRecipFast(uint16_t a)
 {
-    uint32_t x = (uint32_t)a;
-    // normalize argument
-    uint32_t scal = countLeadingZeros((uint16_t)a) & 0xfffffffe;
-    x <<= scal;
-    // initial approximation from table
-    uint32_t t = rcp_sqrt_tab[(x >> 9) - 32];
-    // first Newton-Raphson iteration
-    uint32_t r = (t << 6) - ((t * x) >> 16);
-    // no second Newton-Raphson iteration. denormalize and round result
-    r = ((r >> (2 - (scal >> 1))) + 1) >> 1;
-    return static_cast<uint16_t>(r);
+	uint32_t x = (uint32_t)a;
+	// normalize argument
+	uint32_t scal = countLeadingZeros((uint16_t)a) & 0xfffffffe;
+	x <<= scal;
+	// initial approximation from table
+	uint32_t t = rcp_sqrt_tab[(x >> 9) - 32];
+	// first Newton-Raphson iteration
+	uint32_t r = (t << 6) - ((t * x) >> 16);
+	// no second Newton-Raphson iteration. denormalize and round result
+	r = ((r >> (2 - (scal >> 1))) + 1) >> 1;
+	return static_cast<uint16_t>(r);
 }

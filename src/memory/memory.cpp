@@ -13,6 +13,7 @@ namespace Memory
 	// management structures are at the very start of each block.
 	// After the management structure follows the allocated memory.
 	// Management structures are all kept in the specific RAM they're for.
+	// Adjust IWRAM_RESERVE and EWRAM_RESERVE to reserve more / less RAM. If you have linker problems try reducing the allocated size.
 
 	alignas(4) uint8_t memory_iwram[IWRAM_RESERVE] IWRAM_DATA;
 	alignas(4) uint8_t memory_ewram[EWRAM_RESERVE] EWRAM_DATA;

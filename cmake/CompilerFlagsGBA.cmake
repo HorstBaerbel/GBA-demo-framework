@@ -7,9 +7,14 @@
 # See also: https://github.com/PeterMcKinnis/WorstCaseStack for stack analysis
 # Change stack usage: -Wl,--stack,NR_OF_BYTES_OF_STACK
 # Replace compiler memory allocation with our own: -Wl,--wrap=malloc,--wrap=free,--wrap=alloc,--wrap=calloc
+# Output .map file: -Wl,-Map=${PROJECT_NAME}.map
+# Remove unused functions:
+#   Add to compiler flags: -fdata-sections -ffunction-sections
+#   Add to linker flags: --gc-sections,--strip-all
+#   In theory adding -flto to both compiler and linker flags should work, but GCC reports section conflicts due to an old bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=41091
 # See also: https://gcc.gnu.org/onlinedocs/gcc/ARM-Options.html
-set(ARCH "-march=armv4t -mthumb -mthumb-interwork -mlong-calls -Wl,--wrap=malloc,--wrap=free,--wrap=alloc,--wrap=calloc")
-set(COMPILERFLAGS "-save-temps -Wall -mcpu=arm7tdmi -mtune=arm7tdmi -fomit-frame-pointer -ffast-math -fno-aggressive-loop-optimizations -no-pie -fno-stack-protector")
+set(ARCH "-march=armv4t -mthumb -mthumb-interwork -mlong-calls -Wl,--wrap=malloc,--wrap=free,--wrap=alloc,--wrap=calloc,--print-memory-usage,--gc-sections,--strip-all,-Map=${PROJECT_NAME}.map")
+set(COMPILERFLAGS "-save-temps -Wall -mcpu=arm7tdmi -mtune=arm7tdmi -fomit-frame-pointer -ffast-math -fno-aggressive-loop-optimizations -no-pie -fno-stack-protector -fdata-sections -ffunction-sections")
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -Wa,--warn -x assembler-with-cpp ${ARCH}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ARCH} ${COMPILERFLAGS} -std=c11")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -Og -g")

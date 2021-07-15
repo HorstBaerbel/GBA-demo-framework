@@ -109,8 +109,7 @@ public:
 	Arg(const Math::vec3_t<Math::fp88_t> &value);
 	Arg(const Math::vec3_t<Math::fp124_t> &value);
 	Arg(const char *value);
-	void do_print(const char format, uint32_t count, uint8_t &charsInBuffer) const;
-	void do_print(const char format, uint8_t &charsInBuffer) const;
+	void do_print(const char format, uint32_t &charsInBuffer, uint32_t precision = 0) const;
 } __attribute__((aligned(4), packed));
 
-void do_printf(const char *s, const Arg *args, uint8_t numArgs);
+void do_printf(const char *s, const Arg *args, uint32_t numArgs);
