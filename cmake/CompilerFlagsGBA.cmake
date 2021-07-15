@@ -14,7 +14,7 @@ set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -Wa,--warn -x assembler-with-cpp ${ARCH}
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ARCH} ${COMPILERFLAGS} -std=c11")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -Og -g")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ARCH} ${COMPILERFLAGS} -std=c++14 -fconserve-space -fno-threadsafe-statics -fno-rtti -fno-exceptions")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ARCH} ${COMPILERFLAGS} -std=c++17 -fconserve-space -fno-threadsafe-statics -fno-rtti -fno-exceptions")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Og -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${ARCH}")

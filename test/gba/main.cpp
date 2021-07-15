@@ -8,8 +8,8 @@
 int main()
 {
     // Lets set some cool waitstates
-    RegWaitCnt = WaitCntFast;
-    RegWaitEwram = WaitEwramFast;
+    MemCtrl::RegWaitCnt = MemCtrl::WaitCntFast;
+    MemCtrl::RegWaitEwram = MemCtrl::BestEWRAMWaitstates();
     // Clear memory and initialize interrupts
     irqInit();
     // Set up video mode 4, no sprites

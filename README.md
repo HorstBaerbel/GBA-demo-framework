@@ -6,16 +6,12 @@ The [src](src) directory contains the framework while the [test](/test) director
 
 If you find a bug or make an improvement your pull requests are appreciated.
 
-## License
-
-All of this is under the [MIT License](LICENSE).
-
 ## How to build?
 
 ### From the command line
 
 * You need [CMake](https://cmake.org/) 3.1.0 or higher
-* To compile for GBA you need [devkitPro / devKitARM](https://devkitpro.org) r52-1 or higher [installed](https://devkitpro.org/wiki/Getting_Started).
+* To compile for GBA you need [devkitPro / devKitARM](https://devkitpro.org) r54 or higher [installed](https://devkitpro.org/wiki/Getting_Started).
 * Navigate to the folder, then:
 
 ```sh
@@ -69,3 +65,7 @@ There's a nice writeup by James Grimwood [here](https://www.gamedev.net/blogs/en
 * Try to get disassembly explorer to work
 * More tests
 * Finish 2D and 3D stuff
+
+## License
+
+All of this is under the [MIT License](LICENSE).
