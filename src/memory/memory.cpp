@@ -14,9 +14,6 @@ namespace Memory
 	// After the management structure follows the allocated memory.
 	// Management structures are all kept in the specific RAM they're for.
 
-#define IWRAM_RESERVE 12 * 1024	 // reserve 12kB of IWRAM
-#define EWRAM_RESERVE 192 * 1024 // reserve 192kB of EWRAM
-
 	alignas(4) uint8_t memory_iwram[IWRAM_RESERVE] IWRAM_DATA;
 	alignas(4) uint8_t memory_ewram[EWRAM_RESERVE] EWRAM_DATA;
 

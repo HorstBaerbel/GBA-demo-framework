@@ -20,11 +20,11 @@ All of this is under the [MIT License](LICENSE).
 
 ```sh
 mkdir build && cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=3ds-cmake/DevkitArmGBA.cmake
+cmake -DCMAKE_TOOLCHAIN_FILE=3ds-cmake/DevkitArmGBA.cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j $(grep -c '^processor' /proc/cpuinfo 2>/dev/null)
 ```
 
-to compile the GBA version. Use ```cmake ..``` (aka default toolchain) for the PC version. If you want to switch versions, you need to delete the build directory, because currently only one toolchain file can be used.
+to compile the GBA version. Use ```cmake -DCMAKE_BUILD_TYPE=Release ..``` (aka default toolchain) for the PC version. If you want to switch versions, you need to delete the build directory, because currently only one toolchain file can be used.
 
 ## Visual Studio Code extensions
 

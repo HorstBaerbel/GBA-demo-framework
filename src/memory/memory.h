@@ -13,6 +13,11 @@ namespace Memory
 
 	// PLEASE NOTE: We're on ARM, so word means 32-bits, half-word means 16-bit!
 
+	// Simple memory heap manager for IWRAM/EWRAM. You can define how much memory of each type you want to reserve here.
+	// To use memory management, first call init(), then the malloc_() and free() functions.
+	constexpr uint32_t IWRAM_RESERVE = 12 * 1024;  // reserve 12kB of IWRAM for heap
+	constexpr uint32_t EWRAM_RESERVE = 192 * 1024; // reserve 192kB of EWRAM for heap
+
 	/// @brief Effectively clear all RAM and initializes the management structures.
 	void init();
 
