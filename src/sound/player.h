@@ -6,14 +6,6 @@
 #include <cstdint>
 
 /// @brief Module / effect player functions
-/// You can add commands in the module by adding it SFx (or mod/xm EFx) commands.
-/// Values above 0xFC will be processed in the following manner:
-/// * 0xFD No action, but will be passed on to an external function you can specify in setSongEventHandler
-/// * 0xFE Volume will be increased by VolumeMax / 2 and clamped to VolumeMax, bass set to 4
-/// * 0xFF Volume will be increased by VolumeMax and clamped to VolumeMax, bass is set to 8
-/// Volume values and bass will decrease over time
-/// This lets you indicate beats in the audio without any audio analysis, or switch scenes / effects etc.
-///
 /// To generate a soundbank for the init() function, add your .wav, .mod, .xm files to your
 /// CMakeLists.txt, e.g. like so:
 ///
@@ -33,6 +25,17 @@
 /// Sound::init((const void *)&soundbank_bin, MSL_NSONGS);
 ///
 /// somewhere. You should be able to Sound::playSong()s now.
+///
+/// The player will send events when a song is started, has ended or was paused.
+/// You can also add messages to the module by adding SFx (or mod/xm EFx) effects. These values will be forwarded as song events too.
+/// To receive song events, register a handler (up to 6) using:
+///
+/// Sound::callAtSongEvent(yourHandlerFunction);
+///
+/// When you don't need the handler anymore, deregister it using:
+///
+/// Sound::removeAtSongEvent(yourHandlerFunction);
+///
 namespace Sound
 {
 
@@ -51,22 +54,7 @@ namespace Sound
     bool isLooping();
 
     /// @brief If true is passed the current playing song / module will repeat after it ended
-    void setLooping(bool loop = false);
-
-    /// @brief Get a slowly decreasing volume value
-    /// @note Only usable if you add effect commands to your module, see above
-    int32_t getVolume1s();
-
-    /// @brief Get a faster decreasing volume value
-    /// @note Only usable if you add effect commands to your module, see above
-    int32_t getVolume025s();
-
-    /// @brief Maximum possible volume value
-    constexpr int32_t VolumeMax = 65535;
-
-    /// @brief Check if a bass was detected
-    /// @note Only usable if you add effect commands to your module, see above
-    bool isBass();
+    void setLooping(bool loop = true);
 
     /// @brief Length of sound buffer returned in waveBuffer()
     uint32_t waveBufferLength();
@@ -89,7 +77,7 @@ namespace Sound
     /// @brief Skip to previous song / module if any
     void skipPrevious();
 
-    /// @brief Skip to previous song / module if any
+    /// @brief Skip to next song / module if any
     void skipNext();
 
     /// @brief Pause song / module playback. Sound effects will continue playing
@@ -101,7 +89,30 @@ namespace Sound
     /// @brief Stop song / module playback. Sound effects will continue playing
     void stop();
 
-    /// @brief Set a function to call on song events, e.g. a song has finished or a message was received (see above)
-    void setSongEventHandler(unsigned int (*handler)(const unsigned int message, unsigned int parameter));
+    //--- song events -----------------------------------------------------------------------------
+
+    /// @brief Song event structure will be sent in song event handler
+    struct SongEvent
+    {
+        enum class Type : uint16_t
+        {
+            SongStarted, // Song has started playing (either through playSong(), by looping, skipping or resuming). Stores song # in parameter
+            SongPaused,  // Song was paused. Stores song # in parameter
+            SongStopped, // Song has stopped playing (either through stop(), by looping, skipping or by finishing the last song). Stores song # in parameter
+            SongMessage, // EFx or SFx message from song module. Will store value x in parameter
+            BadType
+        };
+        Type type;
+        int16_t parameter;
+    } __attribute__((aligned(4), packed));
+
+    /// @brief Song event handler function
+    using SongEventHandler = void (*)(const SongEvent &event);
+
+    /// @brief Set a function to call on song events, e.g. a song has started or finished or a message was received (see above)
+    void callAtSongEvent(SongEventHandler handler);
+
+    /// @brief Remove a function to be called on song events, e.g. a song has started or finished or a message was received (see above)
+    void removeAtSongEvent(SongEventHandler handler);
 
 } //namespace Sound

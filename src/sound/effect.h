@@ -12,9 +12,9 @@ namespace Sound
 
         uint32_t id = 0;         // Sound effect identifier from soundbank.h
         uint16_t rate = 1 << 10; // playback rate as 6.10 fixed-point factor
-        Handle handle = 0;       // internal. leave at 0
+        Handle handle = 0;       // internal. leave at 0 and don't touch
         uint8_t volume = 255;    // volume 0->255
         uint8_t panning = 127;   // left to right, 127 is center
-    };
+    } __attribute__((aligned(4), packed));
 
 }
