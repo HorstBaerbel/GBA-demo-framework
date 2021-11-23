@@ -17,5 +17,6 @@ LIST(APPEND TARGET_LIBS
 link_directories(${TARGET_LIBS})
 include_directories(${TARGET_INCLUDE_DIRS})
 add_library(${PROJECT_NAME} STATIC ${TARGET_SOURCES})
+target_link_libraries(${PROJECT_NAME} mm) # link maxmod
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

@@ -20,6 +20,9 @@
 namespace Volume
 {
 
+    /// @brief Initialize volume calculation. Call this before using!
+    void init();
+
     /// @brief Maximum possible volume value
     constexpr int32_t VolumeMax = 65535;
 

@@ -39,6 +39,13 @@
 namespace Sound
 {
 
+    enum class LoopMode
+    {
+        None,    // Default. No looping
+        LoopAll, // Loop all songs in soundbank
+        LoopOne  // Loop single song
+    };
+
     /// @brief Initialize player. Call this before using the player!
     /// @param soundbank MaxMod binary soundbank data from soundbank_bin.h
     /// @param nrOfSongs Number of songs in soundbank. Use MSL_NSONGS from soundbank.h
@@ -50,11 +57,11 @@ namespace Sound
     /// @brief Get file / module currently beint played
     int32_t getCurrentSongNr();
 
-    /// @brief If looping, the current playing song / module will repeat after it ended
-    bool isLooping();
+    /// @brief  Get the current song / soundbank loop mode
+    LoopMode getLoopMode();
 
-    /// @brief If true is passed the current playing song / module will repeat after it ended
-    void setLooping(bool loop = true);
+    /// @brief Set song / soundbank loop mode
+    void setLoopMode(LoopMode mode);
 
     /// @brief Length of sound buffer returned in waveBuffer()
     uint32_t waveBufferLength();
@@ -98,6 +105,7 @@ namespace Sound
         {
             SongStarted, // Song has started playing (either through playSong(), by looping, skipping or resuming). Stores song # in parameter
             SongPaused,  // Song was paused. Stores song # in parameter
+            SongResumed, // Song was resumed. Stores song # in parameter
             SongStopped, // Song has stopped playing (either through stop(), by looping, skipping or by finishing the last song). Stores song # in parameter
             SongMessage, // EFx or SFx message from song module. Will store value x in parameter
             BadType

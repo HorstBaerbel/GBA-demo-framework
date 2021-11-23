@@ -17,7 +17,7 @@ namespace Sound
     constexpr uint32_t PlayerMixChannels = 8;               // number of simultaneously mixed channels (MOD + effects)
     constexpr uint32_t PlayerModChannels = 8;               // number of simultaneously rendered channels in MOD
 
-    bool m_looping EWRAM_DATA = false;
+    LoopMode m_loopMode EWRAM_DATA = LoopMode::None;
     uint32_t m_nrOfSongs EWRAM_DATA = 0;
     int32_t m_currentSongNr EWRAM_DATA = -1;
 
@@ -77,10 +77,19 @@ namespace Sound
         }
         else if (message == MMCB_SONGFINISHED)
         {
-            if (parameter == 0)
+            // Song message: main module finished
+            // necessary? if (parameter == 0)
+            switch (m_loopMode)
             {
-                // Song message: main module finished
-                m_looping ? playSong(m_currentSongNr) : skipNext();
+            case LoopMode::LoopOne:
+                playSong(m_currentSongNr);
+                break;
+            case LoopMode::LoopAll:
+                skipNext();
+                break;
+            default:
+                stop();
+                break;
             }
         }
         return 0;
@@ -98,16 +107,16 @@ namespace Sound
         return m_currentSongNr;
     }
 
-    bool isLooping()
+    LoopMode getLoopMode()
     {
-        return m_looping;
+        return m_loopMode;
     }
 
-    void setLooping(bool loop)
+    void setLoopMode(LoopMode mode)
     {
-        m_looping = loop;
+        m_loopMode = mode;
 #ifdef DEBUG_PLAYER
-        printf("Sound::isLooping() = %d\n", m_looping);
+        printf("Sound::loopMode() = %d\n", m_loopMode);
 #endif
     }
 
@@ -147,7 +156,7 @@ namespace Sound
 #endif
         if (songNr >= 0 && songNr < static_cast<int32_t>(m_nrOfSongs))
         {
-            if (mmActive() != 0)
+            if (m_currentSongNr >= 0)
             {
                 mmStop();
                 songEvent({SongEvent::Type::SongStopped, static_cast<int16_t>(m_currentSongNr)});
@@ -191,7 +200,7 @@ namespace Sound
 #ifdef DEBUG_PLAYER
         printf("Sound::pause()\n");
 #endif
-        if (mmActive() != 0)
+        if (m_currentSongNr >= 0)
         {
             mmPause();
             songEvent({SongEvent::Type::SongPaused, static_cast<int16_t>(m_currentSongNr)});
@@ -203,10 +212,10 @@ namespace Sound
 #ifdef DEBUG_PLAYER
         printf("Sound::resume()\n");
 #endif
-        mmResume();
-        if (mmActive() != 0)
+        if (m_currentSongNr >= 0)
         {
-            songEvent({SongEvent::Type::SongStarted, static_cast<int16_t>(m_currentSongNr)});
+            mmResume();
+            songEvent({SongEvent::Type::SongResumed, static_cast<int16_t>(m_currentSongNr)});
         }
     }
 
@@ -215,10 +224,10 @@ namespace Sound
 #ifdef DEBUG_PLAYER
         printf("Sound::stop()\n");
 #endif
-        if (mmActive() != 0)
+        if (m_currentSongNr >= 0)
         {
-            songEvent({SongEvent::Type::SongStopped, static_cast<int16_t>(m_currentSongNr)});
             mmStop();
+            songEvent({SongEvent::Type::SongStopped, static_cast<int16_t>(m_currentSongNr)});
             m_currentSongNr = -1;
         }
     }
