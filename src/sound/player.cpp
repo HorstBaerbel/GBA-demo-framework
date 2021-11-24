@@ -3,8 +3,13 @@
 #include "sys/interrupts.h"
 #include "video.h"
 
+//#define DEBUG_PLAYER
 #ifdef DEBUG_PLAYER
 #include "debug/print.h"
+#endif
+
+#ifdef CHECK_CPU_TIME
+#include <gba_timers.h>
 #endif
 
 #include <maxmod.h>
@@ -20,6 +25,9 @@ namespace Sound
     LoopMode m_loopMode EWRAM_DATA = LoopMode::None;
     uint32_t m_nrOfSongs EWRAM_DATA = 0;
     int32_t m_currentSongNr EWRAM_DATA = -1;
+#ifdef CHECK_CPU_TIME
+    Math::fp1616_t m_cpuTime = 0;
+#endif
 
     //--- song events -----------------------------------------------------------------------------
 
@@ -224,13 +232,33 @@ namespace Sound
         songEvent(SongEvent::SongStopped, m_currentSongNr);
     }
 
+#ifdef CHECK_CPU_TIME
+    Math::fp1616_t getCpuTimeS()
+    {
+        return m_cpuTime;
+    }
+
+    void time_mmFrame()
+    {
+        REG_TM2CNT_L = 0;
+        REG_TM2CNT_H = TIMER_START | 2;
+        mmFrame();
+        m_cpuTime = Math::fp1616_t::fromRaw(REG_TM2CNT_L);
+        REG_TM2CNT_H = 0;
+    }
+#endif
+
     void init(const void *soundbank, uint32_t nrOfSongs)
     {
         m_nrOfSongs = nrOfSongs;
         // Give our vblank handler to maxmod, so it gets called after sound processing
         mmSetVBlankHandler(reinterpret_cast<void *>(Video::vblankHandler()));
         // We also need to call mmFrame every frame we display, so connect it to our handler
+#ifdef CHECK_CPU_TIME
+        Video::callAtVblank((void (*)())time_mmFrame);
+#else
         Video::callAtVblank((void (*)())mmFrame);
+#endif
         // Maxmod requires the vblank interrupt to reset sound DMA. Link the VBlank interrupt to mmVBlank, and enable it.
         irqSet(IRQMask::IRQ_VBLANK, mmVBlank);
         irqEnable(IRQMask::IRQ_VBLANK);

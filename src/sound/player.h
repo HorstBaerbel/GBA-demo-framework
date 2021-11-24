@@ -3,6 +3,12 @@
 #include "effect.h"
 #include "fptime.h"
 
+// Define this to be able to check MaxMOD CPU usage
+//#define CHECK_CPU_TIME
+#ifdef CHECK_CPU_TIME
+#include "math/fp32.h"
+#endif
+
 #include <cstdint>
 
 /// @brief Module / effect player functions
@@ -117,5 +123,10 @@ namespace Sound
 
     /// @brief Remove a function to be called on song events, e.g. a song has started or finished or a message was received (see above)
     void removeAtSongEvent(SongEventHandler handler);
+
+#ifdef CHECK_CPU_TIME
+    /// @brief Get CPU time used by MaxMOD in s
+    Math::fp1616_t getCpuTimeS();
+#endif
 
 } //namespace Sound
