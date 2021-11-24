@@ -98,24 +98,19 @@ namespace Sound
 
     //--- song events -----------------------------------------------------------------------------
 
-    /// @brief Song event structure will be sent in song event handler
-    struct SongEvent
+    /// @brief Song event type that will be sent in song event handler
+    enum class SongEvent : uint32_t
     {
-        enum class Type : uint16_t
-        {
-            SongStarted, // Song has started playing (either through playSong(), by looping, skipping or resuming). Stores song # in parameter
-            SongPaused,  // Song was paused. Stores song # in parameter
-            SongResumed, // Song was resumed. Stores song # in parameter
-            SongStopped, // Song has stopped playing (either through stop(), by looping, skipping or by finishing the last song). Stores song # in parameter
-            SongMessage, // EFx or SFx message from song module. Will store value x in parameter
-            BadType
-        };
-        Type type;
-        int16_t parameter;
-    } __attribute__((aligned(4), packed));
+        SongStarted, // Song has started playing (either through playSong(), by looping, skipping or resuming). Stores song # in parameter
+        SongPaused,  // Song was paused. Stores song # in parameter
+        SongResumed, // Song was resumed. Stores song # in parameter
+        SongStopped, // Song has stopped playing (either through stop(), by looping, skipping or by finishing the last song). Stores song # in parameter
+        SongMessage, // EFx or SFx message from song module. Will store value x in parameter
+        BadType
+    };
 
     /// @brief Song event handler function
-    using SongEventHandler = void (*)(const SongEvent &event);
+    using SongEventHandler = void (*)(SongEvent event, int32_t parameter);
 
     /// @brief Set a function to call on song events, e.g. a song has started or finished or a message was received (see above)
     void callAtSongEvent(SongEventHandler handler);

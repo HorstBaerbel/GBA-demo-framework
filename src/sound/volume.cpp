@@ -42,12 +42,12 @@ namespace Volume
         m_volume_025s = m_volume_025s < 0 ? 0 : (m_volume_025s > VolumeMax ? VolumeMax : m_volume_025s);
     }
 
-    void handleSongEvent(const Sound::SongEvent &event)
+    void handleSongEvent(Sound::SongEvent event, int32_t parameter)
     {
         // First process the messages we care about
-        if (event.type == Sound::SongEvent::Type::SongMessage)
+        if (event == Sound::SongEvent::SongMessage)
         {
-            switch (event.parameter)
+            switch (parameter)
             {
             // Some SFx or EFx message. parameter is last nibble
             case 0xD:

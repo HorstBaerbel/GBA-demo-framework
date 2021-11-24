@@ -39,6 +39,6 @@ namespace Volume
     bool isBass();
 
     /// @brief Process song volume messages from player
-    void handleSongEvent(const Sound::SongEvent &event);
+    void handleSongEvent(Sound::SongEvent event, int32_t parameter);
 
 } //namespace Sound

@@ -53,14 +53,17 @@ namespace Sound
         }
     }
 
-    void songEvent(const SongEvent &event)
+    void songEvent(SongEvent event, int32_t parameter)
     {
+#ifdef DEBUG_PLAYER
+        printf("Sending song event %d, parameter %d", static_cast<uint32_t>(event), parameter);
+#endif
         for (uint32_t i = 0; i < m_nrOfSongEventFunctions; i++)
         {
             auto &func = m_songEventFunctions[i];
             if (func != nullptr)
             {
-                func(event);
+                func(event, parameter);
             }
         }
     }
@@ -68,16 +71,16 @@ namespace Sound
     unsigned int eventHandler(const unsigned int message, unsigned int parameter)
     {
 #ifdef DEBUG_PLAYER
-        printf("Event 0x%x, Parameter 0x%x\n", (uint32_t)message, (uint32_t)parameter);
+        printf("MaxMod event 0x%x, parameter %d", static_cast<uint32_t>(message), static_cast<uint32_t>(parameter));
 #endif
         if (message == MMCB_SONGMESSAGE)
         {
             // Song message from EFx / SFx effect
-            songEvent({SongEvent::Type::SongMessage, static_cast<int16_t>(parameter)});
+            songEvent(SongEvent::SongMessage, parameter);
         }
         else if (message == MMCB_SONGFINISHED)
         {
-            // Song message: main module finished
+            // Song message: Main module finished
             // necessary? if (parameter == 0)
             switch (m_loopMode)
             {
@@ -88,7 +91,7 @@ namespace Sound
                 skipNext();
                 break;
             default:
-                stop();
+                songEvent(SongEvent::SongStopped, m_currentSongNr);
                 break;
             }
         }
@@ -116,7 +119,7 @@ namespace Sound
     {
         m_loopMode = mode;
 #ifdef DEBUG_PLAYER
-        printf("Sound::loopMode() = %d\n", m_loopMode);
+        printf("Sound::loopMode() = %d", static_cast<uint32_t>(m_loopMode));
 #endif
     }
 
@@ -136,7 +139,7 @@ namespace Sound
     {
         auto handle = mmEffectEx((mm_sound_effect *)effect);
 #ifdef DEBUG_PLAYER
-        printf("Sound::playEffect(%d) -> Handle %d\n", effect.id, handle);
+        printf("Sound::playEffect(%d) -> Handle %d", effect->id, handle);
 #endif
         return handle;
     }
@@ -144,7 +147,7 @@ namespace Sound
     void stopEffect(Effect::Handle handle)
     {
 #ifdef DEBUG_PLAYER
-        printf("Sound::stopEffect(%d)\n", handle);
+        printf("Sound::stopEffect(%d)", handle);
 #endif
         mmEffectCancel(handle);
     }
@@ -152,32 +155,31 @@ namespace Sound
     void playSong(int32_t songNr)
     {
 #ifdef DEBUG_PLAYER
-        printf("Sound::play(%d)\n", songNr);
+        printf("Sound::play(%d)", songNr);
 #endif
         if (songNr >= 0 && songNr < static_cast<int32_t>(m_nrOfSongs))
         {
-            if (m_currentSongNr >= 0)
+            if (mmActive())
             {
                 mmStop();
-                songEvent({SongEvent::Type::SongStopped, static_cast<int16_t>(m_currentSongNr)});
             }
             m_currentSongNr = songNr;
             mmStart(songNr, MM_PLAY_ONCE);
-            songEvent({SongEvent::Type::SongStarted, static_cast<int16_t>(m_currentSongNr)});
+            songEvent(SongEvent::SongStarted, m_currentSongNr);
         }
     }
 
     void setSongPosition(uint32_t position)
     {
 #ifdef DEBUG_PLAYER
-        printf("Sound::setSongPosition(%d)\n", position);
+        printf("Sound::setSongPosition(%d)", position);
 #endif
         mmPosition(position);
     }
 
     void skipPrevious()
     {
-        auto newSongNr = m_currentSongNr - 1;
+        auto newSongNr = m_currentSongNr >= 0 ? m_currentSongNr - 1 : 0;
         if (newSongNr < 0)
         {
             newSongNr = m_nrOfSongs - 1;
@@ -187,7 +189,7 @@ namespace Sound
 
     void skipNext()
     {
-        auto newSongNr = m_currentSongNr + 1;
+        auto newSongNr = m_currentSongNr >= 0 ? m_currentSongNr + 1 : 0;
         if (newSongNr >= static_cast<int32_t>(m_nrOfSongs))
         {
             newSongNr = 0;
@@ -198,38 +200,28 @@ namespace Sound
     void pause()
     {
 #ifdef DEBUG_PLAYER
-        printf("Sound::pause()\n");
+        printf("Sound::pause(), Module playing: ", static_cast<int32_t>(mmActive()));
 #endif
-        if (m_currentSongNr >= 0)
-        {
-            mmPause();
-            songEvent({SongEvent::Type::SongPaused, static_cast<int16_t>(m_currentSongNr)});
-        }
+        mmPause();
+        songEvent(SongEvent::SongPaused, m_currentSongNr);
     }
 
     void resume()
     {
 #ifdef DEBUG_PLAYER
-        printf("Sound::resume()\n");
+        printf("Sound::resume(), Module playing: ", static_cast<int32_t>(mmActive()));
 #endif
-        if (m_currentSongNr >= 0)
-        {
-            mmResume();
-            songEvent({SongEvent::Type::SongResumed, static_cast<int16_t>(m_currentSongNr)});
-        }
+        mmResume();
+        songEvent(SongEvent::SongResumed, m_currentSongNr);
     }
 
     void stop()
     {
 #ifdef DEBUG_PLAYER
-        printf("Sound::stop()\n");
+        printf("Sound::stop(), Module playing: ", static_cast<int32_t>(mmActive()));
 #endif
-        if (m_currentSongNr >= 0)
-        {
-            mmStop();
-            songEvent({SongEvent::Type::SongStopped, static_cast<int16_t>(m_currentSongNr)});
-            m_currentSongNr = -1;
-        }
+        mmStop();
+        songEvent(SongEvent::SongStopped, m_currentSongNr);
     }
 
     void init(const void *soundbank, uint32_t nrOfSongs)
@@ -238,14 +230,13 @@ namespace Sound
         // Give our vblank handler to maxmod, so it gets called after sound processing
         mmSetVBlankHandler(reinterpret_cast<void *>(Video::vblankHandler()));
         // We also need to call mmFrame every frame we display, so connect it to our handler
-        // Will also call the playerHandler() if a song even occurrs
         Video::callAtVblank((void (*)())mmFrame);
         // Maxmod requires the vblank interrupt to reset sound DMA. Link the VBlank interrupt to mmVBlank, and enable it.
         irqSet(IRQMask::IRQ_VBLANK, mmVBlank);
         irqEnable(IRQMask::IRQ_VBLANK);
         // Initialise maxmod with soundbank and 8 channels
         mmInitDefault((mm_addr)soundbank, PlayerModChannels);
-        // Register our event handler
+        // Register our event handler to call if a song event occurrs
         mmSetEventHandler(eventHandler);
     }
 
