@@ -17,54 +17,93 @@ namespace Sprites
     /// @brief Sprite tile memory interpreted as 256 color tiles
     auto const TileMem256{reinterpret_cast<Tiles::Tile256 *>(SpriteMem)};
 
+    /// @brief 16-color sprite tile index to memory address
     constexpr uint16_t *TILE_INDEX_TO_MEM16(uint16_t index)
     {
         // sprite tile INDEX is the same in 4 and 8 bit mode. yeah, wtf.
         return reinterpret_cast<uint16_t *>(SpriteMem + ((uint32_t(index)) * 8 * 4));
     }
 
+    /// @brief 256-color sprite tile index to memory address
     constexpr uint16_t *TILE_INDEX_TO_MEM256(uint16_t index)
     {
         // sprite tile INDEX is the same in 4 and 8 bit mode. yeah, wtf.
         return TILE_INDEX_TO_MEM16(index);
     }
 
+    /// @brief Sprite type
     enum class Type : uint8_t
     {
-        Regular = 0,
-        Affine = 1
+        Regular = 0, // Regular sprite
+        Affine = 1   // Affine sprite which can be scaled and rotated
     };
 
+    /// @brief Sprite display mode
     enum class Mode : uint8_t
     {
-        Normal = 0,
-        Transparent = 1,
-        Window = 2
+        Normal = 0,      // Normal display
+        Transparent = 1, // Sprite used for alpha blending
+        Window = 2       // Sprite used for window mask
     };
 
+    /// @brief Sprite size code
+    enum class SizeCode : uint8_t
+    {
+        Size8x8 = 0,
+        Size16x16 = 1,
+        Size32x32 = 2,
+        Size64x64 = 3,
+        Size16x8 = 4,
+        Size32x8 = 5,
+        Size32x16 = 6,
+        Size64x32 = 7,
+        Size8x16 = 8,
+        Size8x32 = 9,
+        Size16x32 = 10,
+        Size32x64 = 11
+    };
+
+    /// @brief Sprite color depth
+    enum class ColorDepth : uint8_t
+    {
+        Depth16 = 0, // 16 colors, 4bpp, 16 palettes
+        Depth256 = 1 // 256 colors, 8bpp, 1 palette
+    };
+
+    /// @brief Sprite priorities relative to background (0 = highest, 3 = lowest)
+    /// See: http://problemkaputt.de/gbatek.htm#lcdobjoamattributes
+    enum class Priority : uint8_t
+    {
+        Prio0 = 0,
+        Prio1 = 1,
+        Prio2 = 2,
+        Prio3 = 3
+    };
+
+    /// @brief 2D sprite backbuffer
     struct Sprite2D
     {
         uint16_t index = 0;
         int16_t x = 240;
         int16_t y = 160;
         uint16_t tileIndex = 0;
-        Tiles::SizeCode size = Tiles::SizeCode::Size8x8;
+        SizeCode size = SizeCode::Size8x8;
         uint8_t paletteIndex = 0;
-        Tiles::ColorDepth depth = Tiles::ColorDepth::Depth16;
+        ColorDepth depth = ColorDepth::Depth16;
         bool mosaic = false;
         bool visible = false;
         Type type = Type::Regular;
         Mode mode = Mode::Normal;
         bool mirrorH = false;
         bool mirrorV = false;
-        Tiles::Priority priority = Tiles::Priority::PRIO_0;
+        Priority priority = Priority::Prio0;
         bool doubleSize = false;
         uint8_t matrixIndex = 0;
         Math::fp1616mat2x2_t matrix = Math::fp1616mat2x2_t::identity;
     } __attribute__((aligned(4), packed));
 
     /// @brief Fill a Sprite2D struct with data. Will create a regular sprite.
-    void create(Sprite2D &sprite, uint16_t index, int16_t x, int16_t y, uint16_t tileIndex = 0, Tiles::SizeCode size = Tiles::SizeCode::Size8x8, uint8_t paletteIndex = 0, Tiles::ColorDepth depth = Tiles::ColorDepth::Depth16, Mode mode = Mode::Normal, bool mosaic = false, bool visible = true);
+    void create(Sprite2D &sprite, uint16_t index, int16_t x, int16_t y, uint16_t tileIndex = 0, SizeCode size = SizeCode::Size8x8, uint8_t paletteIndex = 0, ColorDepth depth = ColorDepth::Depth16, Mode mode = Mode::Normal, bool mosaic = false, bool visible = true);
 
     /// @brief Copy tile data for sprite to VRAM.
     void copyTileData(const Sprite2D &sprite, const Tiles::Tile16 *tileData);

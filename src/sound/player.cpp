@@ -17,8 +17,8 @@
 namespace Sound
 {
 
-    constexpr mm_mixmode PlayerMixFrequency = MM_MIX_21KHZ; // Player mixxing frequency
-    constexpr uint32_t PlayerMixLength = MM_MIXLEN_21KHZ;   // Length of player mixing buffer in bytes
+    constexpr mm_mixmode PlayerMixFrequency = MM_MIX_27KHZ; // Player mixxing frequency
+    constexpr uint32_t PlayerMixLength = MM_MIXLEN_27KHZ;   // Length of player mixing buffer in bytes
     constexpr uint32_t PlayerMixChannels = 8;               // number of simultaneously mixed channels (MOD + effects)
     constexpr uint32_t PlayerModChannels = 8;               // number of simultaneously rendered channels in MOD
 
@@ -250,6 +250,9 @@ namespace Sound
 
     void init(const void *soundbank, uint32_t nrOfSongs)
     {
+#ifdef DEBUG_PLAYER
+        printf("Songs: %d\n", nrOfSongs);
+#endif
         m_nrOfSongs = nrOfSongs;
         // Give our vblank handler to maxmod, so it gets called after sound processing
         mmSetVBlankHandler(reinterpret_cast<void *>(Video::vblankHandler()));

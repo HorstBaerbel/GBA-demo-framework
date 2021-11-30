@@ -25,144 +25,144 @@ namespace Test
         Time::start();
         //--------------------------------------------------------------------------
         printf("Filling VRAM...\n");
-        Math::fp1616_t start = Time::getTime();
+        Math::fp1616_t start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
             Memory::memset32(Video::backBuffer(), i, vramCount);
         }
-        printf("memset32 = %d\n", Time::getTime() - start);
-        /*start = Time::getTime();
+        printf("memset32 = %d\n", Time::now() - start);
+        /*start = Time::now();
 		for (uint32_t i = 0; i < 1024; ++i)
 		{
 			CpuFastSet(&i, Video::backBuffer(), vramCount | (1 << 24));
 		}
-		printf("CpuFastSet = %d\n", Time::getTime() - start);*/
-        start = Time::getTime();
+		printf("CpuFastSet = %d\n", Time::now() - start);*/
+        start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
             DMA::dma_fill32(Video::backBuffer(), i, vramCount);
         }
-        printf("dma_fill32 = %d\n", Time::getTime() - start);
+        printf("dma_fill32 = %d\n", Time::now() - start);
         //--------------------------------------------------------------------------
         printf("Filling EWRAM...\n");
-        start = Time::getTime();
+        start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
             Memory::memset32(dew, i, bufferCount);
         }
-        printf("memset32 = %d\n", Time::getTime() - start);
-        /*start = Time::getTime();
+        printf("memset32 = %d\n", Time::now() - start);
+        /*start = Time::now();
 		for (uint32_t i = 0; i < 1024; ++i)
 		{
 			CpuFastSet(&i, dew, bufferCount | (1 << 24));
 		}
-		printf("CpuFastSet = %d\n", Time::getTime() - start);*/
-        start = Time::getTime();
+		printf("CpuFastSet = %d\n", Time::now() - start);*/
+        start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
             DMA::dma_fill32(dew, i, bufferCount);
         }
-        printf("dma_fill32 = %d\n", Time::getTime() - start);
+        printf("dma_fill32 = %d\n", Time::now() - start);
         //--------------------------------------------------------------------------
         printf("Filling IWRAM...\n");
-        start = Time::getTime();
+        start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
             Memory::memset32(diw, i, bufferCount);
         }
-        printf("memset32 = %d\n", Time::getTime() - start);
-        /*start = Time::getTime();
+        printf("memset32 = %d\n", Time::now() - start);
+        /*start = Time::now();
 		for (uint32_t i = 0; i < 1024; ++i)
 		{
 			CpuFastSet(&i, diw, bufferCount | (1 << 24));
 		}
-		printf("CpuFastSet = %d\n", Time::getTime() - start);*/
-        start = Time::getTime();
+		printf("CpuFastSet = %d\n", Time::now() - start);*/
+        start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
             DMA::dma_fill32(diw, i, bufferCount);
         }
-        printf("dma_fill32 = %d\n", Time::getTime() - start);
+        printf("dma_fill32 = %d\n", Time::now() - start);
         //--------------------------------------------------------------------------
         printf("Copying EWRAM to VRAM...\n");
-        start = Time::getTime();
+        start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
             Memory::memcpy16(Video::backBuffer(), sew, bufferCount * 2);
         }
-        printf("memcpy16 = %d\n", Time::getTime() - start);
-        start = Time::getTime();
+        printf("memcpy16 = %d\n", Time::now() - start);
+        start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
             Memory::memcpy32(Video::backBuffer(), sew, bufferCount);
         }
-        printf("memcpy32 = %d\n", Time::getTime() - start);
-        start = Time::getTime();
+        printf("memcpy32 = %d\n", Time::now() - start);
+        start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
             DMA::dma_copy32(Video::backBuffer(), reinterpret_cast<const uint32_t *>(sew), bufferCount);
         }
-        printf("dma_copy32 = %d\n", Time::getTime() - start);
+        printf("dma_copy32 = %d\n", Time::now() - start);
         //--------------------------------------------------------------------------
         printf("Copying IWRAM to VRAM...\n");
-        start = Time::getTime();
+        start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
             Memory::memcpy16(Video::backBuffer(), siw, bufferCount * 2);
         }
-        printf("memcpy16 = %d\n", Time::getTime() - start);
-        start = Time::getTime();
+        printf("memcpy16 = %d\n", Time::now() - start);
+        start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
             Memory::memcpy32(Video::backBuffer(), siw, bufferCount);
         }
-        printf("memcpy32 = %d\n", Time::getTime() - start);
-        start = Time::getTime();
+        printf("memcpy32 = %d\n", Time::now() - start);
+        start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
             DMA::dma_copy32(Video::backBuffer(), reinterpret_cast<const uint32_t *>(siw), bufferCount);
         }
-        printf("dma_copy32 = %d\n", Time::getTime() - start);
+        printf("dma_copy32 = %d\n", Time::now() - start);
         //--------------------------------------------------------------------------
         printf("Copying EWRAM...\n");
-        start = Time::getTime();
+        start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
             Memory::memcpy16(dew, sew, bufferCount * 2);
         }
-        printf("memcpy16 = %d\n", Time::getTime() - start);
-        start = Time::getTime();
+        printf("memcpy16 = %d\n", Time::now() - start);
+        start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
             Memory::memcpy32(dew, sew, bufferCount);
         }
-        printf("memcpy32 = %d\n", Time::getTime() - start);
-        start = Time::getTime();
+        printf("memcpy32 = %d\n", Time::now() - start);
+        start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
             DMA::dma_copy32(dew, reinterpret_cast<const uint32_t *>(sew), bufferCount);
         }
-        printf("dma_copy32 = %d\n", Time::getTime() - start);
+        printf("dma_copy32 = %d\n", Time::now() - start);
         //--------------------------------------------------------------------------
         printf("Copying IWRAM...\n");
-        start = Time::getTime();
+        start = Time::now();
         for (uint32_t i = 0; i < 2048; ++i)
         {
             Memory::memcpy16(diw, siw, bufferCount * 2);
         }
-        printf("memcpy16 = %d\n", Time::getTime() - start);
-        start = Time::getTime();
+        printf("memcpy16 = %d\n", Time::now() - start);
+        start = Time::now();
         for (uint32_t i = 0; i < 2048; ++i)
         {
             Memory::memcpy32(diw, siw, bufferCount);
         }
-        printf("memcpy32 = %d\n", Time::getTime() - start);
-        start = Time::getTime();
+        printf("memcpy32 = %d\n", Time::now() - start);
+        start = Time::now();
         for (uint32_t i = 0; i < 2048; ++i)
         {
             DMA::dma_copy32(diw, reinterpret_cast<const uint32_t *>(siw), bufferCount);
         }
-        printf("dma_copy32 = %d\n", Time::getTime() - start);
+        printf("dma_copy32 = %d\n", Time::now() - start);
         Time::stop();
         // free all memory again
         Memory::free(siw);

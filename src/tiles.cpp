@@ -8,12 +8,6 @@ namespace Tiles
     const uint8_t HorizontalTilesForSizeCode[12] = {1, 2, 4, 8, 2, 4, 4, 8, 1, 1, 2, 4};
     const uint8_t VerticalTilesForSizeCode[12] = {1, 2, 4, 8, 1, 1, 2, 4, 2, 4, 4, 8};
 
-    void setBackground(Background background, TileBase tileBase, ScreenBase screenBase, ScreenSize screenSize, ColorDepth depth, Priority priority)
-    {
-        uint16_t settings = uint16_t(tileBase) | uint16_t(screenBase) | uint16_t(screenSize) | (uint16_t(depth) << 7) | uint16_t(priority);
-        *(BGCTRL + uint32_t(background)) = settings;
-    }
-
     void copyTileData(Tile16 *tileMem, SizeCode blockSize, uint32_t nrOfBlocks, const Tiles::Tile16 *bitmap, uint32_t bitmapWidth, uint32_t xStep, uint32_t yStep)
     {
         // we copy 8 4bit pixels (one tile line) at once

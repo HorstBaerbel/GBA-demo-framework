@@ -175,7 +175,7 @@ namespace Test
 		}*/
 		/*Math::fp1616_t a = 3.7f;
 		Math::fp1616_t b = 0;
-		Math::fp1616_t start = Time::getTime();
+		Math::fp1616_t start = Time::now();
 		const int32_t nrOfLoops = 1000*1000;
 		for (int32_t i = 0; i < nrOfLoops; ++i)
 		{
@@ -185,7 +185,7 @@ namespace Test
 			b = s + c;
 			a = -a;
 		}
-		Math::fp1616_t diff = Time::getTime() - start;
+		Math::fp1616_t diff = Time::now() - start;
 		printf("b = %d\n", b);
 		printf("run time: %s %s\n", timingValue(diff, nrOfLoops), timingUnit(diff, nrOfLoops));
 		*/

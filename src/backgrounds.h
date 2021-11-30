@@ -21,10 +21,10 @@ namespace Backgrounds
     /// See: http://problemkaputt.de/gbatek.htm#lcdiobgcontrol
     enum class Priority : uint16_t
     {
-        Priority0 = 0,
-        Priority1 = 1,
-        Priority2 = 2,
-        Priority3 = 3
+        Prio0 = 0,
+        Prio1 = 1,
+        Prio2 = 2,
+        Prio3 = 3
     };
 
     /// @brief Background screen sizes for modes 0/1/2
@@ -37,7 +37,7 @@ namespace Backgrounds
     };
 
     /// @brief Background color depth for modes 0/1/2
-    enum class ColorDepth : uint8_t
+    enum class ColorDepth : uint16_t
     {
         Depth16 = 0,
         Depth256 = 1
@@ -45,6 +45,6 @@ namespace Backgrounds
 
     /// @brief Set up background
     /// See: http://problemkaputt.de/gbatek.htm#lcdiobgcontrol
-    void setBackground(Background background, Tiles::TileBase tileBase, Tiles::ScreenBase screenBase, ScreenSize screenSize, ColorDepth depth, Priority priority = Priority::Priority0);
+    void setBackground(Background background, Tiles::TileBase tileBase, Tiles::ScreenBase screenBase, ScreenSize screenSize, ColorDepth depth, Priority priority = Priority::Prio0);
 
 } // namespace Backgrounds

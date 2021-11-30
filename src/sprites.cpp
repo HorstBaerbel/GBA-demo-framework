@@ -5,6 +5,8 @@
 #include <gba_affine.h>
 #include <gba_sprites.h>
 
+//#include "debug_print.h"
+
 namespace Sprites
 {
 
@@ -20,47 +22,47 @@ namespace Sprites
         }
     }
 
-    uint16_t getSpriteScale(Tiles::SizeCode size)
+    uint16_t getSpriteScale(SizeCode size)
     {
         switch (size)
         {
-        case Tiles::SizeCode::Size16x8:
-        case Tiles::SizeCode::Size32x8:
-        case Tiles::SizeCode::Size32x16:
-        case Tiles::SizeCode::Size64x32:
+        case SizeCode::Size16x8:
+        case SizeCode::Size32x8:
+        case SizeCode::Size32x16:
+        case SizeCode::Size64x32:
             return OBJ_SIZE(0b01);
-        case Tiles::SizeCode::Size8x16:
-        case Tiles::SizeCode::Size8x32:
-        case Tiles::SizeCode::Size16x32:
-        case Tiles::SizeCode::Size32x64:
+        case SizeCode::Size8x16:
+        case SizeCode::Size8x32:
+        case SizeCode::Size16x32:
+        case SizeCode::Size32x64:
             return OBJ_SIZE(0b10);
         default:
             return 0;
         }
     }
 
-    uint16_t getSpriteSize(Tiles::SizeCode size)
+    uint16_t getSpriteSize(SizeCode size)
     {
         switch (size)
         {
-        case Tiles::SizeCode::Size16x16:
-        case Tiles::SizeCode::Size32x8:
-        case Tiles::SizeCode::Size8x32:
+        case SizeCode::Size16x16:
+        case SizeCode::Size32x8:
+        case SizeCode::Size8x32:
             return OBJ_SIZE(0b01);
-        case Tiles::SizeCode::Size32x32:
-        case Tiles::SizeCode::Size32x16:
-        case Tiles::SizeCode::Size16x32:
+        case SizeCode::Size32x32:
+        case SizeCode::Size32x16:
+        case SizeCode::Size16x32:
             return OBJ_SIZE(0b10);
-        case Tiles::SizeCode::Size64x64:
-        case Tiles::SizeCode::Size64x32:
-        case Tiles::SizeCode::Size32x64:
+        case SizeCode::Size64x64:
+        case SizeCode::Size64x32:
+        case SizeCode::Size32x64:
             return OBJ_SIZE(0b11);
         default:
             return 0;
         }
     }
 
-    void create(Sprite2D &sprite, uint16_t index, int16_t x, int16_t y, uint16_t tileIndex, Tiles::SizeCode size, uint8_t paletteIndex, Tiles::ColorDepth depth, Mode mode, bool mosaic, bool visible)
+    void create(Sprite2D &sprite, uint16_t index, int16_t x, int16_t y, uint16_t tileIndex, SizeCode size, uint8_t paletteIndex, ColorDepth depth, Mode mode, bool mosaic, bool visible)
     {
         sprite.index = index;
         sprite.x = x;
@@ -75,7 +77,7 @@ namespace Sprites
         sprite.mode = mode;
         sprite.mirrorH = false;
         sprite.mirrorV = false;
-        sprite.priority = Tiles::Priority::PRIO_0;
+        sprite.priority = Priority::Prio0;
         sprite.doubleSize = false;
         sprite.matrixIndex = 0;
         sprite.matrix = Math::fp1616mat2x2_t::identity;
@@ -85,7 +87,7 @@ namespace Sprites
     {
         auto attribute = &OAM[sprite.index];
         attribute->attr0 = OBJ_Y(sprite.y) | getSpriteScale(sprite.size);
-        attribute->attr0 |= (sprite.visible ? 0 : OBJ_DISABLE) | (sprite.mosaic ? OBJ_MOSAIC : 0) | (sprite.depth == Tiles::ColorDepth::Depth256 ? ATTR0_COLOR_256 : ATTR0_COLOR_16);
+        attribute->attr0 |= (sprite.visible ? 0 : OBJ_DISABLE) | (sprite.mosaic ? OBJ_MOSAIC : 0) | (sprite.depth == ColorDepth::Depth256 ? ATTR0_COLOR_256 : ATTR0_COLOR_16);
         attribute->attr0 |= (sprite.mode == Mode::Transparent ? OBJ_TRANSLUCENT : 0) | (sprite.mode == Mode::Window ? OBJ_OBJWINDOW : 0);
         attribute->attr1 = OBJ_X(sprite.x) | getSpriteSize(sprite.size);
         if (sprite.type == Type::Affine)
@@ -99,7 +101,7 @@ namespace Sprites
             attribute->attr1 |= (sprite.mirrorH ? OBJ_HFLIP : 0) | (sprite.mirrorV ? OBJ_VFLIP : 0);
         }
         attribute->attr2 = (sprite.tileIndex & 1023);
-        attribute->attr2 |= ATTR2_PALETTE(sprite.depth == Tiles::ColorDepth::Depth256 ? 0 : (sprite.paletteIndex & 15));
+        attribute->attr2 |= ATTR2_PALETTE(sprite.depth == ColorDepth::Depth256 ? 0 : (sprite.paletteIndex & 15));
         attribute->attr2 |= ATTR2_PRIORITY(static_cast<uint16_t>(sprite.priority));
     }
 

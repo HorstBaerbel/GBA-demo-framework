@@ -5,7 +5,7 @@
 
 // The system clock is 16.78MHz (F=16*1024*1024 Hz), one cycle is thus approx. 59.59ns
 constexpr uint16_t TimerDividerBits = 2;                  // (0=F/1, 1=F/64, 2=F/256, 3=F/1024)
-constexpr int32_t TimerIncrement = 328;                   // 65536/328=200 -> 1/200=5ms
+constexpr int32_t TimerIncrement = 164;                   // 65536/164=400 -> 1/400=2.5ms
 constexpr uint16_t TimerVblankTime = 1097;                // ,269248 == every ~16.743 ms
 constexpr int32_t TimerVblankInterval = ((1 << 16) / 60); // vblank interval as 16.16 fixed-point
 
@@ -34,12 +34,12 @@ namespace Time
         irqDisable(IRQMask::IRQ_TIMER3);
     }
 
-    IWRAM_CODE Math::fp1616_t getTime()
+    IWRAM_CODE TimePoint now()
     {
         return Math::fp1616_t::fromRaw(current);
     }
 
-    void setTime(Math::fp1616_t time)
+    void setNow(TimePoint time)
     {
         current = time.raw();
     }
