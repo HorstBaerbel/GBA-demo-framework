@@ -1,5 +1,5 @@
-#include <debug/print.h>
 #include <memory/memory.h>
+#include <print/print.h>
 
 //disable GCC warnings for using char * here...
 #pragma GCC diagnostic ignored "-Wwrite-strings"

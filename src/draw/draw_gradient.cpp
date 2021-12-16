@@ -1,5 +1,5 @@
 #include "draw_gradient.h"
-#include "debug/print.h"
+#include "print/print.h"
 
 /*void drawGradient_mode4(uint16_t *buffer, const Gradient8 &gradient, const Math::fp1616vec2_t &from, const Math::fp1616vec2_t &to)
 {

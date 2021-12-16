@@ -1,9 +1,9 @@
 #pragma once
 
 #include "math/fp32.h"
-#include "debug/print.h"
-#include <utility>
+#include "print/print.h"
 #include <string>
+#include <utility>
 
 /// @brief Return a properly scaled value for a time and its unit
 /// If you do e.g. 1M calculations that take 37.5s, call with

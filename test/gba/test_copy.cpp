@@ -1,7 +1,7 @@
-#include <debug/print.h>
 #include <fptime.h>
 #include <memory/dma.h>
 #include <memory/memory.h>
+#include <print/print.h>
 #include <sys/syscall.h>
 #include <video.h>
 

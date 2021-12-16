@@ -3,7 +3,7 @@
 
 //#define DEBUG_ANIMATION
 #ifdef DEBUG_ANIMATION
-#include "debug/print.h"
+#include "print/print.h"
 #endif
 
 #include <gba_base.h>

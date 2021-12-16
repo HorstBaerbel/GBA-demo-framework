@@ -2,7 +2,7 @@
 #include "video.h"
 
 #ifdef DEBUG_PLAYER
-#include "debug/print.h"
+#include "print/print.h"
 #endif
 
 namespace Volume

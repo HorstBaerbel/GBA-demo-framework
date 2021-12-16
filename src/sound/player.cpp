@@ -5,7 +5,7 @@
 
 //#define DEBUG_PLAYER
 #ifdef DEBUG_PLAYER
-#include "debug/print.h"
+#include "print/print.h"
 #endif
 
 #ifdef CHECK_CPU_TIME
