@@ -1,5 +1,5 @@
 #include "fadepalette.h"
-#include "video.h"
+#include "graphics.h"
 
 namespace Effect_FadePalette
 {
@@ -32,7 +32,7 @@ namespace Effect_FadePalette
 				gF += int16_t(t * (gT - gF));
 				bF += int16_t(t * (bT - bF));
 				// write color to palette memory
-				BG_PALETTE[i] = (bF << 10) | (gF << 5) | rF;
+				Palette::Background[i] = (bF << 10) | (gF << 5) | rF;
 			}
 			// now check if we should stop or reverse fading
 			if (elapsedTime >= currentData->fadeTime)
@@ -40,7 +40,7 @@ namespace Effect_FadePalette
 				if (Mode::FADE_TO == currentData->mode || Mode::FADE_FROM == currentData->mode)
 				{
 					// stop fading, thus remove callback from frame function
-					Video::removeAtVblank(nullptr, data);
+					Graphics::removeAtVblank(nullptr, data);
 				}
 				else if (Mode::FADE_TO_AND_BACK == currentData->mode)
 				{
@@ -63,12 +63,12 @@ namespace Effect_FadePalette
 		//set up time
 		fadeData.startTime = Time::now();
 		//connect effect to frame procedure
-		Video::callAtVblank(procFade, (void *)&fadeData);
+		Graphics::callAtVblank(procFade, (void *)&fadeData);
 	}
 
 	void clear()
 	{
-		Video::removeAtVblank(procFade);
+		Graphics::removeAtVblank(procFade);
 	}
 
 } //namespace Effect_FadePalette

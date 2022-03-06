@@ -1,4 +1,4 @@
-@ === void memset32(void *dst, u32 fill, size_t wcount) IWRAM_CODE; =============
+@ === void memset32(void *dst, u32 fill, size_t wcount) IWRAM_FUNC; =============
 .section .iwram, "ax",%progbits
 .arm
 .cpu arm7tdmi
@@ -10,7 +10,7 @@ memset32:
     bhs     .Lms16_entry32
     b       .Lms16_word_loop
 
-@ === void memset16(void *dst, u16 fill, size_t hwcount) IWRAM_CODE; =============
+@ === void memset16(void *dst, u16 fill, size_t hwcount) IWRAM_FUNC; =============
 .section .iwram, "ax", %progbits
 .arm
 .cpu arm7tdmi

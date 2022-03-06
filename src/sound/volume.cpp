@@ -1,5 +1,6 @@
 #include "volume.h"
-#include "video.h"
+
+#include "graphics.h"
 
 #ifdef DEBUG_PLAYER
 #include "print/print.h"
@@ -72,7 +73,7 @@ namespace Volume
     void init()
     {
         // Connect handler to recalculate volume on vblank
-        Video::callAtVblank((void (*)())volumeRecalc);
+        Graphics::callAtVblank((void (*)())volumeRecalc);
     }
 
 } //namespace Sound

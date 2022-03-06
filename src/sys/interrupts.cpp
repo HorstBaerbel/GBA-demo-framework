@@ -1,6 +1,6 @@
 #include "interrupts.h"
 
-#include <gba_video.h>
+#include "sys/video.h"
 
 /// @brief Interrupt dispatch function in .s file.
 extern "C" void DispatchInterrupt();

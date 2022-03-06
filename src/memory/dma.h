@@ -53,4 +53,10 @@ namespace DMA
     /// @param nrOfBytes Bytes to copy.
     void vram_copy(uint16_t *destination, const uint8_t *source, uint32_t nrOfBytes);
 
+    /// @brief Start 16-bit H-blank DMA
+    void dma_hdma(uint16_t *destination, const uint16_t *source, uint16_t nrOfHwords, uint16_t channel = 3);
+
+    /// @brief Start 32-bit H-blank DMA
+    void dma_hdma(uint32_t *destination, const uint32_t *source, uint16_t nrOfWords, uint16_t channel = 3);
+
 } // namespace DMA

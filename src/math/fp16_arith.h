@@ -3,7 +3,7 @@
 //DON'T include these directly!!! No namespace here, because directly included in fp16.h
 
 #include "fparith.h"
-#include "fphelpers.h"
+#include "helpers.h"
 
 template <unsigned int F>
 inline fp16_t<F> &fp16_t<F>::operator+=(fp16_t<F> b)

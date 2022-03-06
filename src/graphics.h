@@ -1,17 +1,18 @@
 #pragma once
 
-#include <cstdint>
 #include "fptime.h"
 #include "palette.h"
 
-namespace Video
+#include <cstdint>
+
+namespace Graphics
 {
 
     /// @brief Clear buffer to color. Use with e.g. backBuffer();
-    void clear8(uint16_t *buffer, const uint8_t color = 0) IWRAM_CODE;
+    void clear8(uint16_t *buffer, const uint8_t color = 0) IWRAM_FUNC;
 
     /// @brief Clear buffer to color. Use with e.g. backBuffer();
-    void clear16(uint16_t *buffer, const uint16_t color = 0) IWRAM_CODE;
+    void clear16(uint16_t *buffer, const uint16_t color = 0) IWRAM_FUNC;
 
     /// @brief Clear a block of video memory.
     /// @param buffer Buffer to clear.
@@ -19,7 +20,7 @@ namespace Video
     /// @param y Start pixel, MUST BE ALIGNED TO 4!
     /// @param blockSize, MUST BE DIVISIBLE 4!
     /// @param color Guess.
-    void clearBlock8(uint16_t *buffer, uint32_t x, uint32_t y, uint32_t blockSize, const uint8_t color = 0) IWRAM_CODE;
+    void clearBlock8(uint16_t *buffer, uint32_t x, uint32_t y, uint32_t blockSize, const uint8_t color = 0) IWRAM_FUNC;
 
     /// @brief Clear a block of video memory.
     /// @param buffer Buffer to clear.
@@ -27,50 +28,16 @@ namespace Video
     /// @param y Start pixel, MUST BE ALIGNED TO 4!
     /// @param blockSize, MUST BE DIVISIBLE 4!
     /// @param color Guess.
-    void clearBlock16(uint16_t *buffer, uint32_t x, uint32_t y, uint32_t blockSize, const uint16_t color = 0) IWRAM_CODE;
+    void clearBlock16(uint16_t *buffer, uint32_t x, uint32_t y, uint32_t blockSize, const uint16_t color = 0) IWRAM_FUNC;
 
     /// @brief Set a pixel in buffer to color. Very slow.
-    void setPixel8(uint16_t *buffer, uint32_t x, uint32_t y, const uint8_t color) IWRAM_CODE;
+    void setPixel8(uint16_t *buffer, uint32_t x, uint32_t y, const uint8_t color) IWRAM_FUNC;
 
     /// @brief Set 1-2 pixel in buffer to color. Slow.
-    void setPixel16(uint16_t *buffer, uint32_t x, uint32_t y, const uint16_t color) IWRAM_CODE;
+    void setPixel16(uint16_t *buffer, uint32_t x, uint32_t y, const uint16_t color) IWRAM_FUNC;
 
     /// @brief Set 2-4 pixel in buffer to color. Slow.
-    void setPixel32(uint16_t *buffer, uint32_t x, uint32_t y, const uint32_t color) IWRAM_CODE;
-
-    /// @brief Fill palette with currently set background palette.
-    /// @param palette Palette to fill with currently set background palette.
-    /// @param startIndex Start index of color to start copying at.
-    /// @param count The number of colors to copy. Will be clamped to [0,256].
-    void getBackgroundPalette(uint16_t *palette, uint32_t startIndex = 0, uint32_t count = 256);
-
-    /// @brief Fill palette with currently set 4-bit background palette.
-    /// @param palette Palette to fill with currently set background palette.
-    /// @param paletteIndex The index of the palette to copy. Will be clamped to [0,16].
-    /// @param count The number of colors to copy. Will be clamped to [0,16].
-    void getBackgroundPalette4(Palette::Palette16 &palette, uint32_t paletteIndex = 0, uint32_t count = 16);
-
-    /// @brief Fill palette with currently set 8-bit background palette.
-    /// @param palette Palette to fill with currently set background palette.
-    /// @param count The number of colors to copy. Will be clamped to [0,256].
-    void getBackgroundPalette8(Palette::Palette256 &palette, uint32_t count = 256);
-
-    /// @brief Set background palette to palette.
-    /// @param palette Palette to set background palette to.
-    /// @param startIndex Start index of color to start copying at.
-    /// @param count The number of colors to copy. Will be clamped to [0,256].
-    void setBackgroundPalette(const uint16_t *palette, uint32_t startIndex = 0, uint32_t count = 256);
-
-    /// @brief Set background palette to 4-bit palette.
-    /// @param palette Palette to set background palette to.
-    /// @param paletteIndex The index of the palette to copy. Will be clamped to [0,16].
-    /// @param count The number of colors to copy. Will be clamped to [0,16].
-    void setBackgroundPalette4(const Palette::Palette16 &palette, uint32_t paletteIndex = 0, uint32_t count = 16);
-
-    /// @brief Set background palette to 8-bit palette.
-    /// @param palette Palette to set background palette to.
-    /// @param count The number of colors to copy. Will be clamped to [0,256].
-    void setBackgroundPalette8(const Palette::Palette256 &palette, uint32_t count = 256);
+    void setPixel32(uint16_t *buffer, uint32_t x, uint32_t y, const uint32_t color) IWRAM_FUNC;
 
     /// @brief Fill 16-color buffer with random values.
     /// @param noZeroColor If true does not fill the buffer with the nibble value 0.

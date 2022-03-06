@@ -1,6 +1,6 @@
 #include "draw_geometry.h"
 #include "memory/dma.h"
-#include "video.h"
+#include "graphics.h"
 
 void draw_line(uint16_t *buffer, const Line2D &line, color8 color)
 {
@@ -31,13 +31,13 @@ void draw_line(uint16_t *buffer, const Line2D &line, color8 color)
         dx = -dx;
     }
     // draw first pixel
-    Video::setPixel8(buffer, x0, y0, color);
+    Graphics::setPixel8(buffer, x0, y0, color);
     // simple horizontal line?
     if (dy == 0)
     {
         while (dx--)
         {
-            Video::setPixel8(buffer, x0++, y0, color);
+            Graphics::setPixel8(buffer, x0++, y0, color);
         }
     }
     // simple vertical line?
@@ -45,7 +45,7 @@ void draw_line(uint16_t *buffer, const Line2D &line, color8 color)
     {
         while (dy--)
         {
-            Video::setPixel8(buffer, x0, y0++, color);
+            Graphics::setPixel8(buffer, x0, y0++, color);
         }
     }
     // line more vertical than horizontal?
@@ -63,7 +63,7 @@ void draw_line(uint16_t *buffer, const Line2D &line, color8 color)
                 x0 += dir;
             }
             y0++;
-            Video::setPixel8(buffer, x0, y0, color);
+            Graphics::setPixel8(buffer, x0, y0, color);
         }
     }
     // line more horizontal than vertical
@@ -81,7 +81,7 @@ void draw_line(uint16_t *buffer, const Line2D &line, color8 color)
                 y0++;
             }
             x0 += dir;
-            Video::setPixel8(buffer, x0, y0, color);
+            Graphics::setPixel8(buffer, x0, y0, color);
         }
     }
 }

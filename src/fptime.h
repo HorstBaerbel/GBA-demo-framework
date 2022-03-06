@@ -30,4 +30,12 @@ namespace Time
 	/// @param[in] scale Scaling value that gets multiplied when timerTick() is called.
 	void setScale(Math::fp1616_t scale);
 
+	/// @brief Start a short-term timer (< 1s). For benchmarking etc.
+	/// Runs on Timer #2.
+	void startTimer();
+
+	/// @brief Stop short-term timer and return result in s.
+	/// Runs on Timer #2.
+	Duration endTimer();
+
 } // namespace Time

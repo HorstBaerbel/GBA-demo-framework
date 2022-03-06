@@ -1,11 +1,13 @@
 #include "random.h"
 
-extern "C" uint32_t random_u32() IWRAM_CODE;
+#include <cstdint>
+
+extern "C" [[nodiscard]] uint32_t random_u32() IWRAM_FUNC;
 
 template <>
 bool random()
 {
-    return random_u32() >= 0x80000000;
+    return (random_u32() & 1) != 0;
 }
 
 template <>

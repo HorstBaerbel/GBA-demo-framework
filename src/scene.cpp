@@ -1,6 +1,6 @@
 #include "scene.h"
 #include "fptime.h"
-#include "sound/player.h"
+#include "sound/sound.h"
 
 //#define DEBUG_SCENE
 #ifdef DEBUG_SCENE
@@ -10,7 +10,7 @@
 // Define this to control scenes with the keypad (skip etc.)
 //#define SCENE_CONTROL
 #if defined(KEYSDOWN_IN_DATA) || defined(SCENE_CONTROL)
-#include <gba_input.h>
+#include "input.h"
 #endif
 
 namespace Scene

@@ -1,7 +1,7 @@
 #include "fptime.h"
 #include "sys/interrupts.h"
 
-#include <gba_timers.h>
+#include "sys/timers.h"
 
 // The system clock is 16.78MHz (F=16*1024*1024 Hz), one cycle is thus approx. 59.59ns
 constexpr uint16_t TimerDividerBits = 2;                  // (0=F/1, 1=F/64, 2=F/256, 3=F/1024)
@@ -12,11 +12,11 @@ constexpr int32_t TimerVblankInterval = ((1 << 16) / 60); // vblank interval as 
 namespace Time
 {
 
-    static int32_t current = 0;                // Time since timer was started
-    static int32_t increment = TimerIncrement; // Timer increment value added every tick
+    IWRAM_DATA static int32_t current = 0;                // Time since timer was started
+    IWRAM_DATA static int32_t increment = TimerIncrement; // Timer increment value added every tick
 
     // Called each timer tick to increase time value
-    IWRAM_CODE void timerTick()
+    IWRAM_FUNC void timerTick()
     {
         current += increment;
     }
@@ -34,7 +34,7 @@ namespace Time
         irqDisable(IRQMask::IRQ_TIMER3);
     }
 
-    IWRAM_CODE TimePoint now()
+    IWRAM_FUNC TimePoint now()
     {
         return Math::fp1616_t::fromRaw(current);
     }
@@ -47,6 +47,18 @@ namespace Time
     void setScale(Math::fp1616_t scaleBy)
     {
         increment = (int32_t)(scaleBy * Math::fp1616_t::fromRaw(TimerIncrement));
+    }
+
+    void startTimer()
+    {
+        REG_TM2CNT_L = 0;
+        REG_TM2CNT_H = TIMER_START | 2;
+    }
+
+    Duration endTimer()
+    {
+        REG_TM2CNT_H = 0;
+        return Math::fp1616_t::fromRaw(REG_TM2CNT_L);
     }
 
 } //namespace Time

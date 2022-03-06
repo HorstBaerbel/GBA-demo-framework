@@ -43,8 +43,12 @@ namespace Backgrounds
         Depth256 = 1
     };
 
+    /// @brief Build background control
+    /// See: http://problemkaputt.de/gbatek.htm#lcdiobgcontrol
+    uint16_t control(Tiles::TileBase tileBase, Tiles::ScreenBase screenBase, ScreenSize screenSize, ColorDepth depth, Priority priority = Priority::Prio0);
+
     /// @brief Set up background
     /// See: http://problemkaputt.de/gbatek.htm#lcdiobgcontrol
-    void setBackground(Background background, Tiles::TileBase tileBase, Tiles::ScreenBase screenBase, ScreenSize screenSize, ColorDepth depth, Priority priority = Priority::Prio0);
+    void setControl(Background background, Tiles::TileBase tileBase, Tiles::ScreenBase screenBase, ScreenSize screenSize, ColorDepth depth, Priority priority = Priority::Prio0);
 
 } // namespace Backgrounds

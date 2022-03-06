@@ -3,7 +3,7 @@
 .arm
 .cpu arm7tdmi
 .align 2 
-@ === int32_t sqrt(int32_t number) IWRAM_CODE; =============
+@ === int32_t sqrt(int32_t number) IWRAM_FUNC; =============
 sqrt:
 	stmfd	sp!, {v1, lr}
 	mov	lr, a1			@ Copy input somewhere.

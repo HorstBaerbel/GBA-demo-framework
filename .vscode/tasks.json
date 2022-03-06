@@ -4,57 +4,57 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Run mgba (with gdbserver)",
+            "label": "build Release",
             "type": "shell",
-            "command": "/usr/local/bin/mgba-qt",
+            "command": "cmake --build '${workspaceRoot}/build' --config Release --target all -- -j 6",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "build Debug",
+            "type": "shell",
+            "command": "cmake --build '${workspaceRoot}/build' --config Debug --target all -- -j 6",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "group": "build",
+        },
+        {
+            "label": "kill mGBA",
+            "group": "none",
+            "type": "shell",
+            "command": "killall mgba-qt"
+        },
+        {
+            "label": "Run amap",
+            "group": "none",
+            "type": "shell",
+            "command": "amap",
             "args": [
-                "-2",
-                "-g",
-                "${command:cmake.launchTargetPath}"
+                "${command:cmake.buildDirectory}/*.map"
             ],
-            "isBackground": true,
-            "problemMatcher": [
-                {
-                    "pattern": [
-                        {
-                            "regexp": ".",
-                            "file": 1,
-                            "location": 2,
-                            "message": 3
-                        }
-                    ],
-                    "background": {
-                        "activeOnStart": true,
-                        "beginsPattern": ".",
-                        "endsPattern": "."
-                    }
-                }
-            ]
-        },
-        {
-            "label": "Analyze map file with AMAP",
-            "type": "shell",
-            "command": "amap_gtk ${command:cmake.launchTargetDirectory}/*.map",
             "options": {
-                "cwd": "${command:cmake.buildDirectory}"
+                "cwd": "${workspaceRoot}"
+            },
+            "presentation": {
+                "reveal": "never"
             },
             "problemMatcher": []
         },
         {
-            "label": "Analyze map file with fpvgcc (files)",
-            "type": "shell",
-            "command": "fpvgcc --sar ${command:cmake.launchTargetDirectory}/*.map",
-            "options": {
-                "cwd": "${command:cmake.buildDirectory}"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Analyze map file with fpvgcc (symbols)",
-            "type": "shell",
-            "command": "fpvgcc --ssym all ${command:cmake.launchTargetDirectory}/*.map",
-            "options": {
-                "cwd": "${command:cmake.buildDirectory}"
+            "label": "Show .map file",
+            "group": "none",
+            "dependsOn": [
+                "build Release",
+                "Run amap"
+            ],
+            "presentation": {
+                "reveal": "never"
             },
             "problemMatcher": []
         }

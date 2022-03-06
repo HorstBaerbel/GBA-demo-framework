@@ -8,35 +8,52 @@
             "name": "Run in mgba",
             "type": "cppdbg",
             "request": "launch",
+            "preLaunchTask": "build Release",
             "program": "/usr/local/bin/mgba-qt",
             "args": [
-                "-2",
+                "-3",
                 "${command:cmake.launchTargetPath}"
             ],
             "cwd": "${command:cmake.buildDirectory}"
         },
         {
             "name": "Debug in mgba",
-            "type": "gdb",
-            "request": "attach",
-            "gdbpath": "${env:DEVKITARM}/bin/arm-none-eabi-gdb",
-            "executable": "${command:cmake.launchTargetPath}",
-            "target": ":2345",
+            "type": "cppdbg",
+            "request": "launch",
+            "preLaunchTask": "build Debug",
+            "program": "${command:cmake.launchTargetPath}",
+            "args": [],
+            "stopAtEntry": false,
             "cwd": "${command:cmake.buildDirectory}",
-            "remote": true,
-            "valuesFormatting": "parseText",
-            "printCalls": true,
-            "showDevDebugOutput": true,
-            "preLaunchTask": "Run mgba (with gdbserver)"
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerServerAddress": "localhost:2345",
+            "linux": {
+                "miDebuggerPath": "${env:DEVKITARM}/bin/arm-none-eabi-gdb",
+                "setupCommands": [
+                    {
+                        "text": "set print pretty",
+                        "ignoreFailures": false
+                    },
+                    {
+                        "description": "mGBA",
+                        "text": "shell \"/usr/local/bin/mgba-qt\" -3 -g \"${command:cmake.launchTargetPath}\" &",
+                        "ignoreFailures": false
+                    }
+                ]
+            },
+            "postDebugTask": "kill mGBA"
         },
         {
             "name": "Run in vba",
             "type": "cppdbg",
             "request": "launch",
+            "preLaunchTask": "build Release",
             "program": "/usr/bin/vba",
             "args": [
                 "${command:cmake.launchTargetPath}",
-                "-2",
+                "-3",
                 "--agb-print"
             ],
             "cwd": "${command:cmake.buildDirectory}"

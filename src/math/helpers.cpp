@@ -1,5 +1,6 @@
-#include "fphelpers.h"
+#include "helpers.h"
 
+template <>
 uint32_t countLeadingZeros(uint32_t x)
 {
     uint32_t exp = 32;
@@ -28,6 +29,7 @@ uint32_t countLeadingZeros(uint32_t x)
     return exp;
 }
 
+template <>
 uint32_t countLeadingZeros(uint16_t x)
 {
     uint32_t exp = 16;
@@ -51,6 +53,7 @@ uint32_t countLeadingZeros(uint16_t x)
     return exp;
 }
 
+template <>
 uint32_t countTrailingZeros(uint32_t x)
 {
     uint32_t exp = 0;
@@ -79,6 +82,7 @@ uint32_t countTrailingZeros(uint32_t x)
     return exp;
 }
 
+template <>
 uint32_t countTrailingZeros(uint16_t x)
 {
     uint32_t exp = 0;
@@ -102,30 +106,35 @@ uint32_t countTrailingZeros(uint16_t x)
     return exp;
 }
 
+template <>
 uint32_t highestBitSet(int32_t x)
 {
     // mask out sign bit and count how many bits are set
-    return countLeadingZeros(x < 0 ? -x : x);
+    return countLeadingZeros(static_cast<uint32_t>(x < 0 ? -x : x));
 }
 
+template <>
 uint32_t highestBitSet(int16_t x)
 {
     // mask out sign bit and count how many bits are set
-    return countLeadingZeros(x < 0 ? -x : x);
+    return countLeadingZeros(static_cast<uint16_t>(x < 0 ? -x : x));
 }
 
+template <>
 uint32_t lowestBitSet(int32_t x)
 {
     // mask out sign bit and count how many bits are set
-    return countTrailingZeros(x < 0 ? -x : x);
+    return countTrailingZeros(static_cast<uint32_t>(x < 0 ? -x : x));
 }
 
+template <>
 uint32_t lowestBitSet(int16_t x)
 {
     // mask out sign bit and count how many bits are set
-    return countTrailingZeros(x < 0 ? -x : x);
+    return countTrailingZeros(static_cast<uint16_t>(x < 0 ? -x : x));
 }
 
+template <>
 bool isAddSafe(int32_t a, int32_t b)
 {
     uint32_t a_bits = highestBitSet(a);
@@ -133,6 +142,7 @@ bool isAddSafe(int32_t a, int32_t b)
     return (a_bits < 31 && b_bits < 31);
 }
 
+template <>
 bool isAddSafe(int16_t a, int16_t b)
 {
     uint32_t a_bits = highestBitSet(a);
@@ -140,6 +150,7 @@ bool isAddSafe(int16_t a, int16_t b)
     return (a_bits < 15 && b_bits < 15);
 }
 
+template <>
 bool isMulSafe(int32_t a, int32_t b)
 {
     uint32_t a_bits = highestBitSet(a);
@@ -147,6 +158,7 @@ bool isMulSafe(int32_t a, int32_t b)
     return (a_bits + b_bits <= 31);
 }
 
+template <>
 bool isMulSafe(int16_t a, int16_t b)
 {
     uint32_t a_bits = highestBitSet(a);

@@ -185,4 +185,22 @@ namespace DMA
         }
     }
 
+    void dma_hdma(uint16_t *destination, const uint16_t *source, uint16_t nrOfHwords, uint16_t channel)
+    {
+        REG_DMA[channel].mode = 0;
+        REG_DMA[channel].source = reinterpret_cast<const void *>(source);
+        REG_DMA[channel].destination = reinterpret_cast<void *>(destination);
+        REG_DMA[channel].count = nrOfHwords;
+        REG_DMA[channel].mode = DMA_HBLANK | DMA_REPEAT | DMA16 | DMA_DST_FIXED | DMA_SRC_INC | DMA_ENABLE;
+    }
+
+    void dma_hdma(uint32_t *destination, const uint32_t *source, uint16_t nrOfWords, uint16_t channel)
+    {
+        REG_DMA[channel].mode = 0;
+        REG_DMA[channel].source = reinterpret_cast<const void *>(source);
+        REG_DMA[channel].destination = reinterpret_cast<void *>(destination);
+        REG_DMA[channel].count = nrOfWords;
+        REG_DMA[channel].mode = DMA_HBLANK | DMA_REPEAT | DMA32 | DMA_DST_FIXED | DMA_SRC_INC | DMA_ENABLE;
+    }
+
 } // namespace DMA

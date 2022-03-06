@@ -1,11 +1,11 @@
 #include <fptime.h>
+#include <graphics.h>
 #include <memory/dma.h>
 #include <memory/memory.h>
 #include <print/print.h>
 #include <sys/syscall.h>
-#include <video.h>
 
-//disable GCC warnings for using char * here...
+// disable GCC warnings for using char * here...
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 
 namespace Test
@@ -28,19 +28,19 @@ namespace Test
         Math::fp1616_t start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
-            Memory::memset32(Video::backBuffer(), i, vramCount);
+            Memory::memset32(Graphics::backBuffer(), i, vramCount);
         }
         printf("memset32 = %d\n", Time::now() - start);
         /*start = Time::now();
-		for (uint32_t i = 0; i < 1024; ++i)
-		{
-			CpuFastSet(&i, Video::backBuffer(), vramCount | (1 << 24));
-		}
-		printf("CpuFastSet = %d\n", Time::now() - start);*/
+        for (uint32_t i = 0; i < 1024; ++i)
+        {
+            CpuFastSet(&i, Graphics::backBuffer(), vramCount | (1 << 24));
+        }
+        printf("CpuFastSet = %d\n", Time::now() - start);*/
         start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
-            DMA::dma_fill32(Video::backBuffer(), i, vramCount);
+            DMA::dma_fill32(Graphics::backBuffer(), i, vramCount);
         }
         printf("dma_fill32 = %d\n", Time::now() - start);
         //--------------------------------------------------------------------------
@@ -52,11 +52,11 @@ namespace Test
         }
         printf("memset32 = %d\n", Time::now() - start);
         /*start = Time::now();
-		for (uint32_t i = 0; i < 1024; ++i)
-		{
-			CpuFastSet(&i, dew, bufferCount | (1 << 24));
-		}
-		printf("CpuFastSet = %d\n", Time::now() - start);*/
+        for (uint32_t i = 0; i < 1024; ++i)
+        {
+            CpuFastSet(&i, dew, bufferCount | (1 << 24));
+        }
+        printf("CpuFastSet = %d\n", Time::now() - start);*/
         start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
@@ -72,11 +72,11 @@ namespace Test
         }
         printf("memset32 = %d\n", Time::now() - start);
         /*start = Time::now();
-		for (uint32_t i = 0; i < 1024; ++i)
-		{
-			CpuFastSet(&i, diw, bufferCount | (1 << 24));
-		}
-		printf("CpuFastSet = %d\n", Time::now() - start);*/
+        for (uint32_t i = 0; i < 1024; ++i)
+        {
+            CpuFastSet(&i, diw, bufferCount | (1 << 24));
+        }
+        printf("CpuFastSet = %d\n", Time::now() - start);*/
         start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
@@ -88,19 +88,19 @@ namespace Test
         start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
-            Memory::memcpy16(Video::backBuffer(), sew, bufferCount * 2);
+            Memory::memcpy16(Graphics::backBuffer(), sew, bufferCount * 2);
         }
         printf("memcpy16 = %d\n", Time::now() - start);
         start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
-            Memory::memcpy32(Video::backBuffer(), sew, bufferCount);
+            Memory::memcpy32(Graphics::backBuffer(), sew, bufferCount);
         }
         printf("memcpy32 = %d\n", Time::now() - start);
         start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
-            DMA::dma_copy32(Video::backBuffer(), reinterpret_cast<const uint32_t *>(sew), bufferCount);
+            DMA::dma_copy32(Graphics::backBuffer(), reinterpret_cast<const uint32_t *>(sew), bufferCount);
         }
         printf("dma_copy32 = %d\n", Time::now() - start);
         //--------------------------------------------------------------------------
@@ -108,19 +108,19 @@ namespace Test
         start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
-            Memory::memcpy16(Video::backBuffer(), siw, bufferCount * 2);
+            Memory::memcpy16(Graphics::backBuffer(), siw, bufferCount * 2);
         }
         printf("memcpy16 = %d\n", Time::now() - start);
         start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
-            Memory::memcpy32(Video::backBuffer(), siw, bufferCount);
+            Memory::memcpy32(Graphics::backBuffer(), siw, bufferCount);
         }
         printf("memcpy32 = %d\n", Time::now() - start);
         start = Time::now();
         for (uint32_t i = 0; i < 1024; ++i)
         {
-            DMA::dma_copy32(Video::backBuffer(), reinterpret_cast<const uint32_t *>(siw), bufferCount);
+            DMA::dma_copy32(Graphics::backBuffer(), reinterpret_cast<const uint32_t *>(siw), bufferCount);
         }
         printf("dma_copy32 = %d\n", Time::now() - start);
         //--------------------------------------------------------------------------

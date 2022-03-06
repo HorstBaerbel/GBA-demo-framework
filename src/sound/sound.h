@@ -1,13 +1,8 @@
 #pragma once
 
 #include "effect.h"
-#include "fptime.h"
-
-// Define this to be able to check MaxMOD CPU usage
-//#define CHECK_CPU_TIME
-#ifdef CHECK_CPU_TIME
 #include "math/fp32.h"
-#endif
+#include "spectrum.h"
 
 #include <cstdint>
 
@@ -34,14 +29,13 @@
 ///
 /// The player will send events when a song is started, has ended or was paused.
 /// You can also add messages to the module by adding SFx (or mod/xm EFx) effects. These values will be forwarded as song events too.
-/// To receive song events, register a handler (up to 6) using:
+/// To receive song events, register a handler (up to 4) using:
 ///
 /// Sound::callAtSongEvent(yourHandlerFunction);
 ///
 /// When you don't need the handler anymore, deregister it using:
 ///
 /// Sound::removeAtSongEvent(yourHandlerFunction);
-///
 namespace Sound
 {
 
@@ -69,11 +63,11 @@ namespace Sound
     /// @brief Set song / soundbank loop mode
     void setLoopMode(LoopMode mode);
 
-    /// @brief Length of sound buffer returned in waveBuffer()
-    uint32_t waveBufferLength();
+    /// @brief Length of sound buffer returned in mixingBuffer()
+    constexpr uint32_t getWaveBufferLength();
 
-    /// @brief Wave buffer data from player
-    const uint8_t *waveBuffer();
+    /// @brief Mixing buffer data from player
+    const int8_t *getWaveBuffer();
 
     /// @brief Play sound effect from soundbank.bin
     Effect::Handle playEffect(const Effect *effect);
@@ -86,6 +80,9 @@ namespace Sound
 
     /// @brief Search to the song position indicated by position
     void setSongPosition(uint32_t position);
+
+    /// @brief Get the duration in s the current song has been playing
+    Math::fp1616_t getPlayedSongDuration();
 
     /// @brief Skip to previous song / module if any
     void skipPrevious();
@@ -124,9 +121,13 @@ namespace Sound
     /// @brief Remove a function to be called on song events, e.g. a song has started or finished or a message was received (see above)
     void removeAtSongEvent(SongEventHandler handler);
 
-#ifdef CHECK_CPU_TIME
-    /// @brief Get CPU time used by MaxMOD in s
-    Math::fp1616_t getCpuTimeS();
-#endif
+    //--- spectrum -----------------------------------------------------------------------------
+
+    /// @brief Calculate spectrum from MaxMOD play buffer
+    void updateSpectrum();
+
+    /// @brief Get current spectrum. Use update() to calculate
+    /// @param result Returned spectrum
+    const Spectrum::Bands &getSpectrum();
 
 } //namespace Sound

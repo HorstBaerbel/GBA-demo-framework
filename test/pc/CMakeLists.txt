@@ -58,9 +58,9 @@ LIST(APPEND TARGET_SOURCES
     test_vec.cpp
     ../../src/math/fp32.cpp
     ../../src/math/fp32_trig.cpp
-    ../../src/debug/args.cpp
-    ../../src/debug/output.cpp
-    ../../src/debug/itoa.cpp
+    ../../src/print/args.cpp
+    ../../src/print/output.cpp
+    ../../src/print/itoa.cpp
 )
 
 LIST(APPEND TARGET_INCLUDE_DIRS

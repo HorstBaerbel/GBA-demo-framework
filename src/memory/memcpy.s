@@ -1,4 +1,4 @@
-@ === void memcpy32(void *dst, const void *src, u32 wcount) IWRAM_CODE; =============
+@ === void memcpy32(void *dst, const void *src, u32 wcount) IWRAM_FUNC; =============
 @ r0, r1: dst, src
 @ r2: wcount, then wcount>>3
 @ r3-r10: data buffer

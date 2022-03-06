@@ -1,5 +1,5 @@
 #include "blend.h"
-#include "video.h"
+#include "graphics.h"
 
 namespace Effect_Blend
 {
@@ -57,7 +57,7 @@ namespace Effect_Blend
                 if (Direction::FADE_TO == currentData->direction || Direction::FADE_FROM == currentData->direction)
                 {
                     // stop fading, thus remove callback from frame function
-                    Video::removeAtVblank(nullptr, data);
+                    Graphics::removeAtVblank(nullptr, data);
                     clear();
                 }
                 else if (Direction::FADE_TO_AND_BACK == currentData->direction)
@@ -81,7 +81,7 @@ namespace Effect_Blend
         //set up data
         data.startTime = Time::now();
         //connect effect to frame procedure
-        Video::callAtVblank(procFade, (void *)&data);
+        Graphics::callAtVblank(procFade, (void *)&data);
     }
 
     void setFade(Target targets, Mode mode, Math::fp1616_t t)
@@ -116,7 +116,7 @@ namespace Effect_Blend
 
     void clear()
     {
-        Video::removeAtVblank(procFade, nullptr);
+        Graphics::removeAtVblank(procFade, nullptr);
         REG_BLDCNT = 0;
         REG_BLDALPHA = 0;
         REG_BLDY = 0;

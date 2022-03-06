@@ -1,12 +1,13 @@
 #include "draw_gradient.h"
-#include "print/print.h"
+
+#include "graphics.h"
 
 /*void drawGradient_mode4(uint16_t *buffer, const Gradient8 &gradient, const Math::fp1616vec2_t &from, const Math::fp1616vec2_t &to)
 {
     // get some video stuff
-    const uint32_t wordsPerScanline = Video::bytesPerScanline() >> 1;
-    const int32_t width = Video::width();
-    const int32_t height = Video::height();
+    const uint32_t wordsPerScanline = Graphics::bytesPerScanline() >> 1;
+    const int32_t width = Graphics::width();
+    const int32_t height = Graphics::height();
     // calculate normalized direction
     Math::fp1616vec2_t dir = to - from;
     Math::fp1616_t dirLength = dir.length();
@@ -59,9 +60,9 @@
 void drawGradient_mode4(uint16_t *buffer, const Gradient8 &gradient, const Math::fp1616vec2_t &from, const Math::fp1616vec2_t &to)
 {
     // get some video stuff
-    const uint32_t wordsPerScanline = Video::bytesPerScanline() >> 1;
-    const int32_t width = Video::width();
-    const int32_t height = Video::height();
+    const uint32_t wordsPerScanline = Graphics::bytesPerScanline() >> 1;
+    const int32_t width = Graphics::width();
+    const int32_t height = Graphics::height();
     // calculate upper-left, upper-right and bottom-left corner position
     Math::fp1616vec2_t ul = Math::fp1616vec2_t(0, 0) - from;
     Math::fp1616vec2_t ur = Math::fp1616vec2_t(width - 1, 0) - from;

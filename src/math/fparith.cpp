@@ -1,5 +1,5 @@
 #include "fparith.h"
-#include "fphelpers.h"
+#include "helpers.h"
 
 // See: https://stackoverflow.com/questions/6286450/inverse-sqrt-for-fixed-point?noredirect=1&lq=1
 // For each sub-interval in [1, 4), use an 8-bit approximation r to reciprocal

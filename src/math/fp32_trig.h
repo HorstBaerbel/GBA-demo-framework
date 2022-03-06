@@ -172,3 +172,134 @@ fp32_t<F> atan2(fp32_t<F> x, fp32_t<F> y)
     }
     return r;
 }
+
+// This implementation is based on Clay. S. Turner's fast binary logarithm algorithm
+// C. S. Turner, "A Fast Binary Logarithm Algorithm", IEEE Signal Processing Mag., pp. 124,140, Sep. 2010
+// See: https://github.com/dmoulding/log2fix
+template <unsigned int F>
+fp32_t<F> log2_A(fp32_t<F> a)
+{
+    int32_t x = a.raw();
+    int32_t b = 1U << (F - 1);
+    int32_t y = 0;
+    if (x <= 0)
+    {
+        return 0;
+    }
+    while (x < 1U << F)
+    {
+        x <<= 1;
+        y -= 1U << F;
+    }
+    while (x >= 2U << F)
+    {
+        x >>= 1;
+        y += 1U << F;
+    }
+    uint32_t z = x;
+    for (uint32_t i = 0; i < F; i++)
+    {
+        z = ((uint64_t)z * (uint64_t)z) >> F;
+        if (z >= 2U << F)
+        {
+            z >>= 1;
+            y += b;
+        }
+        b >>= 1;
+    }
+    return fp32_t<F>::fromRaw(y);
+}
+
+/* on 32-bit architectures, there is often an instruction/intrinsic for this */
+inline int32_t mulhi(int32_t a, int32_t b)
+{
+    return (int32_t)(((int64_t)a * (int64_t)b) >> 32);
+}
+
+#define RND_SHIFT (25 - 16)
+#define RND_CONST ((1 << RND_SHIFT) / 2)
+#define RND_ADJUST (-2) /* established heuristically */
+
+/* 
+    compute log2(x) in s15.16 format, where x is in s15.16 format
+    maximum absolute error 1.11288e-5 @ 0x5a82689f (0.707104757)
+*/
+template <unsigned int F>
+fp32_t<F> log2_B(fp32_t<F> a)
+{
+    if (a <= 0)
+    {
+        return 0;
+    }
+    /* x = 2**i * (1 + f), 0 <= f < 1. Find i */
+    int32_t x = a.raw();
+    int32_t lz = 32;
+    if (x & 0xffff0000)
+    {
+        lz -= 16;
+        x >>= 16;
+    }
+    if (x & 0xff00)
+    {
+        lz -= 8;
+        x >>= 8;
+    }
+    if (x & 0xf0)
+    {
+        lz -= 4;
+        x >>= 4;
+    }
+    if (x & 0xc)
+    {
+        lz -= 2;
+        x >>= 2;
+    }
+    lz -= (x & 0x2);
+    lz -= (x & 0x1);
+    int32_t i = (32 - F) - lz;
+    /* force (1+f) into range [sqrt(0.5), sqrt(2)] */
+    uint32_t t = (uint32_t)a.raw() << lz;
+    if (t > (uint32_t)(1.414213562 * (1U << 31)))
+    {
+        i++;
+        t = t >> 1;
+    }
+    /* compute log2(1+f) for f in [-0.2929, 0.4142] */
+    int32_t f = t - (1U << 31);
+    int32_t p = +(int32_t)(-0.206191055 * (1U << 31) - 1);
+    p = mulhi(p, f) + (int32_t)(0.318199910 * (1U << 30) - 18);
+    p = mulhi(p, f) + (int32_t)(-0.366491705 * (1U << 29) + 22);
+    p = mulhi(p, f) + (int32_t)(0.479811855 * (1U << 28) - 2);
+    p = mulhi(p, f) + (int32_t)(-0.721206390 * (1U << 27) + 37);
+    p = mulhi(p, f) + (int32_t)(0.442701618 * (1U << 26) + 35);
+    p = mulhi(p, f) + (f >> (31 - 25));
+    /* round fractional part of the result */
+    int32_t approx = (p + RND_CONST + RND_ADJUST) >> RND_SHIFT;
+    /* combine integer and fractional parts of result */
+    return fp32_t<F>::fromRaw((i << F) + approx);
+}
+
+template <unsigned int F>
+fp32_t<F> log10(fp32_t<F> x)
+{
+    constexpr fp32_t<F> ONE_OVER_LOG_2_10 = fp32_t<F>::fromRaw(19728);
+    return log2(x) * ONE_OVER_LOG_2_10;
+}
+
+template <unsigned int F>
+fp32_t<F> ln(fp32_t<F> x)
+{
+    constexpr fp32_t<F> ONE_OVER_LOG_2_E = fp32_t<F>::fromRaw(45426);
+    return log2(x) * ONE_OVER_LOG_2_E;
+}
+
+template <unsigned int F>
+fp32_t<F> exp(fp32_t<F> x)
+{
+    auto y = x;
+    y = y - ((y * (ln(y) - x)) >> F);
+    y = y - ((y * (ln(y) - x)) >> F);
+    y = y - ((y * (ln(y) - x)) >> F);
+    y = y - ((y * (ln(y) - x)) >> F);
+    return y;
+}

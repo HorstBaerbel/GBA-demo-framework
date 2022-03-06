@@ -5,6 +5,9 @@
 using color8 = uint8_t;
 using color16 = uint16_t;
 
+#define RGB5(r, g, b) ((r) | ((g) << 5) | ((b) << 10))
+#define RGB8(r, g, b) ((((b) >> 3) << 10) | (((g) >> 3) << 5) | ((r) >> 3))
+
 #define COLOR8_BLACK ((color8)0)
 #define COLOR8_WHITE ((color8)255)
 

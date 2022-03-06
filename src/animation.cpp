@@ -1,26 +1,40 @@
 #include "animation.h"
+
 #include "memory/memory.h"
+#include "sys/base.h"
 
 //#define DEBUG_ANIMATION
 #ifdef DEBUG_ANIMATION
 #include "print/print.h"
 #endif
 
-#include <gba_base.h>
-
 namespace Animation
 {
+
+    /// @brief Animation sequence consisting of multiple keyframes
+    struct Sequence
+    {
+        Math::fp1616_t startTime;                                       /// Absolute start time of sequence.
+        void (*updateFunc)(Math::fp1616_t, const void *, const void *); /// Function to call every update() call. Will pass time [0,1] and the previous and the current data pointers
+        Keyframe *keyframes;                                            /// Pointer to keyframes
+        uint8_t nrOfKeyframes;                                          /// Current number of keyframes in sequence
+        uint8_t maxKeyframes;                                           /// Maximum number of keyframes the sequence can have
+        DirectionMode direction;                                        /// Sequence play direction
+        RepeatMode repeatMode;                                          /// Sequence repeat mode
+        uint8_t repeatCount;                                            /// How often to repeat the sequence
+        bool active;                                                    /// True if the sequence is active
+    } __attribute__((packed));
 
 #define MAX_SEQUENCES 16
     Sequence sequences[MAX_SEQUENCES] EWRAM_DATA;
     uint16_t nrOfSequences EWRAM_DATA = 0;
 
-    Sequence &addSequence(Math::fp1616_t start, void (*updateFunc)(Math::fp1616_t, const void *, const void *), uint8_t nrOfKeyframes, RepeatMode repeatMode, uint8_t repeatCount)
+    uint32_t addSequence(Math::fp1616_t startTime, void (*updateFunc)(Math::fp1616_t, const void *, const void *), uint8_t nrOfKeyframes, RepeatMode repeatMode, uint8_t repeatCount, bool start)
     {
         if (nrOfSequences < (MAX_SEQUENCES - 1))
         {
             auto &sequence = sequences[nrOfSequences];
-            sequence.start = start;
+            sequence.startTime = startTime;
             sequence.updateFunc = updateFunc;
             sequence.keyframes = Memory::malloc_EWRAM<Keyframe>(nrOfKeyframes);
             sequence.nrOfKeyframes = 0;
@@ -28,14 +42,19 @@ namespace Animation
             sequence.direction = DirectionMode::Forward;
             sequence.repeatMode = repeatMode;
             sequence.repeatCount = repeatCount;
-            sequence.active = true;
+            sequence.active = start;
             nrOfSequences++;
         }
-        return sequences[nrOfSequences - 1];
+        return nrOfSequences - 1;
     }
 
-    void addKeyframe(Sequence &sequence, const Keyframe &kf)
+    void addKeyframe(uint32_t sequenceIndex, const Keyframe &kf)
     {
+        if (sequenceIndex >= nrOfSequences)
+        {
+            return;
+        }
+        auto &sequence = sequences[sequenceIndex];
         if (sequence.nrOfKeyframes < sequence.maxKeyframes)
         {
             auto &keyframe = sequence.keyframes[sequence.nrOfKeyframes];
@@ -45,8 +64,13 @@ namespace Animation
         }
     }
 
-    void addKeyframe(Sequence &sequence, const void *data, Math::fp1616_t offset, EaseMode easeMode)
+    void addKeyframe(uint32_t sequenceIndex, const void *data, Math::fp1616_t offset, EaseMode easeMode)
     {
+        if (sequenceIndex >= nrOfSequences)
+        {
+            return;
+        }
+        auto &sequence = sequences[sequenceIndex];
         if (sequence.nrOfKeyframes < sequence.maxKeyframes)
         {
             auto &keyframe = sequence.keyframes[sequence.nrOfKeyframes];
@@ -58,8 +82,13 @@ namespace Animation
         }
     }
 
-    void addEmptyKeyframe(Sequence &sequence, Math::fp1616_t offset)
+    void addEmptyKeyframe(uint32_t sequenceIndex, Math::fp1616_t offset)
     {
+        if (sequenceIndex >= nrOfSequences)
+        {
+            return;
+        }
+        auto &sequence = sequences[sequenceIndex];
         if (sequence.nrOfKeyframes < sequence.maxKeyframes)
         {
             auto &keyframe = sequence.keyframes[sequence.nrOfKeyframes];
@@ -69,6 +98,27 @@ namespace Animation
             keyframe.isEmpty = true;
             sequence.nrOfKeyframes++;
         }
+    }
+
+    void start(uint32_t sequenceIndex, Math::fp1616_t startTime)
+    {
+        if (sequenceIndex >= nrOfSequences)
+        {
+            return;
+        }
+        auto &sequence = sequences[sequenceIndex];
+        sequence.startTime = startTime;
+        sequence.active = true;
+    }
+
+    void stop(uint32_t sequenceIndex)
+    {
+        if (sequenceIndex >= nrOfSequences)
+        {
+            return;
+        }
+        auto &sequence = sequences[sequenceIndex];
+        sequence.active = false;
     }
 
     void clear()
@@ -101,7 +151,7 @@ namespace Animation
             if (sequence.active)
             {
                 const auto duration = sequence.keyframes[sequence.nrOfKeyframes - 1].offset;
-                auto durationPassed = currentTime - sequence.start;
+                auto durationPassed = currentTime - sequence.startTime;
 #ifdef DEBUG_ANIMATION
                 printf("Sequence %d, dur = %d, passed = %d", si, duration, durationPassed);
 #endif
@@ -141,9 +191,9 @@ namespace Animation
 #endif
                         // set the start time to the current time so we'll repeat or reverse the sequence
                         auto rest = durationPassed - duration;
-                        sequence.start = currentTime - rest;
+                        sequence.startTime = currentTime - rest;
                         // recalculate the duration passed
-                        durationPassed = currentTime - sequence.start;
+                        durationPassed = currentTime - sequence.startTime;
                         if (sequence.repeatMode == RepeatMode::PingPong || sequence.repeatMode == RepeatMode::PingPongForever)
                         {
                             sequence.direction = sequence.direction == DirectionMode::Forward ? DirectionMode::Backward : DirectionMode::Forward;
