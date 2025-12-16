@@ -1,7 +1,18 @@
 #pragma once
 
+#ifdef BIT
+#undef BIT
+#endif
+
 /// @brief Base address of GBA video ram
 #define VRAM 0x06000000
+
+/// @brief Start of sprite tile memory
+#define VRAM_OBJ 0x06010000
+#define VRAM_OBJ_BITMAP 0x06014000
+
+/// @brief Start of object attribute memory
+#define OAM 0x07000000
 
 /// @brief Base address of GBA internal work RAM
 #define IWRAM 0x03000000
@@ -33,6 +44,9 @@
 #ifdef EWRAM_DATA
 #undef EWRAM_DATA
 #endif
+#ifdef EWRAM_BSS
+#undef EWRAM_BSS
+#endif
 
 #ifdef ALIGN
 #undef ALIGN
@@ -46,6 +60,8 @@
 #define ALIGN_PACK(n) __attribute__((aligned(n), packed))
 #define NORETURN __attribute__((__noreturn__))
 #define NOINLINE __attribute__((noinline))
+#define FLATTEN __attribute__((flatten))
+#define FORCEINLINE inline __attribute__((always_inline))
 #define ARM_CODE __attribute__((target("arm")))
 #define THUMB_CODE __attribute__((target("thumb")))
 

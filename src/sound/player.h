@@ -23,22 +23,21 @@
 ///
 /// and call:
 ///
-/// Sound::init((const void *)&soundbank_bin, MSL_NSONGS);
+/// Player::init((const void *)&soundbank_bin, MSL_NSONGS);
 ///
-/// somewhere. You should be able to Sound::playSong()s now.
+/// somewhere. You should be able to Player::playSong()s now.
 ///
 /// The player will send events when a song is started, has ended or was paused.
 /// You can also add messages to the module by adding SFx (or mod/xm EFx) effects. These values will be forwarded as song events too.
 /// To receive song events, register a handler (up to 4) using:
 ///
-/// Sound::callAtSongEvent(yourHandlerFunction);
+/// Player::callAtSongEvent(yourHandlerFunction);
 ///
 /// When you don't need the handler anymore, deregister it using:
 ///
-/// Sound::removeAtSongEvent(yourHandlerFunction);
-namespace Sound
+/// Player::removeAtSongEvent(yourHandlerFunction);
+namespace Player
 {
-
     enum class LoopMode
     {
         None,    // Default. No looping
@@ -129,5 +128,4 @@ namespace Sound
     /// @brief Get current spectrum. Use update() to calculate
     /// @param result Returned spectrum
     const Spectrum::Bands &getSpectrum();
-
-} //namespace Sound
+}

@@ -2,6 +2,7 @@
 .arm
 .cpu arm7tdmi
 .extern	interruptTable
+.align 2
 .code 32
 .global	DispatchInterrupt
 @---------------------------------------------------------------------------------

@@ -45,10 +45,37 @@ namespace Backgrounds
 
     /// @brief Build background control
     /// See: http://problemkaputt.de/gbatek.htm#lcdiobgcontrol
-    uint16_t control(Tiles::TileBase tileBase, Tiles::ScreenBase screenBase, ScreenSize screenSize, ColorDepth depth, Priority priority = Priority::Prio0);
+    constexpr uint16_t control(Tiles::TileBase tileBase, Tiles::ScreenBase screenBase, ScreenSize screenSize, ColorDepth depth, Priority priority = Priority::Prio0, bool displayAreaOverflow = false)
+    {
+        return uint16_t(tileBase) | uint16_t(screenBase) | uint16_t(screenSize) | (uint16_t(depth) << 7) | uint16_t(priority) | (displayAreaOverflow ? (uint16_t(1) << 13) : uint16_t(0));
+    }
 
-    /// @brief Set up background
+    /// @brief Set up background control
     /// See: http://problemkaputt.de/gbatek.htm#lcdiobgcontrol
     void setControl(Background background, Tiles::TileBase tileBase, Tiles::ScreenBase screenBase, ScreenSize screenSize, ColorDepth depth, Priority priority = Priority::Prio0);
+
+    /// @brief Background config data
+    struct Config
+    {
+        uint16_t tileIndex = 0;                                     // Tile start index
+        uint16_t tileCount = 0;                                     // Number of tiles used
+        Tiles::TileBase tileBase = Tiles::TileBase::Base0000;       // Tile pixels base adress
+        Tiles::ScreenBase screenBase = Tiles::ScreenBase::Base0000; // Screen / map data base adress
+        ScreenSize screenSize = ScreenSize::Size0;
+        ColorDepth depth = ColorDepth::Depth256;
+        Priority priority = Priority::Prio0;
+        bool displayAreaOverflow = false;
+
+        constexpr Config(uint16_t tileIndex, uint16_t tileCount, Tiles::TileBase tileBase, Tiles::ScreenBase screenBase, ScreenSize screenSize = ScreenSize::Size0, ColorDepth depth = ColorDepth::Depth256, Priority priority = Priority::Prio0, bool displayAreaOverflow = false)
+            : tileIndex(tileIndex), tileCount(tileCount), tileBase(tileBase), screenBase(screenBase),
+              screenSize(screenSize), depth(depth), priority(priority), displayAreaOverflow(displayAreaOverflow)
+        {
+        }
+
+        constexpr uint16_t control() const
+        {
+            return Backgrounds::control(tileBase, screenBase, screenSize, depth, priority, displayAreaOverflow);
+        }
+    } __attribute__((aligned(4), packed));
 
 } // namespace Backgrounds

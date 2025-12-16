@@ -7,6 +7,32 @@
 namespace Memory
 {
 
+	/// @brief Register for Game Pak SRAM and ROM wait states
+	inline auto &RegWaitCnt{*reinterpret_cast<volatile uint16_t *>(REG_BASE + 0x0204)};
+
+	/// @brief Minimum wait states possible for Game Pak SRAM and ROM
+	/// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
+	constexpr uint16_t WaitCntFast = 0x46DA;
+
+	/// @brief Regular wait states possible for Game Pak SRAM and ROM
+	/// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
+	constexpr uint16_t WaitCntNormal = 0x4317;
+
+	/// @brief Register for EWRAM wait states
+	inline auto &RegWaitEwram{*reinterpret_cast<volatile uint32_t *>(REG_BASE + 0x0800)};
+
+	/// @brief Wait states for EWRAM that crash the GBA (1/1/2)
+	/// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
+	constexpr uint32_t WaitEwramLudicrous = 0x0F000020;
+
+	/// @brief Minimum wait states possible for EWRAM (2/2/4)
+	/// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
+	constexpr uint32_t WaitEwramFast = 0x0E000020;
+
+	/// @brief Regular wait states possible for EWRAM (3/3/6)
+	/// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
+	constexpr uint32_t WaitEwramNormal = 0x0D000020;
+
 	// PLEASE NOTE: We're on ARM, so word means 32-bits, half-word means 16-bit!
 
 	// Simple memory heap manager for IWRAM/EWRAM. You can define how much memory of each type you want to reserve here.
@@ -47,12 +73,12 @@ namespace Memory
 	/// @param destination Copy destination.
 	/// @param source Copy source.
 	/// @param nrOfHwords Number of half-words to copy.
-	extern "C" void memcpy16(void *destination, const void *source, uint32_t nrOfHwords);
+	// extern "C" void memcpy16(void *destination, const void *source, uint32_t nrOfHwords);
 
-	/// @brief Copy dwords from source to destination.
+	/// @brief Copy words from source to destination.
 	/// @param destination Copy destination.
 	/// @param source Copy source.
-	/// @param nrOfWords Number of dwords to copy.
+	/// @param nrOfWords Number of words to copy.
 	extern "C" void memcpy32(void *destination, const void *source, uint32_t nrOfWords) IWRAM_FUNC;
 
 	/// @brief Set words in destination to value.
@@ -61,10 +87,10 @@ namespace Memory
 	/// @param nrOfHwords Number of half-words to set.
 	extern "C" void memset16(void *destination, uint16_t value, uint32_t nrOfHwords) IWRAM_FUNC;
 
-	/// @brief Set dwords in destination to value.
+	/// @brief Set words in destination to value.
 	/// @param destination Set destination.
 	/// @param value Value to set destination dwords to.
-	/// @param nrOfWords Number of dwords to set.
+	/// @param nrOfWords Number of words to set.
 	extern "C" void memset32(void *destination, uint32_t value, uint32_t nrOfWords) IWRAM_FUNC;
 
 } // namespace Memory

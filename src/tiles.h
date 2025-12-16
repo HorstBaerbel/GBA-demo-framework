@@ -30,99 +30,99 @@ namespace Tiles
     /// @brief This is where the tiles aka the bitmap data for the tiles starts.
     enum class TileBase : uint16_t
     {
-        BASE_0000 = (0 << 2),
-        BASE_4000 = (1 << 2),
-        BASE_8000 = (2 << 2),
-        BASE_C000 = (3 << 2)
+        Base0000 = (0 << 2),
+        Base4000 = (1 << 2),
+        Base8000 = (2 << 2),
+        BaseC000 = (3 << 2)
     };
 
     /// @brief Convert tile base to memory address
-    constexpr uint16_t *TILE_BASE_TO_MEM(TileBase b)
+    template <typename T>
+    constexpr T *TILE_BASE_TO_MEM(TileBase b)
     {
-        return reinterpret_cast<uint16_t *>(TileMem + ((uint32_t(b)) << 12));
+        return reinterpret_cast<T *>(TileMem + ((uint32_t(b)) << 12));
     }
 
     /// @brief This is where the screen aka the map data for the tiles starts.
     enum class ScreenBase : uint16_t
     {
-        BASE_0000 = (0 << 8),
-        BASE_0800 = (1 << 8),
-        BASE_1000 = (2 << 8),
-        BASE_1800 = (3 << 8),
-        BASE_2000 = (4 << 8),
-        BASE_2800 = (5 << 8),
-        BASE_3000 = (6 << 8),
-        BASE_3800 = (7 << 8),
-        BASE_4000 = (8 << 8),
-        BASE_4800 = (9 << 8),
-        BASE_5000 = (10 << 8),
-        BASE_5800 = (11 << 8),
-        BASE_6000 = (12 << 8),
-        BASE_6800 = (13 << 8),
-        BASE_7000 = (14 << 8),
-        BASE_7800 = (15 << 8),
-        BASE_8000 = (16 << 8),
-        BASE_8800 = (17 << 8),
-        BASE_9000 = (18 << 8),
-        BASE_9800 = (19 << 8),
-        BASE_A000 = (20 << 8),
-        BASE_A800 = (21 << 8),
-        BASE_B000 = (22 << 8),
-        BASE_B800 = (23 << 8),
-        BASE_C000 = (24 << 8),
-        BASE_C800 = (25 << 8),
-        BASE_D000 = (26 << 8),
-        BASE_D800 = (27 << 8),
-        BASE_E000 = (28 << 8),
-        BASE_E800 = (29 << 8),
-        BASE_F000 = (30 << 8),
-        BASE_F800 = (31 << 8)
+        Base0000 = (0 << 8),
+        Base0800 = (1 << 8),
+        Base1000 = (2 << 8),
+        Base1800 = (3 << 8),
+        Base2000 = (4 << 8),
+        Base2800 = (5 << 8),
+        Base3000 = (6 << 8),
+        Base3800 = (7 << 8),
+        Base4000 = (8 << 8),
+        Base4800 = (9 << 8),
+        Base5000 = (10 << 8),
+        Base5800 = (11 << 8),
+        Base6000 = (12 << 8),
+        Base6800 = (13 << 8),
+        Base7000 = (14 << 8),
+        Base7800 = (15 << 8),
+        Base8000 = (16 << 8),
+        Base8800 = (17 << 8),
+        Base9000 = (18 << 8),
+        Base9800 = (19 << 8),
+        BaseA000 = (20 << 8),
+        BaseA800 = (21 << 8),
+        BaseB000 = (22 << 8),
+        BaseB800 = (23 << 8),
+        BaseC000 = (24 << 8),
+        BaseC800 = (25 << 8),
+        BaseD000 = (26 << 8),
+        BaseD800 = (27 << 8),
+        BaseE000 = (28 << 8),
+        BaseE800 = (29 << 8),
+        BaseF000 = (30 << 8),
+        BaseF800 = (31 << 8)
     };
 
     /// @brief Convert screen base to memory address
-    constexpr uint16_t *SCREEN_BASE_TO_MEM(ScreenBase b)
+    template <typename T>
+    constexpr T *SCREEN_BASE_TO_MEM(ScreenBase b)
     {
-        return reinterpret_cast<uint16_t *>(TileMem + ((uint32_t(b)) << 3));
+        return reinterpret_cast<T *>(TileMem + ((uint32_t(b)) << 3));
     }
 
-    /// @brief Tile object size code
-    enum class SizeCode
+    /// @brief Screen map value to flip tile horizontally
+    constexpr uint16_t FlipHorizontal = 1 << 10;
+    /// @brief Screen map value to flip tile vertically
+    constexpr uint16_t FlipVertical = 1 << 11;
+
+    /// @brief Blit linear buffer to tile data
+    /// @param dst Destination tile data. Must be consecutive
+    /// @param src Source data. Linear and consecutive
+    /// @tparam SRC_WIDTH Linear source data width in pixels. Must be divisible by 8.
+    /// @tparam SRC_HEIGHT Linear source data height in pixels. Must be divisible by 8.
+    template <uint32_t SRC_WIDTH, uint32_t SRC_HEIGHT>
+    void copyLinearToTiles256(uint32_t *dst, const uint32_t *src)
     {
-        Size8x8 = 0,
-        Size16x16 = 1,
-        Size32x32 = 2,
-        Size64x64 = 3,
-        Size16x8 = 4,
-        Size32x8 = 5,
-        Size32x16 = 6,
-        Size64x32 = 7,
-        Size8x16 = 8,
-        Size8x32 = 9,
-        Size16x32 = 10,
-        Size32x64 = 11
-    };
-
-    /// @brief Number of tiles for size code
-    extern const uint8_t TileCountForSizeCode[12];
-
-    /// @brief Number of horizontal tiles for size code
-    extern const uint8_t HorizontalTilesForSizeCode[12];
-
-    /// @brief Number of vertical tiles for size code
-    extern const uint8_t VerticalTilesForSizeCode[12];
-
-    /// @brief Copy tile data for multiple tiles from bitmap to VRAM
-    /// Use your if your tiles come from one bitmap
-    void copyTileData(Tile16 *tileMem, SizeCode blockSize, uint32_t nrOfBlocks, const Tile16 *bitmap, uint32_t bitmapWidth, uint32_t xStep = 0, uint32_t yStep = 0);
-
-    /// @brief Write random values to tile data
-    void randomTileData(Tile16 *tileMem, uint32_t nrOfTiles, bool noZeroColor = false);
-
-    /// @brief Write random values to map data for text (NON rotate/scale backgrounds)
-    /// @param mapMem Map memory to fill
-    /// @param nrOfTiles Number of map entries to fill. Must be divisible by 2
-    /// @param paletteIndex Palette index for 16-color modes
-    /// @param pow2ModValue Power-of-2 modulu value for random values. Must be in [1,2,4,8,16,32,64,128,256,512,1024]!
-    void randomMapData(uint16_t *mapMem, uint32_t nrOfTiles, uint8_t paletteIndex = 0, uint32_t pow2ModValue = 1024);
-
+        for (uint32_t sy = 0; sy < SRC_HEIGHT / 8; ++sy)
+        {
+            for (uint32_t sx = 0; sx < SRC_WIDTH / 8; ++sx)
+            {
+                *dst++ = src[0];
+                *dst++ = src[1];
+                *dst++ = src[SRC_WIDTH / 4];
+                *dst++ = src[SRC_WIDTH / 4 + 1];
+                *dst++ = src[2 * SRC_WIDTH / 4];
+                *dst++ = src[2 * SRC_WIDTH / 4 + 1];
+                *dst++ = src[3 * SRC_WIDTH / 4];
+                *dst++ = src[3 * SRC_WIDTH / 4 + 1];
+                *dst++ = src[4 * SRC_WIDTH / 4];
+                *dst++ = src[4 * SRC_WIDTH / 4 + 1];
+                *dst++ = src[5 * SRC_WIDTH / 4];
+                *dst++ = src[5 * SRC_WIDTH / 4 + 1];
+                *dst++ = src[6 * SRC_WIDTH / 4];
+                *dst++ = src[6 * SRC_WIDTH / 4 + 1];
+                *dst++ = src[7 * SRC_WIDTH / 4];
+                *dst++ = src[7 * SRC_WIDTH / 4 + 1];
+                src += 2;
+            }
+            src += SRC_WIDTH / 4 * 7;
+        }
+    }
 }

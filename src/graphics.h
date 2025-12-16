@@ -1,7 +1,7 @@
 #pragma once
 
-#include "fptime.h"
 #include "palette.h"
+#include "time.h"
 
 #include <cstdint>
 

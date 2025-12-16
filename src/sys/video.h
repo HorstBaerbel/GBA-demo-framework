@@ -216,7 +216,6 @@ static inline void SetMode(int mode)
 
 // --- Sprites -----------------------------------------------------------------------
 
-#define OAM ((OBJATTR *)0x07000000)
 #define OBJ_BASE_ADR ((void *)(VRAM + 0x10000))
 #define SPRITE_GFX ((u16 *)(VRAM + 0x10000))
 #define BITMAP_OBJ_BASE_ADR ((void *)(VRAM + 0x14000))

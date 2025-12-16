@@ -84,10 +84,10 @@ namespace Sprites
     /// See: http://problemkaputt.de/gbatek.htm#lcdiobgrotationscaling
     struct AffineData
     {
-        int16_t dx = 1 << 8;  // PA / m11 (s19.8 format)
-        int16_t dmx = 0;      // PB / m12 (s19.8 format)
-        int16_t dy = 0;       // PC / m21 (s19.8 format)
-        int16_t dmy = 1 << 8; // PD / m22 (s19.8 format)
+        int16_t dx = 1 << 8;  // PA / m11 (s8.8 format)
+        int16_t dmx = 0;      // PB / m12 (s8.8 format)
+        int16_t dy = 0;       // PC / m21 (s8.8 format)
+        int16_t dmy = 1 << 8; // PD / m22 (s8.8 format)
     } __attribute__((aligned(4), packed));
 
     /// @brief 2D sprite backbuffer

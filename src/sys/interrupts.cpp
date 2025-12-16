@@ -1,5 +1,6 @@
 #include "interrupts.h"
 
+#include "sys/base.h"
 #include "sys/video.h"
 
 /// @brief Interrupt dispatch function in .s file.
@@ -15,10 +16,10 @@ struct IntTable
 } __attribute__((aligned(4), packed));
 
 #define MAX_ENTRIES 15
-struct IntTable interruptTable[MAX_ENTRIES];
-void dummy(void){};
+IWRAM_DATA struct IntTable interruptTable[MAX_ENTRIES];
+IWRAM_FUNC void dummy(void) {};
 
-void irqInit()
+IWRAM_FUNC void irqInit()
 {
     // clear all interrupt functions
     for (uint32_t i = 0; i < MAX_ENTRIES; i++)
@@ -29,7 +30,7 @@ void irqInit()
     INT_VECTOR = DispatchInterrupt;
 }
 
-IntFunc irqSet(IRQMask mask, IntFunc function)
+IWRAM_FUNC IntFunc irqSet(IRQMask mask, IntFunc function)
 {
     uint32_t i = 0;
     for (; i < MAX_ENTRIES; i++)
@@ -53,7 +54,7 @@ inline bool contains(IRQMask lhs, IRQMask rhs)
     return (static_cast<uint16_t>(lhs) & static_cast<uint16_t>(rhs)) != 0;
 }
 
-void irqEnable(IRQMask mask)
+IWRAM_FUNC void irqEnable(IRQMask mask)
 {
     REG_IME = uint16_t(0);
     if (contains(mask, IRQMask::IRQ_VBLANK))
@@ -72,7 +73,7 @@ void irqEnable(IRQMask mask)
     REG_IME = uint16_t(1);
 }
 
-void irqDisable(IRQMask mask)
+IWRAM_FUNC void irqDisable(IRQMask mask)
 {
     REG_IME = uint16_t(0);
     if (contains(mask, IRQMask::IRQ_VBLANK))

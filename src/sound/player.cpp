@@ -1,9 +1,9 @@
-#include "sound/sound.h"
+#include "sound/player.h"
 #include "graphics.h"
 #include "memory/memory.h"
 #include "sys/interrupts.h"
 
-//#define DEBUG_PLAYER
+// #define DEBUG_PLAYER
 #ifdef DEBUG_PLAYER
 #include "print/print.h"
 #endif
@@ -14,7 +14,7 @@
 
 #include <maxmod.h>
 
-namespace Sound
+namespace Player
 {
 
     constexpr mm_mixmode PlayerMixFrequency = MM_MIX_21KHZ; // Player mixxing frequency
@@ -281,7 +281,7 @@ namespace Sound
         irqSet(IRQMask::IRQ_VBLANK, mmVBlank);
         irqEnable(IRQMask::IRQ_VBLANK);
         // Initialise maxmod with soundbank and 8 channels
-        //mmInitDefault((mm_addr)soundbank, PlayerModChannels);
+        // mmInitDefault((mm_addr)soundbank, PlayerModChannels);
         mm_gba_system system;
         system.mixing_mode = PlayerMixFrequency;
         system.mod_channel_count = PlayerModChannels;
@@ -309,4 +309,4 @@ namespace Sound
         return Spectrum::getSpectrum();
     }
 
-} //namespace Sound
+} // namespace Sound
