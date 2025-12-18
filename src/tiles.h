@@ -87,8 +87,18 @@ namespace Tiles
         return reinterpret_cast<T *>(TileMem + ((uint32_t(b)) << 3));
     }
 
+    /// @brief Number of tiles for size code
+    extern const uint8_t TileCountForSizeCode[12];
+
+    /// @brief Number of horizontal tiles for size code
+    extern const uint8_t HorizontalTilesForSizeCode[12];
+
+    /// @brief Number of vertical tiles for size code
+    extern const uint8_t VerticalTilesForSizeCode[12];
+
     /// @brief Screen map value to flip tile horizontally
     constexpr uint16_t FlipHorizontal = 1 << 10;
+
     /// @brief Screen map value to flip tile vertically
     constexpr uint16_t FlipVertical = 1 << 11;
 

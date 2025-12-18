@@ -9,26 +9,28 @@ namespace Sprites
 {
 
     /// @brief Start of sprite tile memory
-    constexpr uint32_t SpriteMem = 0x06010000;
+    constexpr uint32_t SpriteTileMem = 0x06010000;
 
     /// @brief Sprite tile memory interpreted as 16 color tiles
-    auto const TileMem16{reinterpret_cast<Tiles::Tile16 *>(SpriteMem)};
+    auto const TileMem16{reinterpret_cast<Tiles::Tile16 *>(SpriteTileMem)};
 
     /// @brief Sprite tile memory interpreted as 256 color tiles
-    auto const TileMem256{reinterpret_cast<Tiles::Tile256 *>(SpriteMem)};
+    auto const TileMem256{reinterpret_cast<Tiles::Tile256 *>(SpriteTileMem)};
 
     /// @brief 16-color sprite tile index to memory address
-    constexpr uint16_t *TILE_INDEX_TO_MEM16(uint16_t index)
+    template <typename T>
+    constexpr T *TILE_INDEX_TO_MEM(uint32_t tileIndex)
     {
         // sprite tile INDEX is the same in 4 and 8 bit mode. yeah, wtf.
-        return reinterpret_cast<uint16_t *>(SpriteMem + ((uint32_t(index)) * 8 * 4));
+        return reinterpret_cast<T *>(SpriteTileMem + ((uint32_t(tileIndex)) * 8 * 4));
     }
 
     /// @brief 256-color sprite tile index to memory address
-    constexpr uint16_t *TILE_INDEX_TO_MEM256(uint16_t index)
+    template <typename T>
+    constexpr T *TILE_INDEX_TO_MEM256(uint32_t tileIndex)
     {
         // sprite tile INDEX is the same in 4 and 8 bit mode. yeah, wtf.
-        return TILE_INDEX_TO_MEM16(index);
+        return TILE_INDEX_TO_MEM<T>(tileIndex);
     }
 
     /// @brief Sprite type
@@ -112,14 +114,10 @@ namespace Sprites
         AffineData matrix;
     } __attribute__((aligned(4), packed));
 
-    /// @brief Allocate sprites in OAM and sprite tiles in sprite VRAM
-    Sprite2D *allocate(int32_t count, SizeCode size = SizeCode::Size8x8, ColorDepth depth = ColorDepth::Depth16);
-
-    /// @brief Clear all sprites and OAM
-    void clear();
-
-    /// @brief Fill a Sprite2D struct with data. Will create a regular sprite.
-    void create(Sprite2D *sprite, uint16_t index, int16_t x, int16_t y, uint16_t tileIndex = 0, SizeCode size = SizeCode::Size8x8, uint8_t paletteIndex = 0, ColorDepth depth = ColorDepth::Depth16, Mode mode = Mode::Normal, bool mosaic = false, bool visible = true);
+    /// @brief Fill a Sprite2D struct with data. Will create a regular sprite
+    auto create(uint32_t spriteIndex, int32_t x, int32_t y, uint32_t tileIndex = 0, SizeCode size = SizeCode::Size8x8, ColorDepth depth = ColorDepth::Depth16, uint32_t paletteIndex = 0, Mode mode = Mode::Normal, bool visible = true) -> Sprite2D;
+    /// @brief Fill Sprite2D structs with data, calculating tile numbers for each sprite based on size and depth. Will create a regular sprite
+    auto create(Sprite2D *sprites, uint32_t nrOfSprites, uint32_t spriteIndex = 0, uint32_t tileIndex = 0, SizeCode size = SizeCode::Size8x8, ColorDepth depth = ColorDepth::Depth16) -> void;
 
     /// @brief Copy tile data for sprite to VRAM.
     void copyTileData16(const Sprite2D *sprite, const uint32_t *tileData);
@@ -128,7 +126,7 @@ namespace Sprites
     /// @brief Copy tile data for sprite to VRAM.
     void copyTileData256(const Sprite2D *sprite, const uint32_t *tileData);
     /// @brief Copy data from larger bitmap to tile data in VRAM. Data must be in tile format
-    /// Use your if your sprites, e.g. 3*32x32 come from one bitmap, e.g. 96x32.
+    /// Use if your sprites, e.g. 3*32x32 come from one bitmap, e.g. 96x32.
     /// @param sprites Sprites to fill. Target tile indices will be read from here
     /// @param nrOfSprite Number of sprites to fill
     /// @param bitmapData Source data in regular bitmap format
@@ -146,20 +144,25 @@ namespace Sprites
     AffineData calculateAffineData(Math::fp1616_t angle, Math::fp1616_t sx = 1, Math::fp1616_t sy = 1);
 
     /// @brief Set only the visible portion of the sprite to OAM. Call only in vblank.
-    void setVisible(const Sprite2D *sprite);
+    void setVisibleOAM(const Sprite2D *sprite);
     /// @brief Set only the visible portion of the sprite to OAM. Call only in vblank.
-    void setVisible(uint16_t index, bool visible, bool affine = false);
+    void setVisibleOAM(uint16_t index, bool visible, bool affine = false);
+
     /// @brief Set only the position portion of the sprite to OAM. Call only in vblank.
     /// Clamps x and y to (-255, 511) resp. (-127, 255).
-    void setPosition(uint16_t index, int16_t x, int16_t y);
+    void setPositionOAM(uint16_t index, int16_t x, int16_t y);
     /// @brief Set only the position portion of the sprite to OAM. Call only in vblank.
-    void setPosition(const Sprite2D &sprite);
+    void setPositionOAM(const Sprite2D &sprite);
+
     /// @brief Set only the matrix portion of the sprite to OAM. Call only in vblank.
-    void setMatrix(uint8_t matrixIndex, const AffineData &matrix);
+    void setMatrixOAM(uint8_t matrixIndex, const AffineData &matrix);
+    /// @brief Set only the matrix portion of the sprite to OAM. Call only in vblank.
+    void setMatrixOAM(const Sprite2D &sprite);
+
     /// @brief Copy sprite data to OAM. Call only in vblank.
-    void setSprite(const Sprite2D *sprite);
+    void copyToOAM(const Sprite2D &sprite);
     /// @brief Copy sprite data to OAM. Call only in vblank.
-    void setSprites(const Sprite2D *sprites, uint32_t start = 0, uint32_t count = 1);
+    void copyToOAM(const Sprite2D *sprites, uint32_t start = 0, uint32_t count = 1);
 
     /// @brief Clear all sprite data in OAM and disable all sprites. Call only in vblank.
     void clearOAM();
