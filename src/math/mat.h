@@ -36,7 +36,7 @@ namespace Math
         {
             for (unsigned int i = 0; i < ROWS * COLUMNS; ++i)
             {
-                ((T *)m)[i] += b.data()[i];
+                ((T *)m)[i] += b[i];
             }
             return *this;
         }
@@ -52,7 +52,7 @@ namespace Math
         {
             for (unsigned int i = 0; i < ROWS * COLUMNS; ++i)
             {
-                ((T *)m)[i] -= b.data()[i];
+                ((T *)m)[i] -= b[i];
             }
             return *this;
         }
@@ -93,7 +93,7 @@ namespace Math
         {
             for (unsigned int i = 0; i < ROWS * COLUMNS; ++i)
             {
-                ((T *)m)[i] /= b.data()[i];
+                ((T *)m)[i] /= b[i];
             }
             return *this;
         }
@@ -102,7 +102,7 @@ namespace Math
         {
             for (unsigned int i = 0; i < ROWS * COLUMNS; ++i)
             {
-                if (a.data()[i] != b.data()[i])
+                if (a[i] != b[i])
                     return false;
             }
             return true;
@@ -471,11 +471,11 @@ namespace Math
             }
             return *this;
         }
-        mat3x4_t &operator/=(const mat3x4_t &b)
-        {
-            *this *= b.inverse();
-            return *this;
-        }
+        // mat3x4_t &operator/=(const mat3x4_t &b)
+        //{
+        //     *this *= b.inverse();
+        //     return *this;
+        // }
         mat3x4_t &operator/=(T b)
         {
             for (unsigned int i = 0; i < ROWS * COLUMNS; ++i)

@@ -73,7 +73,7 @@ namespace Memory
 	/// @param destination Copy destination.
 	/// @param source Copy source.
 	/// @param nrOfHwords Number of half-words to copy.
-	// extern "C" void memcpy16(void *destination, const void *source, uint32_t nrOfHwords);
+	extern "C" void memcpy16(void *destination, const void *source, uint32_t nrOfHwords);
 
 	/// @brief Copy words from source to destination.
 	/// @param destination Copy destination.
