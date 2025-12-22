@@ -1,22 +1,26 @@
 #include "memory.h"
 
-//#define DEBUG_MEMORY
+// #define DEBUG_MEMORY
 #ifdef DEBUG_MEMORY
 #include "debug_print.h"
 #define GUARD_VALUE 0xDEADBEEF
 #endif
 
+extern uint32_t __iheap_start; // Points to the start of free IWRAM
+extern uint32_t __sp_usr;	   // Points to the end of the stack in IWRAM, which grows in direction of __iheap_start
+extern uint32_t __eheap_start; // Points to the start of free EWRAM
+extern uint32_t __eheap_end;   // Points to the end of free EWRAM
+
 namespace Memory
 {
 
-	// Simple memory heap manager for IWRAM/EWRAM. Heap memory grows towards the end of the reserved memory,
-	// management structures are at the very start of each block.
+	// Simple memory heap manager for IWRAM/EWRAM. Heap memory grows towards the end of the reserved memory
+	// Management structures are at the very start of each block.
 	// After the management structure follows the allocated memory.
 	// Management structures are all kept in the specific RAM they're for.
-	// Adjust IWRAM_RESERVE and EWRAM_RESERVE to reserve more / less RAM. If you have linker problems try reducing the allocated size.
 
-	alignas(4) uint8_t memory_iwram[IWRAM_RESERVE] IWRAM_DATA;
-	alignas(4) uint8_t memory_ewram[EWRAM_RESERVE] EWRAM_DATA;
+	constexpr uint32_t StackSize = 1024; // Amount of memory to reserve for stack
+	IWRAM_DATA bool m_isInitialized = false;
 
 	/// @brief Structure for one block of allocated or free memory.
 	struct MemoryBlock
@@ -36,19 +40,19 @@ namespace Memory
 	void init()
 	{
 		// clear all memory if existant. we reserve one big free block at the start of the memory pool for both iwram and ewram.
-		MemoryBlock *block_iwram = reinterpret_cast<MemoryBlock *>(memory_iwram);
+		MemoryBlock *block_iwram = reinterpret_cast<MemoryBlock *>(&__iheap_start);
 #ifdef DEBUG_MEMORY
 		block_iwram->GUARD = GUARD_VALUE;
 #endif
-		block_iwram->size = IWRAM_RESERVE - sizeof(MemoryBlock);
+		block_iwram->size = (&__sp_usr - &__iheap_start - StackSize) - sizeof(MemoryBlock);
 		block_iwram->free = true;
 		block_iwram->previous = nullptr;
 		block_iwram->next = nullptr;
-		MemoryBlock *block_ewram = reinterpret_cast<MemoryBlock *>(memory_ewram);
+		MemoryBlock *block_ewram = reinterpret_cast<MemoryBlock *>(&__eheap_start);
 #ifdef DEBUG_MEMORY
 		block_ewram->GUARD = GUARD_VALUE;
 #endif
-		block_ewram->size = EWRAM_RESERVE - sizeof(MemoryBlock);
+		block_ewram->size = (&__eheap_end - &__eheap_start) - sizeof(MemoryBlock);
 		block_ewram->free = true;
 		block_ewram->previous = nullptr;
 		block_ewram->next = nullptr;
@@ -62,7 +66,7 @@ namespace Memory
 #ifdef DEBUG_MEMORY
 	void checkMemory()
 	{
-		MemoryBlock *iwBlock = reinterpret_cast<MemoryBlock *>(memory_iwram);
+		MemoryBlock *iwBlock = reinterpret_cast<MemoryBlock *>(IWRAM_HEAP_START);
 		if (iwBlock->GUARD != GUARD_VALUE)
 		{
 			printf("Memory corruption in IWRAM block 0x%x!", iwBlock);
@@ -75,7 +79,7 @@ namespace Memory
 				printf("Memory corruption in IWRAM block 0x%x!", iwBlock);
 			}
 		}
-		MemoryBlock *ewBlock = reinterpret_cast<MemoryBlock *>(memory_ewram);
+		MemoryBlock *ewBlock = reinterpret_cast<MemoryBlock *>(EWRAM_HEAP_START);
 		if (ewBlock->GUARD != GUARD_VALUE)
 		{
 			printf("Memory corruption in EWRAM block 0x%x!", ewBlock);
@@ -94,10 +98,20 @@ namespace Memory
 #ifdef DEBUG_MEMORY
 	void *malloc_internal(uint32_t size, uint8_t *memory, const char *name)
 	{
+		if (!initialized)
+		{
+			initialized = true;
+			init();
+		}
 		checkMemory();
 #else
 	void *malloc_internal(uint32_t size, uint8_t *memory)
 	{
+		if (!m_isInitialized)
+		{
+			m_isInitialized = true;
+			init();
+		}
 #endif
 		if (size > 0 && size < 262144)
 		{
@@ -150,18 +164,18 @@ namespace Memory
 	void *malloc_IWRAM(uint32_t size)
 	{
 #ifdef DEBUG_MEMORY
-		return malloc_internal(size, memory_iwram, "IWRAM");
+		return malloc_internal(size, (uint8_t *)&__iheap_start, "IWRAM");
 #else
-		return malloc_internal(size, memory_iwram);
+		return malloc_internal(size, (uint8_t *)&__iheap_start);
 #endif
 	}
 
 	void *malloc_EWRAM(uint32_t size)
 	{
 #ifdef DEBUG_MEMORY
-		return malloc_internal(size, memory_ewram, "EWRAM");
+		return malloc_internal(size, (uint8_t *)&__eheap_start, "EWRAM");
 #else
-		return malloc_internal(size, memory_ewram);
+		return malloc_internal(size, (uint8_t *)&__eheap_start);
 #endif
 	}
 
@@ -173,16 +187,16 @@ namespace Memory
 	void free(void *adress)
 	{
 #endif
-		if ((adress >= memory_iwram && adress < (memory_iwram + sizeof(memory_iwram))) ||
-			(adress >= memory_ewram && adress < (memory_ewram + sizeof(memory_ewram))))
+		if ((adress >= &__iheap_start && adress < (&__iheap_start + sizeof(void *))) ||
+			(adress >= &__eheap_start && adress < (&__eheap_start + sizeof(void *))))
 		{
 			// memory points to start of memory. skip to management structure from there
-			MemoryBlock *currentBlock = reinterpret_cast<MemoryBlock *>(reinterpret_cast<uint8_t *>(adress) - sizeof(MemoryBlock));
+			MemoryBlock *currentBlock = reinterpret_cast<MemoryBlock *>(static_cast<uint8_t *>(adress) - sizeof(MemoryBlock));
 			// check if used
 			if (!currentBlock->free)
 			{
 #ifdef DEBUG_MEMORY
-				printf("Freeing %d bytes at 0x%x", (uint32_t)currentBlock->size, reinterpret_cast<uint32_t>(adress));
+				printf("Freeing %d bytes at 0x%x", (uint32_t)currentBlock->size, adress8);
 #endif
 				// mark block as free now
 				currentBlock->free = true;
