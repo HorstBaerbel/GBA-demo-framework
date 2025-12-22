@@ -99,15 +99,16 @@ namespace Sprites
     auto create(Sprite2D *sprites, uint32_t nrOfSprites, uint32_t spriteIndex, uint32_t tileIndex, SizeCode size, ColorDepth depth) -> void
     {
         const int32_t nrOfTilesPerSprite = (depth == ColorDepth::Depth256 ? 2 : 1) * Tiles::TileCountForSizeCode[static_cast<uint8_t>(size)]; // 256-color sprites use twice the amount of tiles
+        Sprite2D sprite;
+        sprite.size = size;
+        sprite.depth = depth;
         uint32_t si = 0;
         uint32_t ti = tileIndex;
         while (si < nrOfSprites)
         {
-            auto sprite = sprites[si];
             sprite.index = spriteIndex + si;
-            sprite.size = size;
-            sprite.depth = depth;
             sprite.tileIndex = ti;
+            sprites[si] = sprite;
             si++;
             ti += nrOfTilesPerSprite;
         }
