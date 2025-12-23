@@ -8,7 +8,8 @@
 namespace Debug
 {
 
-	static char PrintBuffer[64] = {0};
+	constexpr int MaxPrintBufferSize = 128;
+	static char PrintBuffer[MaxPrintBufferSize] = {0};
 
 #define MGBA_REG_DEBUG_ENABLE (volatile uint16_t *)0x4FFF780
 #define MGBA_REG_DEBUG_FLAGS (volatile uint16_t *)0x4FFF700
@@ -84,6 +85,15 @@ namespace Debug
 					auto i = va_arg(args, int32_t);
 					buffer = itoa(i, buffer, 16);
 				}
+				else if (*fmt == 's')
+				{
+					auto s = va_arg(args, const char *);
+					while (*s != '\0' && (buffer - PrintBuffer) < MaxPrintBufferSize)
+					{
+						*buffer++ = *s++;
+					}
+					*buffer = '\0';
+				}
 				else
 				{
 					buffer[0] = *fmt;
@@ -101,7 +111,7 @@ namespace Debug
 			}
 			++fmt;
 			// find new end of string
-			while (*buffer != '\0' && (buffer - PrintBuffer) < 64)
+			while (*buffer != '\0' && (buffer - PrintBuffer) < MaxPrintBufferSize)
 			{
 				buffer++;
 			}
