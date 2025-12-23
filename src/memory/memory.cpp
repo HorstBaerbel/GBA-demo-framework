@@ -2,7 +2,7 @@
 
 // #define DEBUG_MEMORY
 #ifdef DEBUG_MEMORY
-#include "debug_print.h"
+#include "print/output.h"
 #define GUARD_VALUE 0xDEADBEEF
 #endif
 
@@ -44,7 +44,7 @@ namespace Memory
 #ifdef DEBUG_MEMORY
 		block_iwram->GUARD = GUARD_VALUE;
 #endif
-		block_iwram->size = (reinterpret_cast<uint32_t>(&__sp_usr) - reinterpret_cast<uint32_t>(&__iheap_start) - StackSize) - sizeof(MemoryBlock);
+		block_iwram->size = (reinterpret_cast<uint32_t>(&__sp_usr) - StackSize - reinterpret_cast<uint32_t>(&__iheap_start)) - sizeof(MemoryBlock);
 		block_iwram->free = true;
 		block_iwram->previous = nullptr;
 		block_iwram->next = nullptr;
@@ -57,39 +57,39 @@ namespace Memory
 		block_ewram->previous = nullptr;
 		block_ewram->next = nullptr;
 #ifdef DEBUG_MEMORY
-		printf("Reserving %d bytes of IWRAM starting at 0x%x", uint32_t(block_iwram->size), reinterpret_cast<uint32_t>(block_iwram));
-		printf("Reserving %d bytes of EWRAM starting at 0x%x", uint32_t(block_ewram->size), reinterpret_cast<uint32_t>(block_ewram));
-		printf("sizeof(MemoryBlock) is %d bytes", (uint16_t)sizeof(MemoryBlock));
+		Debug::printf("Reserving %d bytes of IWRAM starting at 0x%x", uint32_t(block_iwram->size), reinterpret_cast<uint32_t>(block_iwram));
+		Debug::printf("Reserving %d bytes of EWRAM starting at 0x%x", uint32_t(block_ewram->size), reinterpret_cast<uint32_t>(block_ewram));
+		Debug::printf("sizeof(MemoryBlock) is %d bytes", (uint16_t)sizeof(MemoryBlock));
 #endif
 	}
 
 #ifdef DEBUG_MEMORY
 	void checkMemory()
 	{
-		MemoryBlock *iwBlock = reinterpret_cast<MemoryBlock *>(IWRAM_HEAP_START);
+		MemoryBlock *iwBlock = reinterpret_cast<MemoryBlock *>(&__iheap_start);
 		if (iwBlock->GUARD != GUARD_VALUE)
 		{
-			printf("Memory corruption in IWRAM block 0x%x!", iwBlock);
+			Debug::printf("Memory corruption in IWRAM block 0x%x!", iwBlock);
 		}
 		while (iwBlock->next != nullptr)
 		{
 			iwBlock = iwBlock->next;
 			if (iwBlock->GUARD != GUARD_VALUE)
 			{
-				printf("Memory corruption in IWRAM block 0x%x!", iwBlock);
+				Debug::printf("Memory corruption in IWRAM block 0x%x!", iwBlock);
 			}
 		}
-		MemoryBlock *ewBlock = reinterpret_cast<MemoryBlock *>(EWRAM_HEAP_START);
+		MemoryBlock *ewBlock = reinterpret_cast<MemoryBlock *>(&__eheap_start);
 		if (ewBlock->GUARD != GUARD_VALUE)
 		{
-			printf("Memory corruption in EWRAM block 0x%x!", ewBlock);
+			Debug::printf("Memory corruption in EWRAM block 0x%x!", ewBlock);
 		}
 		while (ewBlock->next != nullptr)
 		{
 			ewBlock = ewBlock->next;
 			if (ewBlock->GUARD != GUARD_VALUE)
 			{
-				printf("Memory corruption in EWRAM block 0x%x!", ewBlock);
+				Debug::printf("Memory corruption in EWRAM block 0x%x!", ewBlock);
 			}
 		}
 	}
@@ -98,9 +98,9 @@ namespace Memory
 #ifdef DEBUG_MEMORY
 	void *malloc_internal(uint32_t size, uint8_t *memory, const char *name)
 	{
-		if (!initialized)
+		if (!m_isInitialized)
 		{
-			initialized = true;
+			m_isInitialized = true;
 			init();
 		}
 		checkMemory();
@@ -127,7 +127,7 @@ namespace Memory
 				if (currentBlock->free && currentBlock->size >= combinedSizeNeeded)
 				{
 #ifdef DEBUG_MEMORY
-					printf("Allocating %d bytes of %s at 0x%x", size, name, reinterpret_cast<uint32_t>(currentBlock) + sizeof(MemoryBlock));
+					Debug::printf("Allocating %d bytes of %s at 0x%x", size, name, reinterpret_cast<uint32_t>(currentBlock) + sizeof(MemoryBlock));
 #endif
 					// check if the remaining size would be bigger than management data
 					if (currentBlock->size - combinedSizeNeeded > sizeof(MemoryBlock))
@@ -136,7 +136,7 @@ namespace Memory
 						MemoryBlock *freeBlock = reinterpret_cast<MemoryBlock *>(reinterpret_cast<uint8_t *>(currentBlock) + combinedSizeNeeded);
 						freeBlock->size = currentBlock->size - combinedSizeNeeded;
 #ifdef DEBUG_MEMORY
-						printf("Inserting free block with %d bytes of %s at 0x%x", uint32_t(freeBlock->size), name, reinterpret_cast<uint32_t>(freeBlock) + sizeof(MemoryBlock));
+						Debug::printf("Inserting free block with %d bytes of %s at 0x%x", uint32_t(freeBlock->size), name, reinterpret_cast<uint32_t>(freeBlock) + sizeof(MemoryBlock));
 						freeBlock->GUARD = GUARD_VALUE;
 #endif
 						freeBlock->free = true;
@@ -155,7 +155,7 @@ namespace Memory
 			} while (currentBlock != nullptr);
 			// error. no memory available.
 #ifdef DEBUG_MEMORY
-			printf("Out of %s! Failed to allocate %d bytes!", name, size);
+			Debug::printf("Out of %s! Failed to allocate %d bytes!", name, size);
 #endif
 		}
 		return nullptr;
@@ -187,8 +187,8 @@ namespace Memory
 	void free(void *adress)
 	{
 #endif
-		if ((adress >= &__iheap_start && adress < (&__iheap_start + sizeof(void *))) ||
-			(adress >= &__eheap_start && adress < (&__eheap_start + sizeof(void *))))
+		if ((adress >= &__iheap_start && adress < (&__sp_usr - StackSize + sizeof(void *))) ||
+			(adress >= &__eheap_start && adress < (&__eheap_end + sizeof(void *))))
 		{
 			// memory points to start of memory. skip to management structure from there
 			MemoryBlock *currentBlock = reinterpret_cast<MemoryBlock *>(static_cast<uint8_t *>(adress) - sizeof(MemoryBlock));
@@ -196,7 +196,7 @@ namespace Memory
 			if (!currentBlock->free)
 			{
 #ifdef DEBUG_MEMORY
-				printf("Freeing %d bytes at 0x%x", (uint32_t)currentBlock->size, adress8);
+				Debug::printf("Freeing %d bytes at 0x%x", (uint32_t)currentBlock->size, adress);
 #endif
 				// mark block as free now
 				currentBlock->free = true;
@@ -204,7 +204,7 @@ namespace Memory
 				while (currentBlock->next != nullptr && currentBlock->next->free)
 				{
 #ifdef DEBUG_MEMORY
-					printf("Combining free blocks current 0x%x and next 0x%x", reinterpret_cast<uint32_t>(currentBlock) + sizeof(MemoryBlock), reinterpret_cast<uint32_t>(currentBlock->next) + sizeof(MemoryBlock));
+					Debug::printf("Combining free blocks current 0x%x and next 0x%x", reinterpret_cast<uint32_t>(currentBlock) + sizeof(MemoryBlock), reinterpret_cast<uint32_t>(currentBlock->next) + sizeof(MemoryBlock));
 #endif
 					// combine the two blocks
 					currentBlock->size += currentBlock->next->size + sizeof(MemoryBlock);
@@ -218,7 +218,7 @@ namespace Memory
 				while (currentBlock->previous != nullptr && currentBlock->previous->free)
 				{
 #ifdef DEBUG_MEMORY
-					printf("Combining free blocks previous 0x%x and current 0x%x", reinterpret_cast<uint32_t>(currentBlock->previous) + sizeof(MemoryBlock), reinterpret_cast<uint32_t>(currentBlock) + sizeof(MemoryBlock));
+					Debug::printf("Combining free blocks previous 0x%x and current 0x%x", reinterpret_cast<uint32_t>(currentBlock->previous) + sizeof(MemoryBlock), reinterpret_cast<uint32_t>(currentBlock) + sizeof(MemoryBlock));
 #endif
 					// combine the two blocks
 					currentBlock->previous->size += currentBlock->size + sizeof(MemoryBlock);
@@ -234,7 +234,7 @@ namespace Memory
 #ifdef DEBUG_MEMORY
 		else
 		{
-			print("Adress not in IWRAM or EWRAM heap!");
+			Debug::print("Adress not in IWRAM or EWRAM heap!");
 		}
 #endif
 	}
