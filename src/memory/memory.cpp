@@ -44,7 +44,7 @@ namespace Memory
 #ifdef DEBUG_MEMORY
 		block_iwram->GUARD = GUARD_VALUE;
 #endif
-		block_iwram->size = (&__sp_usr - &__iheap_start - StackSize) - sizeof(MemoryBlock);
+		block_iwram->size = (reinterpret_cast<uint32_t>(&__sp_usr) - reinterpret_cast<uint32_t>(&__iheap_start) - StackSize) - sizeof(MemoryBlock);
 		block_iwram->free = true;
 		block_iwram->previous = nullptr;
 		block_iwram->next = nullptr;
@@ -52,7 +52,7 @@ namespace Memory
 #ifdef DEBUG_MEMORY
 		block_ewram->GUARD = GUARD_VALUE;
 #endif
-		block_ewram->size = (&__eheap_end - &__eheap_start) - sizeof(MemoryBlock);
+		block_ewram->size = (reinterpret_cast<uint32_t>(&__eheap_end) - reinterpret_cast<uint32_t>(&__eheap_start)) - sizeof(MemoryBlock);
 		block_ewram->free = true;
 		block_ewram->previous = nullptr;
 		block_ewram->next = nullptr;
