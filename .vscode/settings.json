@@ -1,5 +1,5 @@
 {
-    "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools",
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "disasexpl.associations": {
         "**/*.c": "${workspaceFolder}build/${relativeFileDir}/${fileBasenameNoExtension}.s",
         "**/*.cpp": "${workspaceFolder}/build/${relativeFileDir}/${fileBasenameNoExtension}.s"
