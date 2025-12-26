@@ -13,10 +13,10 @@
 
  .arm
  .align
- .global LZ77UnCompWrite16bit
- .global LZ77UnCompWrite8bit
- .type LZ77UnCompWrite16bit,function
- .type LZ77UnCompWrite8bit,function
+ .global LZ77UnCompWrite16bit_ASM
+ .global LZ77UnCompWrite8bit_ASM
+ .type LZ77UnCompWrite16bit_ASM,function
+ .type LZ77UnCompWrite8bit_ASM,function
 #ifdef __NDS__
  .section .itcm, "ax", %progbits
 #else
@@ -40,8 +40,8 @@
 @unless you don't trust the data coming in...
 @#define PREVENT_OOB_READS
 
-LZ77UnCompWrite16bit:
-LZ77UnCompWrite8bit:
+LZ77UnCompWrite16bit_ASM:
+LZ77UnCompWrite8bit_ASM:
     stmfd sp!, {r3 - r8}
 
     @ Read header word:

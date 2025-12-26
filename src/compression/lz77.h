@@ -5,11 +5,11 @@
 namespace Compression
 {
     /// @brief Decompress LZSS GBA variant 10h, writing 8 bit at a time. Don't use for VRAM
-    extern "C" void LZ77UnCompWrite8bit(const void *source, void *destination);
+    extern "C" void LZ77UnCompWrite8bit_ASM(const void *source, void *destination);
 
     /// @brief Decompress LZSS GBA variant 10h, writing 16 bit at a time. Safe for VRAM
-    extern "C" void LZ77UnCompWrite16bit(const void *source, void *destination);
+    extern "C" void LZ77UnCompWrite16bit_ASM(const void *source, void *destination);
 
     /// @brief Get the size of the uncompressed data of BIOS-compatible data
-    extern "C" unsigned int BIOSUnCompGetSize(const void *source);
+    extern "C" unsigned int BIOSUnCompGetSize_ASM(const void *source);
 }

@@ -1,6 +1,8 @@
- #include "lz4_constants.h"
-
-#define LZ4_OVERRUN_PROTECTION // If turned off can overrun the buffer max. 3 bytes. Very minor performance impact.
+#define LZ4_CONSTANTS_MIN_MATCH_LENGTH 4     // A match needs at least 3 bytes to encode, thus 4 is the minimum match length
+#define LZ4_CONSTANTS_LITERAL_LENGTH_SHIFT 4 // Left-shift of literal length in token byte
+#define LZ4_CONSTANTS_LENGTH_MASK 0x0F       // Used for masking literal and match lengths
+ 
+ #define LZ4_OVERRUN_PROTECTION // If turned off can overrun the buffer max. 3 bytes. Very minor performance impact.
 
  .arm
  .align
@@ -114,14 +116,14 @@ LZ4_MemCopy:
 
  .arm
  .align
- .global LZ4_UnCompWrite8bit
- .type LZ4_UnCompWrite8bit,function
+ .global LZ4UnCompWrite8bit_ASM
+ .type LZ4UnCompWrite8bit_ASM,function
 #ifdef __NDS__
  .section .itcm, "ax", %progbits
 #else
  .section .iwram, "ax", %progbits
 #endif
-LZ4_UnCompWrite8bit:
+LZ4UnCompWrite8bit_ASM:
     @ Decode LZ4 data
     @ ------------------------------
     @ Input:
@@ -206,15 +208,15 @@ LZ4_UnCompWrite8bit:
 
 .arm
  .align
- .global LZ4_UnCompGetSize
- .type LZ4_UnCompGetSize,function
+ .global LZ4UnCompGetSize_ASM
+ .type LZ4UnCompGetSize_ASM,function
 #ifdef __NDS__
  .section .itcm, "ax", %progbits
 #else
  .section .iwram, "ax", %progbits
 #endif
-LZ4_UnCompGetSize:
-    @ Decode LZ4 data
+LZ4UnCompGetSize_ASM:
+    @ Get uncompressed size from LZ4 data
     @ r0: pointer to LZ4 data, must be 4-byte-aligned (trashed)
     @ r2,r3 are scratch registers (trashed)
 
