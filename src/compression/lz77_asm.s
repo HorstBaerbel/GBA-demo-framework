@@ -254,14 +254,14 @@ LZ77UnCompWrite8bit_ASM:
 
 .arm
  .align
- .global BIOSUnCompGetSize
- .type BIOSUnCompGetSize,function
+ .global BIOSUnCompGetSize_ASM
+ .type BIOSUnCompGetSize_ASM,function
 #ifdef __NDS__
  .section .itcm, "ax", %progbits
 #else
  .section .iwram, "ax", %progbits
 #endif
-BIOSUnCompGetSize:
+BIOSUnCompGetSize_ASM:
     @ Read header word:
     @ bit0-3:  reserved
     @ bit4-7:  compressed type (1 for LZ77)
