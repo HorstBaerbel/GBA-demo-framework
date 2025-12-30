@@ -1,8 +1,6 @@
 #define LZ4_CONSTANTS_MIN_MATCH_LENGTH 4     // A match needs at least 3 bytes to encode, thus 4 is the minimum match length
 #define LZ4_CONSTANTS_LITERAL_LENGTH_SHIFT 4 // Left-shift of literal length in token byte
 #define LZ4_CONSTANTS_LENGTH_MASK 0x0F       // Used for masking literal and match lengths
- 
-#define LZ4_OVERRUN_PROTECTION // If turned off can overrun the buffer max. 3 bytes. Very minor performance impact.
 
 .arm
  .align
