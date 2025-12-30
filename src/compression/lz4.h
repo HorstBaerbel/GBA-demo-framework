@@ -20,6 +20,11 @@ namespace Compression
     /// @param dst Pointer to output buffer
     extern "C" auto LZ4UnCompWrite8bit_ASM(const uint32_t *data, uint32_t *dst) -> void;
 
+    /// @brief Decompress LZ4 variant 40h, writing 16 bit at a time. Safe for VRAM. Written in ARMv4 assembler
+    /// @param data Pointer to LZ4-compressed data
+    /// @param dst Pointer to output buffer
+    extern "C" auto LZ4UnCompWrite16bit_ASM(const uint32_t *data, uint32_t *dst) -> void;
+
     /// @brief Get stored uncompressed size of data after decoding. Written in ARMv4 assembler
     /// @param data Pointer to LZ4-compressed data
     extern "C" auto LZ4UnCompGetSize_ASM(const uint32_t *data) -> uint32_t;
