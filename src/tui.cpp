@@ -31,6 +31,9 @@ namespace TUI
             Palette::Background[i * 16] = 0;
             Palette::Background[i * 16 + 1] = CGA_COLORS[i];
         }
+        // reset colors
+        backColor = Color::Black;
+        textColor = Color::White;
     }
 
     void fillBackground(Color color)
@@ -48,6 +51,12 @@ namespace TUI
             Memory::memset16(background, value, w);
             background += Width;
         }
+    }
+
+    void fillForeground(Color color)
+    {
+        const uint32_t value = 0x005F005F | (static_cast<uint32_t>(color) << 28) | (static_cast<uint32_t>(color) << 12);
+        Memory::memset32(Tiles::SCREEN_BASE_TO_MEM<uint32_t>(Tiles::ScreenBase::Base2000), value, (Width * Height) >> 1);
     }
 
     void printChar(char c, uint16_t x, uint16_t y, Color backColor, Color textColor)

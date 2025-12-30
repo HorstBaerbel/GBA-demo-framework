@@ -44,6 +44,9 @@ namespace TUI
     /// @brief Fill background rect with color
     void fillBackgroundRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, Color color = Color::Black);
 
+    /// @brief Fill whole foreground with color
+    void fillForeground(Color color);
+
     /// @brief Set background and foreground colors
     void setColor(Color backColor = Color::Black, Color textColor = Color::White);
 
