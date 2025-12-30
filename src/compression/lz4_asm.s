@@ -67,10 +67,9 @@ LZ4_MemCopy16:
     b       .lz4_mc16_tail_fixup_r4
 .lz4_mc16_repeat_byte:
     @ overlapping RLE-copy with distance == 1 that repeats >= 2 times. r4 is actually -2
-    ldrb    r6, [r0], #1
-    orr     r6, r6, lsl #8
-    sub     r0, r0, r4
-    sub     r0, r0, #2
+    ldrb    r6, [r0], #1   @ r6 = src[last]
+    orr     r6, r6, lsl #8 @ r6 = (src[last] << 8) | src[last]
+    add     r0, r0, r4 @ we will not be reading src, so increment it here
 .lz4_mc16_repeat_loop:
     strh    r6, [r1], #2
     subs    r4, r4, #2
