@@ -35,17 +35,17 @@ LZ4_MemCopy16:
     subs    r4, r4, #1
     bxeq    lr @ exit if r4 == 0
 .lz4_mc16_dst_halfword_aligned:
-    @ check how many bytes are left. we pre-decrement r4 here by the minimum copy count to save some instructions in the copy loops
+    @ check how many bytes are left. pre-decrement r4 by the minimum copy count to save some instructions in the copy loops
     subs     r4, r4, #2
     bmi     .lz4_mc16_tail_fixup_r4 @ only [0,1] bytes left
-    @ >= 2 bytes left. check for an overlapping copy with a distance <= 2
-    subs    r5, r1, r0 @ r5 = r1 - r0
-    rsbmi   r5, r5, #0 @ r5 = (r1 - r0) < 0 ? (0 - r5) : r5
-    cmp     r5, #2
+    @ >= 2 bytes left. check for an overlapping copy with distance <= 2. this happens when src and dst are in the same memory area and is basically a RLE run
+    subs    r5, r1, r0            @ r5 = r1 - r0
+    rsbmi   r5, r5, #0            @ r5 = (r1 - r0) < 0 ? (0 - r5) : r5
+    cmp     r5, #2                @ |r1 - r0| < 2?
     blt     .lz4_mc16_repeat_byte @ if |r1 - r0| < 2, do repeating byte copy
     @ check if src aligned to halfwords
     tst     r0, #1
-    beq     .lz4_mc16_src_halfword_aligned_loop
+    beq     .lz4_mc16_src_halfword_aligned
     @ src unaligned so read bytes and assemble halfwords
     ldrb    r5, [r0], #1 @ pre-read 1 byte
 .lz4_mc16_src_unaligned_loop:
@@ -58,15 +58,31 @@ LZ4_MemCopy16:
     bpl     .lz4_mc16_src_unaligned_loop
     sub     r0, r0, #1 @ we have read one byte too much from src, so decrement src once
     b       .lz4_mc16_tail_fixup_r4
-.lz4_mc16_src_halfword_aligned_loop:
+.lz4_mc16_src_halfword_aligned:
     @ src halfword aligned, so copy halfwords. r4 is actually -2
+    cmp     r5, #4                              @ |r1 - r0| < 4?
+    blt     .lz4_mc16_src_halfword_aligned_loop @ if |r1 - r0| < 4, copy halfwords
+.lz4_mc16_src_halfword_aligned_loop8:
+    cmp     r4, #8
+    blo     .lz4_mc16_src_halfword_aligned_loop
+    ldrh    r5, [r0], #2
+    ldrh    r6, [r0], #2
+    strh    r5, [r1], #2
+    strh    r6, [r1], #2
+    ldrh    r5, [r0], #2
+    ldrh    r6, [r0], #2
+    strh    r5, [r1], #2
+    strh    r6, [r1], #2
+    sub     r4, r4, #8
+    b      .lz4_mc16_src_halfword_aligned_loop8
+.lz4_mc16_src_halfword_aligned_loop:
     ldrh    r5, [r0], #2
     strh    r5, [r1], #2
     subs    r4, r4, #2
     bpl     .lz4_mc16_src_halfword_aligned_loop
     b       .lz4_mc16_tail_fixup_r4
 .lz4_mc16_repeat_byte:
-    @ overlapping RLE-copy with distance == 1 that repeats >= 2 times. r4 is actually -2
+    @ overlapping RLE run with distance == 1 that repeats >= 2 times. r4 is actually -2
     ldrb    r6, [r0], #1   @ r6 = src[last]
     orr     r6, r6, lsl #8 @ r6 = (src[last] << 8) | src[last]
     add     r0, r0, r4 @ we will not be reading src, so increment it here
