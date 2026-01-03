@@ -6,43 +6,6 @@
 
 namespace Memory
 {
-
-	/// @brief Register for Game Pak SRAM and ROM wait states
-	inline auto &RegWaitCnt{*reinterpret_cast<volatile uint16_t *>(REG_BASE + 0x0204)};
-
-	/// @brief Minimum wait states possible for Game Pak SRAM and ROM (2,1 + prefetch enabled)
-	/// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
-	constexpr uint16_t WaitCntFast = 0x46DA;
-
-	/// @brief Regular wait states possible for Game Pak SRAM and ROM (3,1 + prefetch enabled)
-	/// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
-	constexpr uint16_t WaitCntNormal = 0x4317;
-
-	/// @brief Regular wait states possible for Game Pak SRAM and ROM (4,2 + prefetch enabled)
-	/// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
-	constexpr uint16_t WaitCntDefault = 0x4000;
-
-	/// @brief Check if the wait state value for ROM can be safely used.
-	/// If so sets that value, else falls back to WaitCntDefault.
-	/// @param value Wait state value
-	/// @return Returns true if the vale can be used, false otherwise.
-	auto trySetWaitCnt(uint16_t value) -> bool;
-
-	/// @brief Register for EWRAM wait states
-	inline auto &RegWaitEwram{*reinterpret_cast<volatile uint32_t *>(REG_BASE + 0x0800)};
-
-	/// @brief Wait states for EWRAM that crash the GBA (1/1/2)
-	/// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
-	constexpr uint32_t WaitEwramLudicrous = 0x0F000020;
-
-	/// @brief Minimum wait states possible for EWRAM (2/2/4)
-	/// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
-	constexpr uint32_t WaitEwramFast = 0x0E000020;
-
-	/// @brief Regular wait states possible for EWRAM (3/3/6)
-	/// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
-	constexpr uint32_t WaitEwramNormal = 0x0D000020;
-
 	/// @brief Allocate a block of IWRAM.
 	/// @return Returns a pointer to the memory or NULL if allocation failed.
 	void *malloc_IWRAM(uint32_t nrOfBytes);

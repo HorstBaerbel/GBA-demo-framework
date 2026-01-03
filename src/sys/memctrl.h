@@ -6,7 +6,6 @@
 
 namespace MemCtrl
 {
-
     /// @brief Register for Game Pak SRAM and ROM wait states
     inline auto &RegWaitCnt{*reinterpret_cast<volatile uint16_t *>(REG_BASE + 0x0204)};
 
@@ -20,13 +19,19 @@ namespace MemCtrl
     /// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
     constexpr uint16_t WaitCntNormal = 0x4317;
 
-    /// @brief Slow wait states possible for Game Pak SRAM and ROM for slow flash cards
+    /// @brief Slow, default wait states possible for Game Pak SRAM and ROM for slow flash cards
     /// WS0/ROM 4,2 clocks, SRAM 8 clocks, WS2/EEPROM 8,8 clocks, prefetch enabled
     /// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
-    constexpr uint16_t WaitCntSlow = 0x4303;
+    constexpr uint16_t WaitCntDefault = 0x4303;
 
-    /// @brief Register for EWRAM wait states
-    inline auto &RegWaitEwram{*reinterpret_cast<volatile uint32_t *>(REG_BASE + 0x0800)};
+    /// @brief Check if the wait state value for ROM can be safely used.
+    /// If so, sets that value, else falls back to WaitCntDefault.
+    /// @param value Wait state value
+    /// @return Returns true if the value is usable and was set, false otherwise.
+    auto setWaitCnt(uint16_t value) -> bool;
+
+    /// @brief Register for internal memory control
+    inline auto &RegIntMemCnt{*reinterpret_cast<volatile uint32_t *>(REG_BASE + 0x0800)};
 
     /// @brief Wait states for EWRAM that crash the GBA (1/1/2)
     /// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
@@ -39,5 +44,4 @@ namespace MemCtrl
     /// @brief Regular wait states for EWRAM (3/3/6)
     /// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
     constexpr uint32_t WaitEwramNormal = 0x0D000020;
-
 }
