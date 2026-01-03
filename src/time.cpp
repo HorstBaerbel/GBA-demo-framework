@@ -22,8 +22,8 @@ namespace Time
 
     IWRAM_FUNC auto start() -> void
     {
-        irqSet(IRQMask::IRQ_TIMER3, timerTick);
-        irqEnable(IRQMask::IRQ_TIMER3);
+        Irq::setHandler(Irq::Mask::Timer3, timerTick);
+        Irq::enable(Irq::Mask::Timer3);
         REG_TM3CNT_L = TimerReload;
         REG_TM3CNT_H = TIMER_START | TIMER_IRQ | TimerDividerBits;
     }
@@ -31,7 +31,7 @@ namespace Time
     IWRAM_FUNC auto stop() -> void
     {
         REG_TM3CNT_H = 0;
-        irqDisable(IRQMask::IRQ_TIMER3);
+        Irq::disable(Irq::Mask::Timer3);
     }
 
     IWRAM_FUNC auto now() -> int32_t

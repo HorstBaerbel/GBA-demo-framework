@@ -3,91 +3,111 @@
 #include "sys/base.h"
 #include "sys/video.h"
 
-/// @brief Interrupt dispatch function in .s file.
+/// @brief Interrupt dispatch function in intdispatcher.s
 extern "C" void DispatchInterrupt();
-
-#define INT_VECTOR *(IntFunc *)(0x03007ffc)
 
 struct IntTable
 {
-    IntFunc handler;
+    Irq::IntFunc handler;
     uint16_t mask;
     uint16_t dummy;
 } __attribute__((aligned(4), packed));
 
 #define MAX_ENTRIES 15
 IWRAM_DATA struct IntTable interruptTable[MAX_ENTRIES];
-IWRAM_FUNC void dummy(void) {};
 
-IWRAM_FUNC void irqInit()
+namespace Irq
 {
-    // clear all interrupt functions
-    for (uint32_t i = 0; i < MAX_ENTRIES; i++)
-    {
-        interruptTable[i].handler = dummy;
-        interruptTable[i].mask = 0;
-    }
-    INT_VECTOR = DispatchInterrupt;
-}
+#define INT_VECTOR *(IntFunc *)(0x03007ffc)
+    IWRAM_FUNC void DummyHandler(void) {};
 
-IWRAM_FUNC IntFunc irqSet(IRQMask mask, IntFunc function)
-{
-    uint32_t i = 0;
-    for (; i < MAX_ENTRIES; i++)
+    IWRAM_FUNC void init()
     {
-        if (!interruptTable[i].mask || interruptTable[i].mask == static_cast<uint16_t>(mask))
+        // clear all interrupt functions
+        for (uint32_t i = 0; i < MAX_ENTRIES; i++)
         {
-            break;
+            interruptTable[i].handler = DummyHandler;
+            interruptTable[i].mask = 0;
         }
+        INT_VECTOR = DispatchInterrupt;
     }
-    if (i >= MAX_ENTRIES)
+
+    IWRAM_FUNC IntFunc getHandler(Mask mask)
     {
+        for (uint32_t i = 0; i < MAX_ENTRIES; i++)
+        {
+            if (interruptTable[i].mask == static_cast<uint16_t>(mask))
+            {
+                return interruptTable[i].handler;
+            }
+        }
         return nullptr;
     }
-    interruptTable[i].handler = function;
-    interruptTable[i].mask = static_cast<uint16_t>(mask);
-    return interruptTable[i].handler;
-}
 
-inline bool contains(IRQMask lhs, IRQMask rhs)
-{
-    return (static_cast<uint16_t>(lhs) & static_cast<uint16_t>(rhs)) != 0;
-}
+    IWRAM_FUNC IntFunc setHandler(Mask mask, IntFunc function)
+    {
+        uint32_t i = 0;
+        for (; i < MAX_ENTRIES; i++)
+        {
+            if (!interruptTable[i].mask || interruptTable[i].mask == static_cast<uint16_t>(mask))
+            {
+                break;
+            }
+        }
+        if (i >= MAX_ENTRIES)
+        {
+            return nullptr;
+        }
+        interruptTable[i].handler = function;
+        interruptTable[i].mask = static_cast<uint16_t>(mask);
+        return interruptTable[i].handler;
+    }
 
-IWRAM_FUNC void irqEnable(IRQMask mask)
-{
-    REG_IME = uint16_t(0);
-    if (contains(mask, IRQMask::IRQ_VBLANK))
+    IWRAM_FUNC auto getMask() -> Mask
     {
-        REG_DISPSTAT |= LCDC_VBL;
+        return static_cast<Mask>(RegIe);
     }
-    if (contains(mask, IRQMask::IRQ_HBLANK))
-    {
-        REG_DISPSTAT |= LCDC_HBL;
-    }
-    if (contains(mask, IRQMask::IRQ_VCOUNT))
-    {
-        REG_DISPSTAT |= LCDC_VCNT;
-    }
-    REG_IE |= static_cast<uint16_t>(mask);
-    REG_IME = uint16_t(1);
-}
 
-IWRAM_FUNC void irqDisable(IRQMask mask)
-{
-    REG_IME = uint16_t(0);
-    if (contains(mask, IRQMask::IRQ_VBLANK))
+    inline bool contains(Mask lhs, Mask rhs)
     {
-        REG_DISPSTAT &= ~LCDC_VBL;
+        return (static_cast<uint16_t>(lhs) & static_cast<uint16_t>(rhs)) != 0;
     }
-    if (contains(mask, IRQMask::IRQ_HBLANK))
+
+    IWRAM_FUNC void enable(Mask mask)
     {
-        REG_DISPSTAT &= ~LCDC_HBL;
+        RegIme = uint16_t(0);
+        if (contains(mask, Mask::VBlank))
+        {
+            REG_DISPSTAT |= LCDC_VBL;
+        }
+        if (contains(mask, Mask::HBlank))
+        {
+            REG_DISPSTAT |= LCDC_HBL;
+        }
+        if (contains(mask, Mask::VCount))
+        {
+            REG_DISPSTAT |= LCDC_VCNT;
+        }
+        RegIe |= static_cast<uint16_t>(mask);
+        RegIme = uint16_t(1);
     }
-    if (contains(mask, IRQMask::IRQ_VCOUNT))
+
+    IWRAM_FUNC void disable(Mask mask)
     {
-        REG_DISPSTAT &= ~LCDC_VCNT;
+        RegIme = uint16_t(0);
+        if (contains(mask, Mask::VBlank))
+        {
+            REG_DISPSTAT &= ~LCDC_VBL;
+        }
+        if (contains(mask, Mask::HBlank))
+        {
+            REG_DISPSTAT &= ~LCDC_HBL;
+        }
+        if (contains(mask, Mask::VCount))
+        {
+            REG_DISPSTAT &= ~LCDC_VCNT;
+        }
+        RegIe &= ~static_cast<uint16_t>(mask);
+        RegIme = uint16_t(1);
     }
-    REG_IE &= ~static_cast<uint16_t>(mask);
-    REG_IME = uint16_t(1);
 }
