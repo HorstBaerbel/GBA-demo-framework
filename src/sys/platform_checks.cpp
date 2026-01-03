@@ -55,38 +55,4 @@ namespace PlatformChecks
         ROM_MAGIC + 1,
         ROM_MAGIC + 2};
     EWRAM_DATA const uint32_t ROMWaitStateSettings[] = {MemCtrl::WaitCntNormal, MemCtrl::WaitCntFast};
-
-    // A hybrid of the method in Butano by GValiente and in OpenLara by XProger
-    EWRAM_FUNC uint32_t BestROMWaitstates()
-    {
-        uint32_t lastWorkingSetting = MemCtrl::WaitCntSlow;
-        for (uint32_t wsi = 0; wsi < 2; wsi++)
-        {
-            uint32_t a[3] = {0};
-            uint32_t b[3] = {0};
-            uint32_t c[3] = {0};
-            MemCtrl::RegWaitCnt = ROMWaitStateSettings[wsi];
-            for (int index = 0; index < 3; ++index)
-            {
-                a[index] = *(volatile uint32_t *)(&ROMCheckData[index]);
-            }
-            for (int index = 0; index < 3; ++index)
-            {
-                b[index] = *(volatile uint32_t *)(&ROMCheckData[index]);
-            }
-            for (int index = 2; index >= 0; --index)
-            {
-                c[index] = *(volatile uint32_t *)(&ROMCheckData[index]);
-            }
-            MemCtrl::RegWaitCnt = MemCtrl::WaitCntSlow;
-            if (a[0] != b[0] || a[1] != b[1] || a[2] != b[2] || a[0] != c[0] || a[1] != c[1] || a[2] != c[2])
-            {
-                break;
-            }
-            lastWorkingSetting = ROMWaitStateSettings[wsi];
-        }
-        MemCtrl::RegWaitCnt = MemCtrl::WaitCntSlow;
-        return lastWorkingSetting;
-    }
-
 }

@@ -12,10 +12,4 @@ namespace PlatformChecks
     /// At the start of your program, do MemCtrl::RegWaitEwram = BestEWRAMWaitstates();
     /// @note Will reset wait states to MemCtrl::WaitEwramNormal
     uint32_t BestEWRAMWaitstates();
-
-    /// @brief Find best usable ROM wait states without data corruption
-    /// At the start of your program, do MemCtrl::RegWaitCnt = BestROMWaitstates();
-    /// @note Will reset wait states to MemCtrl::WaitEwramNormal
-    uint32_t BestROMWaitstates();
-
 }
