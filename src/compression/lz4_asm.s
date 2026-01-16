@@ -2,6 +2,8 @@
 #define LZ4_CONSTANTS_LITERAL_LENGTH_SHIFT 4 // Left-shift of literal length in token byte
 #define LZ4_CONSTANTS_LENGTH_MASK 0x0F       // Used for masking literal and match lengths
 
+//#define USE_DMA3 @ Faster copying of long matches, but uses DMA3. Only useful for copying, not setting RLE runs
+
 .arm
  .align
  .global LZ4_MemCopy16
@@ -19,6 +21,7 @@ LZ4_MemCopy16:
     @ r0: source pointer (will point to r0 + r4)
     @ r1: destination pointer (will point to r1 + r4)
     @ r4: number of bytes to copy (trashed)
+    @ r7: DMA3 register address, if USE_DMA3 defined
     @ ------------------------------
     @ In function:
     @ r5-r6 trashed
@@ -59,6 +62,18 @@ LZ4_MemCopy16:
     sub     r0, r0, #1 @ we have read one byte too much from src, so decrement src once
     b       .lz4_mc16_tail_fixup_r4
 .lz4_mc16_src_halfword_aligned:
+#ifdef USE_DMA3
+    @ set up DMA3 to copy halfwords
+    mov     r6, r4, lsr #1
+    add     r6, #1
+    subs    r4, r6, lsl #1
+    mov     r5, r6
+    orr     r6, #0x80000000 @ enable DMA
+    stmia   r7, {r0, r1, r6}
+    add     r0, r5, lsl #1
+    add     r1, r5, lsl #1
+    b       .lz4_mc16_tail_fixup_r4
+#else
     @ src halfword aligned, so copy halfwords. r4 is actually -2
     cmp     r5, #4                              @ |r1 - r0| < 4?
     blt     .lz4_mc16_src_halfword_aligned_loop @ if |r1 - r0| < 4, copy halfwords
@@ -81,6 +96,7 @@ LZ4_MemCopy16:
     subs    r4, r4, #2
     bpl     .lz4_mc16_src_halfword_aligned_loop
     b       .lz4_mc16_tail_fixup_r4
+#endif
 .lz4_mc16_repeat_byte:
     @ overlapping RLE run with distance == 1 that repeats >= 2 times. r4 is actually -2
     ldrb    r6, [r0], #1   @ r6 = src[last]
@@ -120,8 +136,13 @@ LZ4UnCompWrite16bit_ASM:
     @ ------------------------------
     @ In function:
     @ r2: size of uncompressed data (trashed)
-    @ r3 trashed, r4-r6 used and saved / restore
+    @ r3 trashed, r4-r6 used and saved / restored
+    @ r7 used and saved / restore, if USE_DMA3 defined
+#ifdef USE_DMA3
+    push {r4 - r7, lr}
+#else
     push {r4 - r6, lr}
+#endif
 
     @ read header word:
     @ Bit 0-7: Compressed type (40h for LZ4)
@@ -141,7 +162,10 @@ LZ4UnCompWrite16bit_ASM:
     orrs r2, r2, r3
     @ stop if uncompressed size is 0
     beq .lz4_ucw_end
-
+#ifdef USE_DMA3
+    @ r7 = DMA3 register address
+    ldr r7, =#0x040000D4
+#endif
     @ move input pointer past header
     add r0, r0, #4
 .lz4_ucw_decode_loop:
@@ -193,7 +217,11 @@ LZ4UnCompWrite16bit_ASM:
     cmp r2, #0 @ still data left to decompress?
     bne .lz4_ucw_decode_loop
 .lz4_ucw_end:
+#ifdef USE_DMA3
+    pop {r4 - r7, lr}
+#else
     pop {r4 - r6, lr}
+#endif
     bx lr
 
 .arm
