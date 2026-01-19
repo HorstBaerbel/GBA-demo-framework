@@ -5,7 +5,7 @@
 #include <cstdarg>
 #include <cstdint>
 
-#include "./data/font_8x8.h"
+#include "data/font_8x8.h"
 
 namespace TUI
 {
