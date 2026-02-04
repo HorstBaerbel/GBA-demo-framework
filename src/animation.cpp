@@ -143,7 +143,7 @@ namespace Animation
 
     void update()
     {
-        const auto currentTime = Time::now();
+        const auto currentTime = Math::fp1616_t::fromRaw(Time::now());
         // loop through all sequences currently active
         for (uint32_t si = 0; si < nrOfSequences; ++si)
         {

@@ -174,33 +174,33 @@ namespace Test
 			print("\n");
 		}*/
     /*Math::fp1616_t a = 3.7f;
-		Math::fp1616_t b = 0;
-		Math::fp1616_t start = Time::now();
-		const int32_t nrOfLoops = 1000*1000;
-		for (int32_t i = 0; i < nrOfLoops; ++i)
-		{
-			Math::fp1616_t s = sin(a);
-			Math::fp1616_t c = cos(a);
-			//sincos(a, s, c);
-			b = s + c;
-			a = -a;
-		}
-		Math::fp1616_t diff = Time::now() - start;
-		printf("b = %d\n", b);
-		printf("run time: %s %s\n", timingValue(diff, nrOfLoops), timingUnit(diff, nrOfLoops));
-		*/
+    Math::fp1616_t b = 0;
+    Math::fp1616_t start = Math::fp1616_t::fromRaw(Time::now());
+    const int32_t nrOfLoops = 1000*1000;
+    for (int32_t i = 0; i < nrOfLoops; ++i)
+    {
+      Math::fp1616_t s = sin(a);
+      Math::fp1616_t c = cos(a);
+      //sincos(a, s, c);
+      b = s + c;
+      a = -a;
+    }
+    Math::fp1616_t diff = Math::fp1616_t::fromRaw(Time::now()) - start;
+    printf("b = %d\n", b);
+    printf("run time: %s %s\n", timingValue(diff, nrOfLoops), timingUnit(diff, nrOfLoops));
+    */
     /*Math::fp1616_t start = -Math::fp1616_t::PI_2;
-		Math::fp1616_t step = (Math::fp1616_t::PI_2 * 2) / Video::width();
-		Math::fp1616_t verticalCenter = Video::height() / 2;
-		Math::fp1616_t halfHeight = (Video::height() - 2) / 2;
-		for (int32_t x = 0; x < Video::width(); ++x)
-		{
-			Math::fp1616_t s;// = sin(start + step * x);
-			Math::fp1616_t c;// = cos(start + step * x);
-			sincos(start + step * x, s, c);
-			Video::setPixel(Video::frontBuffer(), x, (uint32_t)(verticalCenter - halfHeight * s), (uint8_t)255); //red
-			Video::setPixel(Video::frontBuffer(), x, (uint32_t)(verticalCenter - halfHeight * c), (uint8_t)1); //blue
-		}*/
+    Math::fp1616_t step = (Math::fp1616_t::PI_2 * 2) / Video::width();
+    Math::fp1616_t verticalCenter = Video::height() / 2;
+    Math::fp1616_t halfHeight = (Video::height() - 2) / 2;
+    for (int32_t x = 0; x < Video::width(); ++x)
+    {
+      Math::fp1616_t s;// = sin(start + step * x);
+      Math::fp1616_t c;// = cos(start + step * x);
+      sincos(start + step * x, s, c);
+      Video::setPixel(Video::frontBuffer(), x, (uint32_t)(verticalCenter - halfHeight * s), (uint8_t)255); //red
+      Video::setPixel(Video::frontBuffer(), x, (uint32_t)(verticalCenter - halfHeight * c), (uint8_t)1); //blue
+    }*/
   }
 
 } // namespace Test

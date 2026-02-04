@@ -28,8 +28,8 @@ namespace Player
     EWRAM_DATA LoopMode m_loopMode = LoopMode::None;
     EWRAM_DATA uint32_t m_nrOfSongs = 0;
     EWRAM_DATA int32_t m_currentSongNr = -1;
-    IWRAM_DATA Time::TimePoint m_lastFrameCall = 0;
-    IWRAM_DATA Time::Duration m_playedDuration = 0;
+    IWRAM_DATA Math::fp1616_t m_lastFrameCall = 0;
+    IWRAM_DATA Math::fp1616_t m_playedDuration = 0;
 
 #ifdef CHECK_CPU_TIME
     Math::fp1616_t m_cpuTime = 0;
@@ -253,10 +253,10 @@ namespace Player
     IWRAM_FUNC void frame()
     {
 #ifdef CHECK_CPU_TIME
-        auto startTime = Time::now();
+        auto startTime = Math::fp1616_t::fromRaw(Time::now());
 #endif
         mmFrame();
-        auto now = Time::now();
+        auto now = Math::fp1616_t::fromRaw(Time::now());
         if (mmActive())
         {
             m_playedDuration += now - m_lastFrameCall;

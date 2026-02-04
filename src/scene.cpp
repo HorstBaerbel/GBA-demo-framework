@@ -46,7 +46,7 @@ namespace Scene
                 currentEffect = entry.effect;
             }
             // set up start / end time
-            const Math::fp1616_t startTime = Time::now();
+            const Math::fp1616_t startTime = Math::fp1616_t::fromRaw(Time::now());
             const Math::fp1616_t endTime = startTime + entry.duration;
             // set up data
             Data sceneData;
@@ -67,7 +67,7 @@ namespace Scene
 #ifdef DEBUG_SCENE
                 printf("Running loop");
 #endif
-                while (Time::now() < endTime || entry.duration <= 0)
+                while (Math::fp1616_t::fromRaw(Time::now()) < endTime || entry.duration <= 0)
                 {
 #if defined(KEYSDOWN_IN_DATA) || defined(SCENE_CONTROL)
                     scanKeys();
@@ -75,7 +75,7 @@ namespace Scene
                     sceneData.keysDown = keysDown() | keysHeld();
 #endif
 #endif
-                    sceneData.t = Math::fp1616_t::ONE - (endTime - Time::now()) / sceneData.duration;
+                    sceneData.t = Math::fp1616_t::ONE - (endTime - Math::fp1616_t::fromRaw(Time::now())) / sceneData.duration;
                     entry.loop(sceneData);
 #ifdef SCENE_CONTROL
                     if (sceneData.keysDown & KEY_START && i > 0)

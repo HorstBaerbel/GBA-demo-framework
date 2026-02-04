@@ -10,7 +10,7 @@ namespace Effect_FadePalette
 		if (currentData)
 		{
 			// calculate elapsed time
-			Math::fp1616_t elapsedTime = Time::now() - currentData->startTime;
+			Math::fp1616_t elapsedTime = Math::fp1616_t::fromRaw(Time::now()) - currentData->startTime;
 			// calculate state value t and clamp to [0,1]
 			Math::fp1616_t t = clamp(elapsedTime / currentData->fadeTime, Math::fp1616_t(0), Math::fp1616_t(1));
 			// set up pointers to palettes
@@ -46,13 +46,13 @@ namespace Effect_FadePalette
 				{
 					// reverse fading
 					currentData->mode = Mode::FADE_FROM;
-					currentData->startTime = Time::now();
+					currentData->startTime = Math::fp1616_t::fromRaw(Time::now());
 				}
 				else if (Mode::FADE_FROM_AND_BACK == currentData->mode)
 				{
 					// reverse fading
 					currentData->mode = Mode::FADE_TO;
-					currentData->startTime = Time::now();
+					currentData->startTime = Math::fp1616_t::fromRaw(Time::now());
 				}
 			}
 		}
@@ -61,7 +61,7 @@ namespace Effect_FadePalette
 	void start(EffectData &fadeData)
 	{
 		//set up time
-		fadeData.startTime = Time::now();
+		fadeData.startTime = Math::fp1616_t::fromRaw(Time::now());
 		//connect effect to frame procedure
 		Graphics::callAtVblank(procFade, (void *)&fadeData);
 	}

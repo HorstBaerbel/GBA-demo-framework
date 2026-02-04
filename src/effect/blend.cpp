@@ -15,7 +15,7 @@ namespace Effect_Blend
         if (currentData)
         {
             // calculate elapsed time
-            const Math::fp1616_t elapsedTime = Time::now() - currentData->startTime;
+            const Math::fp1616_t elapsedTime = Math::fp1616_t::fromRaw(Time::now()) - currentData->startTime;
             // calculate state value t and clamp to [0,1]
             Math::fp1616_t t = clamp(elapsedTime / currentData->fadeTime, Math::fp1616_t(0), Math::fp1616_t(1));
             // calculate effect coefficient for target 1 in 1/16 steps and clamp to [0,16]
@@ -64,13 +64,13 @@ namespace Effect_Blend
                 {
                     // reverse direction
                     currentData->direction = Direction::FADE_FROM;
-                    currentData->startTime = Time::now();
+                    currentData->startTime = Math::fp1616_t::fromRaw(Time::now());
                 }
                 else if (Direction::FADE_FROM_AND_BACK == currentData->direction)
                 {
                     // reverse direction
                     currentData->direction = Direction::FADE_TO;
-                    currentData->startTime = Time::now();
+                    currentData->startTime = Math::fp1616_t::fromRaw(Time::now());
                 }
             }
         }
@@ -79,7 +79,7 @@ namespace Effect_Blend
     void startFade(EffectData &data)
     {
         //set up data
-        data.startTime = Time::now();
+        data.startTime = Math::fp1616_t::fromRaw(Time::now());
         //connect effect to frame procedure
         Graphics::callAtVblank(procFade, (void *)&data);
     }
