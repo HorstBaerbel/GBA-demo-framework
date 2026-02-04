@@ -9,7 +9,7 @@
 #endif
 
 #ifdef CHECK_CPU_TIME
-#include "fptime.h"
+#include "time.h"
 #endif
 
 #include <maxmod.h>

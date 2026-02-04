@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fptime.h"
+#include "time.h"
 #include "math/fp32.h"
 
 /// @brief Simple animation functions

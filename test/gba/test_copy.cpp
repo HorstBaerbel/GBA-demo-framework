@@ -1,4 +1,4 @@
-#include <fptime.h>
+#include <time.h>
 #include <graphics.h>
 #include <memory/dma.h>
 #include <memory/memory.h>

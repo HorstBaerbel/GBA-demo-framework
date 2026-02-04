@@ -1,6 +1,6 @@
 #include "tests.h"
 
-#include <fptime.h>
+#include <time.h>
 #include <graphics.h>
 #include <sys/interrupts.h>
 #include <sys/memctrl.h>

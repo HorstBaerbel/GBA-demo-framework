@@ -1,14 +1,14 @@
 #include "scene.h"
-#include "fptime.h"
+#include "time.h"
 #include "sound/sound.h"
 
-//#define DEBUG_SCENE
+// #define DEBUG_SCENE
 #ifdef DEBUG_SCENE
 #include "debug_print.h"
 #endif
 
 // Define this to control scenes with the keypad (skip etc.)
-//#define SCENE_CONTROL
+// #define SCENE_CONTROL
 #if defined(KEYSDOWN_IN_DATA) || defined(SCENE_CONTROL)
 #include "input.h"
 #endif
@@ -30,7 +30,7 @@ namespace Scene
             // set up player
             if (currentSongNr != entry.songNr && entry.songNr >= 0)
             {
-                //Sound::stopEffect();
+                // Sound::stopEffect();
                 Sound::playSong(entry.songNr);
                 currentSongNr = entry.songNr;
             }
@@ -41,7 +41,7 @@ namespace Scene
             }
             if (currentEffect != entry.effect && entry.effect != nullptr)
             {
-                //Sound::stopSong();
+                // Sound::stopSong();
                 Sound::playEffect(entry.effect);
                 currentEffect = entry.effect;
             }

@@ -3,19 +3,19 @@
 #include "math/fp32.h"
 #include "memory/memory.h"
 
-//#define CHECK_CPU_TIME
+// #define CHECK_CPU_TIME
 #ifdef CHECK_CPU_TIME
-#include "fptime.h"
+#include "time.h"
 
 #endif
 
 #include "print/print.h"
 
 // Define this to build a FFT DIT swizzle table and output it to console
-//#define BUILD_SWIZZLE_TABLE
+// #define BUILD_SWIZZLE_TABLE
 
 // Define this to use a precalculated FFT DIT swizzle table
-//#define USE_SWIZZLE_TABLE
+// #define USE_SWIZZLE_TABLE
 
 // Define this to apply a von Hann window function to the sample data
 #define ENABLE_WINDOWING
@@ -151,7 +151,7 @@ namespace Spectrum
     // Apply amplitude correction factor to compensate for windowing
     // See: https://community.sw.siemens.com/s/article/window-correction-factors
     constexpr int16_t FFTWindowAmplitudeCorrectionFactor = 2;
-    //constexpr int16_t FFTWindowEnergyCorrectionFactor = 1.63;
+    // constexpr int16_t FFTWindowEnergyCorrectionFactor = 1.63;
 
     // Perform windowing on sampled data to eliminate noise in FFT bands
     // Von Hann (raised cosine) function with simple 16-bit arithmetic to compensate for rounding errors
@@ -331,7 +331,7 @@ namespace Spectrum
     // See: https://dsp.stackexchange.com/questions/52958/how-can-i-get-the-power-of-a-specific-frequency-band-after-fft
     IWRAM_FUNC void SpectrumFromFFT(int8_t *real8, int8_t *imag8)
     {
-        //static Math::fp1616_t maxValue = 0;
+        // static Math::fp1616_t maxValue = 0;
         for (uint32_t i = 0; i < NrOfBands; i++)
         {
             auto const &band = fftbands[i]; // the band we've currently processing
@@ -358,7 +358,7 @@ namespace Spectrum
             // apply cheap log2 to spectrum value
             tempLevel = int32_t(Math::log2_B(Math::fp1616_t::fromRaw(tempLevel * 4096)));
             // calculate new spectrum value by averaging old and new values
-            //tempLevel = (tempLevel + spectrum[i]) >> 1;
+            // tempLevel = (tempLevel + spectrum[i]) >> 1;
             spectrum[i] = static_cast<uint8_t>(tempLevel);
         }
     }
