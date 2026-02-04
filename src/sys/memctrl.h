@@ -44,4 +44,10 @@ namespace MemCtrl
     /// @brief Regular wait states for EWRAM (3/3/6)
     /// See: http://problemkaputt.de/gbatek.htm#gbasystemcontrol
     constexpr uint32_t WaitEwramNormal = 0x0D000020;
+
+    /// @brief Check if the wait state value for EWRAM can be safely used.
+    /// If so, sets that value, else falls back to WaitEwramNormal.
+    /// @param value Wait state value
+    /// @return Returns true if the value is usable and was set, false otherwise.
+    auto setIntMemCnt(uint16_t value) -> bool;
 }

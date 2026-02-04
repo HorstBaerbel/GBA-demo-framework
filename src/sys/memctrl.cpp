@@ -48,4 +48,51 @@ namespace MemCtrl
         }
         return true;
     }
+
+    constexpr uint32_t IntMemCntDataMagic = 3510229297;
+    constexpr uint32_t IntMemCntDataSize = 16;
+    EWRAM_DATA uint32_t IntMemCntData[IntMemCntDataSize] = {
+        IntMemCntDataMagic + 0,
+        IntMemCntDataMagic + 1,
+        IntMemCntDataMagic + 2,
+        IntMemCntDataMagic + 3,
+        IntMemCntDataMagic + 4,
+        IntMemCntDataMagic + 5,
+        IntMemCntDataMagic + 6,
+        IntMemCntDataMagic + 7,
+        IntMemCntDataMagic + 8,
+        IntMemCntDataMagic + 9,
+        IntMemCntDataMagic + 10,
+        IntMemCntDataMagic + 11,
+        IntMemCntDataMagic + 12,
+        IntMemCntDataMagic + 13,
+        IntMemCntDataMagic + 14,
+        IntMemCntDataMagic + 15,
+    };
+
+    IWRAM_FUNC auto setIntMemCnt(uint16_t value) -> bool
+    {
+        RegIntMemCnt = value;
+        // check sequential reads
+        for (uint32_t i = 0; i < IntMemCntDataSize; i++)
+        {
+            if (*(volatile uint32_t *)&IntMemCntData[i] != (IntMemCntDataMagic + i))
+            {
+                RegIntMemCnt = WaitEwramNormal;
+                return false;
+            }
+        }
+        // check non-sequential reads
+        for (uint32_t i = 0, j = IntMemCntDataSize - 1; i < IntMemCntDataSize; i++, j--)
+        {
+            const bool left = *(volatile uint32_t *)&IntMemCntData[i] == (IntMemCntDataMagic + i);
+            const bool right = *(volatile uint32_t *)&IntMemCntData[j] == (IntMemCntDataMagic + j);
+            if (!left || !right)
+            {
+                RegIntMemCnt = WaitEwramNormal;
+                return false;
+            }
+        }
+        return true;
+    }
 }
