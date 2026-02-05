@@ -1,10 +1,14 @@
-.section .iwram, "ax", %progbits
-.cpu arm7tdmi
 .arm
-.align 2
+ .align
+#ifdef __NDS__
+ .section .itcm, "ax", %progbits
+#else
+ .section .iwram, "ax", %progbits
+ .cpu arm7tdmi
+#endif
 
-.global random_u32
-.type random_u32_arm STT_FUNC
+ .global random_u32
+ .type random_u32,function
 @ === uint32_t random_u32(void) IWRAM_FUNC; =============
 @ Based on the random number generator by Dooby
 random_u32:
@@ -18,8 +22,8 @@ random_u32:
 	stmia	a3, {a1, a2}    @ Use these next time
 	bx	lr
 
-.global srandom
-.type srandom_arm STT_FUNC
+ .global srandom_
+ .type srandom,function
 @ === void srandom(uint32_t seed) IWRAM_FUNC; =============
 @ Seed random number generator
 srandom:
