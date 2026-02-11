@@ -143,6 +143,9 @@ namespace Sprites
     /// @brief Calculate rotation / scaling parameters for sprite. Angle is in radians
     AffineData calculateAffineData(Math::fp1616_t angle, Math::fp1616_t sx = 1, Math::fp1616_t sy = 1);
 
+    /// @brief Check if a sprite is visible inside bounds [0,right] horizontally and [0,bottom] vertically
+    bool isInside(const Sprite2D &sprite, uint32_t right = 239, uint32_t bottom = 159);
+
     /// @brief Set only the visible portion of the sprite to OAM. Call only in vblank.
     void setVisibleOAM(const Sprite2D *sprite);
     /// @brief Set only the visible portion of the sprite to OAM. Call only in vblank.

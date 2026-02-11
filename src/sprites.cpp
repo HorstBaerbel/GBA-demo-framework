@@ -275,4 +275,11 @@ namespace Sprites
         return result;
     }
 
+    bool isInside(const Sprite2D &sprite, uint32_t right, uint32_t bottom)
+    {
+        const auto width = 8 * Tiles::HorizontalTilesForSizeCode[static_cast<uint8_t>(sprite.size)];
+        const auto height = 8 * Tiles::VerticalTilesForSizeCode[static_cast<uint8_t>(sprite.size)];
+        return (sprite.x <= static_cast<int16_t>(right)) && (sprite.y <= static_cast<int16_t>(bottom)) && (sprite.x + width > 0) && (sprite.y + height > 0);
+    }
+
 } // namespace Sprites
