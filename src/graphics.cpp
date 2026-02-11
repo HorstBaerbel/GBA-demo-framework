@@ -129,12 +129,12 @@ namespace Graphics
     {
         if (enable)
         {
-            irqSet(IRQMask::IRQ_VBLANK, vblank);
-            irqEnable(IRQMask::IRQ_VBLANK);
+            Irq::setHandler(Irq::Mask::VBlank, vblank);
+            Irq::enable(Irq::Mask::VBlank);
         }
         else
         {
-            irqDisable(IRQMask::IRQ_VBLANK);
+            Irq::disable(Irq::Mask::VBlank);
         }
     }
 
@@ -232,12 +232,12 @@ namespace Graphics
                 m_currentVcountFunction = 0;
                 REG_DISPSTAT = (REG_DISPSTAT & 0x00FF) | (m_vcountFunctions[0].startLine << 8);
             }
-            irqSet(IRQMask::IRQ_VCOUNT, vcount);
-            irqEnable(IRQMask::IRQ_VCOUNT);
+            Irq::setHandler(Irq::Mask::VCount, vcount);
+            Irq::enable(Irq::Mask::VCount);
         }
         else
         {
-            irqDisable(IRQMask::IRQ_VCOUNT);
+            Irq::disable(Irq::Mask::VCount);
             // clear line for interrupt for first item
             REG_DISPSTAT = REG_DISPSTAT & 0x00FF;
             m_currentVcountFunction = 0;
@@ -388,13 +388,13 @@ namespace Graphics
     void clear8(uint16_t *buffer, const uint8_t color)
     {
         const uint32_t value = ((uint32_t)color << 24) | ((uint32_t)color << 16) | ((uint32_t)color << 8) | ((uint32_t)color);
-        DMA::vram_fill(buffer, value, m_nrOfBytes);
+        Memory::memset32(buffer, value, m_nrOfBytes / 4);
     }
 
     void clear16(uint16_t *buffer, const uint16_t color)
     {
         const uint32_t value = ((uint32_t)color << 16) | ((uint32_t)color);
-        DMA::vram_fill(buffer, value, m_nrOfBytes);
+        Memory::memset32(buffer, value, m_nrOfBytes / 4);
     }
 
     void clearBlock8(uint16_t *buffer, uint32_t x, uint32_t y, uint32_t blockSize, const uint8_t color)
@@ -587,7 +587,7 @@ namespace Graphics
             // copy scanlines
             for (uint32_t y = 0; y < blitHeight; ++y)
             {
-                DMA::vram_copy(reinterpret_cast<uint16_t *>(dest8), src8, blitWidth);
+                // TODO: rewrite
                 dest8 += m_width;
                 src8 += dataWidth;
             }
@@ -612,7 +612,7 @@ namespace Graphics
             // copy scanlines
             for (uint32_t y = 0; y < blitHeight; ++y)
             {
-                DMA::vram_copy(dest16, reinterpret_cast<const uint8_t *>(src16), blitWidth);
+                Memory::memcpy16(dest16, src16, blitWidth);
                 dest16 += m_width;
                 src16 += dataWidth;
             }
