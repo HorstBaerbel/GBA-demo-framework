@@ -23,6 +23,20 @@ inline fp32_t<F> smoothstep(fp32_t<F> t)
 }
 
 template <unsigned int F>
+inline fp32_t<F> ease_cubic(fp32_t<F> t)
+{
+	if (t < fp32_t<F>::HALF)
+	{
+		return fp32_t<F>(4) * t * t * t;
+	}
+	else
+	{
+		fp32_t<F> x = fp32_t<F>(-2) * t + fp32_t<F>(2);
+		return fp32_t<F>::ONE - (fp32_t<F>::HALF * x * x * x);
+	}
+}
+
+template <unsigned int F>
 inline fp32_t<F> lerp(fp32_t<F> a, fp32_t<F> b, fp32_t<F> t)
 {
 	//a * (1-t) + bt = a - at + bt = a + -at + bt = a + (b-a)t
