@@ -117,7 +117,7 @@ namespace Sprites
     /// @brief Fill a Sprite2D struct with data. Will create a regular sprite
     auto create(uint32_t spriteIndex, int32_t x, int32_t y, uint32_t tileIndex = 0, SizeCode size = SizeCode::Size8x8, ColorDepth depth = ColorDepth::Depth16, uint32_t paletteIndex = 0, Mode mode = Mode::Normal, bool visible = true) -> Sprite2D;
     /// @brief Fill Sprite2D structs with data, calculating tile numbers for each sprite based on size and depth. Will create a regular sprite
-    auto create(Sprite2D *sprites, uint32_t nrOfSprites, uint32_t spriteIndex = 0, uint32_t tileIndex = 0, SizeCode size = SizeCode::Size8x8, ColorDepth depth = ColorDepth::Depth16, uint32_t paletteIndex = 0) -> void;
+    auto create(Sprite2D *sprites, uint32_t nrOfSprites, uint32_t spriteIndex = 0, uint32_t tileIndex = 0, SizeCode size = SizeCode::Size8x8, ColorDepth depth = ColorDepth::Depth16, uint32_t paletteIndex = 0, uint32_t matrixIndex = 0) -> void;
 
     /// @brief Copy tile data for sprite to VRAM.
     void copyTileData16(const Sprite2D *sprite, const uint32_t *tileData);
