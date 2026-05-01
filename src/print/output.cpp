@@ -46,7 +46,7 @@ namespace Debug
 		#endif
 	*/
 
-	void printf(const char *fmt...)
+	void printf(const char *fmt, ...)
 	{
 		va_list args;
 		va_start(args, fmt);
@@ -58,6 +58,24 @@ namespace Debug
 			if (expectType)
 			{
 				expectType = false;
+				uint32_t precision = 6;
+				if (*fmt == '.')
+				{
+					++fmt;
+					if (*fmt == '\0')
+					{
+						break;
+					}
+					if (*fmt >= '0' && *fmt <= '9')
+					{
+						precision = *fmt - '0';
+						++fmt;
+					}
+					if (*fmt == '\0')
+					{
+						break;
+					}
+				}
 				if (*fmt == 'b')
 				{
 					// note automatic conversion to integral type
@@ -78,7 +96,7 @@ namespace Debug
 				else if (*fmt == 'f')
 				{
 					auto f = va_arg(args, int32_t);
-					buffer = fptoa(f, buffer, 16, 2);
+					buffer = fptoa(f, buffer, 16, precision);
 				}
 				else if (*fmt == 'x')
 				{

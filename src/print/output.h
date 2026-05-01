@@ -9,6 +9,5 @@ namespace Debug
     void print(const char *s);
 
     /// @brief Print a formatted string
-    void printf(const char *fmt...);
-
+    void printf(const char *fmt, ...);
 }
