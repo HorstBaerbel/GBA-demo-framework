@@ -2,7 +2,8 @@
 .global sqrt
 .arm
 .cpu arm7tdmi
-.align 2 
+.align 2
+.type sqrt,function
 @ === int32_t sqrt(int32_t number) IWRAM_FUNC; =============
 sqrt:
 	stmfd	sp!, {v1, lr}

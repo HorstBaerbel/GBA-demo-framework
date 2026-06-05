@@ -8,7 +8,7 @@
 .cpu arm7tdmi
 .align 2
 .global memcpy32
-.type memcpy32 STT_FUNC;
+.type memcpy32,function
 memcpy32:
     and r12, r2, #7 @ r12= residual word count
     movs r2, r2, lsr #3 @ r2=block count
@@ -41,7 +41,7 @@ memcpy32:
 .thumb_func
 .cpu arm7tdmi
 .global memcpy16
-.type memcpy16 STT_FUNC;
+.type memcpy16,function
 memcpy16:
     push    {r4, lr}
     @ (1) under 5 hwords -> std cpy

@@ -4,6 +4,7 @@
 .cpu arm7tdmi
 .align
 .global memset32
+.type memset32,function
 memset32:
     mov     r2, r2, lsl #1
     cmp     r2, #16
@@ -16,6 +17,7 @@ memset32:
 .cpu arm7tdmi
 .align
 .global memset16
+.type memset16,function
 memset16:
     cmp     r2, #0              @ if(count != 0)
     movnes  r3, r0, ror #2      @   if(dst && (dst&1))
