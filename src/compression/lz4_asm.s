@@ -30,8 +30,7 @@ LZ4_MemCopy16:
     tst     r1, #1
     beq     .lz4_mc16_dst_halfword_aligned
     @ dst is odd, read-modify-write a halfword to update only the high byte
-    sub     r1, r1, #1
-    ldrb    r5, [r1]           @ r5 = dst[-1] 
+    ldrb    r5, [r1, #-1]!     @ r5 = dst[-1], r1 -= 1
     ldrb    r6, [r0], #1       @ r6 = src[0]
     orr     r5, r5, r6, lsl #8 @ r5 = (src[0] << 8) | dst[-1]
     strh    r5, [r1], #2       @ write dst[-1], src[0] to dst
@@ -155,11 +154,9 @@ LZ4UnCompWrite16bit_ASM:
     @ r2 = uncompressed size
     ldrb r2, [r0, #1]
     ldrb r3, [r0, #2]
-    lsl r3, r3, #8
-    orr r2, r2, r3
+    orr r2, r2, r3, lsl #8
     ldrb r3, [r0, #3]
-    lsl r3, r3, #16
-    orrs r2, r2, r3
+    orrs r2, r2, r3, lsl #16
     @ stop if uncompressed size is 0
     beq .lz4_ucw_end
 #ifdef USE_DMA3
@@ -186,7 +183,6 @@ LZ4UnCompWrite16bit_ASM:
     beq .lz4_ucw_read_literals_length
 .lz4_ucw_copy_literals:
     sub r2, r2, r4 @ uncompressed size -= length of literals
-    mov lr, pc
     bl LZ4_MemCopy16
 .lz4_ucw_literals_end:
     @ ----- match decoding -----
@@ -210,7 +206,6 @@ LZ4UnCompWrite16bit_ASM:
     sub r2, r2, r4 @ uncompressed size -= length of match
     mov r3, r0 @ save r0
     sub r0, r1, r6 @ src pointer = dst pointer - match offset
-    mov lr, pc
     bl LZ4_MemCopy16
     mov r0, r3 @ restore r0
 .lz4_ucw_match_end:
