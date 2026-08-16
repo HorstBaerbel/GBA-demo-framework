@@ -182,38 +182,30 @@ char *fptoa(int32_t value, char *result, uint32_t BITSF, uint32_t precision)
 	}
 	// add decimal point
 	*intEnd++ = '.';
-	// convert fractional part with rounding
+	auto fracEnd = intEnd;
+	// convert fractional part w/o rounding
+	do
+	{
+		fractPart *= 10;
+		*fracEnd++ = chars[fractPart >> BITSF];
+		fractPart &= ((1 << BITSF) - 1);
+	} while (fractPart);
+	// if rounding is wanted, round backwards from end
 	if (precision > 0)
 	{
-		const uint32_t BITSQ_MASK = ~((1 << BITSF) - 1);
-		const int32_t HALF = int32_t(1) << (BITSF - 1);
-		int32_t multiplier = 1;
-		for (uint32_t i = 0; i < precision; i++)
+		// if we have to few digits, fill up with zeros
+		while (static_cast<uint32_t>(fracEnd - intEnd) < precision)
 		{
-			multiplier *= 10;
+			*fracEnd++ = '0';
 		}
-		fractPart *= multiplier;
-		fractPart += (value < 0) ? (-HALF) : HALF; // -0.5 / +0.5
-		fractPart &= BITSQ_MASK;				   // trunc
-		for (uint32_t i = 0; i < precision; i++)
+		// if we have too many digits, cut them (fix later)
+		while (static_cast<uint32_t>(fracEnd - intEnd) > precision)
 		{
-			multiplier /= 10;
-			auto number = (fractPart / multiplier) & BITSQ_MASK;
-			*intEnd++ = chars[number >> BITSF];
-			fractPart -= number * multiplier;
+			// step to new current digit
+			--fracEnd;
 		}
-	}
-	// convert fractional part w/o rounding
-	else
-	{
-		do
-		{
-			fractPart *= 10;
-			*intEnd++ = chars[fractPart >> BITSF];
-			fractPart &= ((1 << BITSF) - 1);
-		} while (fractPart);
 	}
 	// null-terminate
-	*intEnd = '\0';
+	*fracEnd = '\0';
 	return result;
 }
