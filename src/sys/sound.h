@@ -54,3 +54,11 @@
 #define SOUND3_SETBANK(n) (n << 6) // Bank to play 0 or 1 (non set bank is written to)
 #define SOUND3_PLAY (1 << 7)       // Output sound
 #define SOUND3_STOP (0 << 7)       // Stop sound output
+
+#define SND_BIAS_LEVEL(n) (n << 1)                      // The sound bias level from 0-511
+#define SND_BIAS_LEVEL_DEFAULT (1 << 8)                 // Default sound bias level (256 << 1)
+#define SND_SAMPLE_FREQ_DEFAULT (0 << 14)               // Default sound sampling frequency / resolution 9 bit / 32.768kHz
+#define SND_SAMPLE_FREQ_32KHZ SND_BIAS_SAMPLING_DEFAULT // Sound sampling frequency / resolution 9 bit / 32.768kHz
+#define SND_SAMPLE_FREQ_65KHZ (1 << 14)                 // Sound sampling frequency / resolution 8 bit / 65.536kHz
+#define SND_SAMPLE_FREQ_131KHZ (2 << 14)                // Sound sampling frequency / resolution 7 bit / 131.072kHz
+#define SND_SAMPLE_FREQ_262KHZ (3 << 14)                // Sound sampling frequency / resolution 6 bit / 262.144kHz
