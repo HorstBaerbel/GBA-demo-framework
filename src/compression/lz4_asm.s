@@ -36,9 +36,9 @@ LZ4_MemCopy16:
     @ dst is odd, read-modify-write a halfword to update only the high byte
     ldrb    r5, [r1, #-1]!      @ r5 = dst[-1], r1 -= 1
     ldrb    r12, [r0], #1       @ r12 = src[0]
+    subs    r4, #1
     orr     r5, r12, lsl #8     @ r5 = (src[0] << 8) | dst[-1]
     strh    r5, [r1], #2        @ write dst[-1], src[0] to dst
-    subs    r4, #1
     bxeq    lr                  @ exit if r4 == 0
 .lz4_mc16_dst_halfword_aligned:
     @ check how many bytes are left
@@ -148,8 +148,7 @@ LZ4UnCompWrite16bit_ASM:
     @ Bit 8-31: Size of uncompressed data
     ldrb    r3, [r0], #1
 #if (__ARM_ARCH >= 5)
-    @ pre-load to avoid stall cycle
-    ldrb    r2, [r0], #1
+    ldrb    r2, [r0], #1 @ pre-load to avoid stall cycle
 #endif
     @ stop if this isn't LZ4
     cmp     r3, #0x40
@@ -198,21 +197,26 @@ LZ4UnCompWrite16bit_ASM:
     @ r4 = match length
     ands    r4, r3, #LZ4_CONSTANTS_LENGTH_MASK
     beq     .lz4_ucw_match_end
-    @ r12 = 16-bit match offset
+    @ r5,r12 = 16-bit match offset
     ldrb    r12, [r0], #1
     ldrb    r5, [r0], #1
     @ read extra match length if initial length == 15
     cmp     r4, #15
-    orr     r12, r5, r12, lsl #8 @ reordered for NDS
 .lz4_ucw_read_match_length:
-    ldreqb  r5, [r0], #1
-    addeq   r4, r4, r5
-    cmpeq   r5, #255
+    ldreqb  r3, [r0], #1
+#if (__ARM_ARCH >= 5)
+    orr     r5, r5, r12, lsl #8 @ use stall cycle to assemble 16-bit match offset
+#endif
+    addeq   r4, r4, r3
+    cmpeq   r3, #255
     beq     .lz4_ucw_read_match_length
     @ now copy match
+#if (__ARM_ARCH < 5)
+    orr     r5, r5, r12, lsl #8 @ assemble 16-bit match offset
+#endif
     add     r4, #LZ4_CONSTANTS_MIN_MATCH_LENGTH - 1
     mov     r3, r0 @ save r0
-    sub     r0, r1, r12 @ src pointer = dst pointer - match offset
+    sub     r0, r1, r5 @ src pointer = dst pointer - match offset
     bl      LZ4_MemCopy16
     mov     r0, r3 @ restore r0
 .lz4_ucw_match_end:
@@ -247,8 +251,7 @@ LZ4UnCompGetSize_ASM:
     @ Bit 8-31: Size of uncompressed data
     ldrb    r3, [r0, #0]
 #if (__ARM_ARCH >= 5)
-    @ pre-load to avoid stall cycle
-    ldrb    r2, [r0, #1]
+    ldrb    r2, [r0, #1] @ pre-load to avoid stall cycle
 #endif
     @ stop if this isn't LZ4 and return 0
     cmp     r3, #0x40
