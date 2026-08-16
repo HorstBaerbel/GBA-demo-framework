@@ -22,8 +22,8 @@ LZ4_MemCopy16:
     @ by read-modify-writing halfwords to be VRAM-safe
     @ ------------------------------
     @ Input:
-    @ r0: source pointer (will point to r0 + r4)
-    @ r1: destination pointer (will point to r1 + r4)
+    @ r0: source pointer (will point to r0 + r4 on return)
+    @ r1: destination pointer (will point to r1 + r4 on return)
     @ r4: number of bytes to copy (trashed)
     @ r6: DMA3 register address, if USE_DMA3 defined
     @ ------------------------------
@@ -36,15 +36,17 @@ LZ4_MemCopy16:
     @ dst is odd, read-modify-write a halfword to update only the high byte
     ldrb    r5, [r1, #-1]!      @ r5 = dst[-1], r1 -= 1
     ldrb    r12, [r0], #1       @ r12 = src[0]
-    orr     r5, r5, r12, lsl #8 @ r5 = (src[0] << 8) | dst[-1]
+    orr     r5, r12, lsl #8     @ r5 = (src[0] << 8) | dst[-1]
     strh    r5, [r1], #2        @ write dst[-1], src[0] to dst
-    subs    r4, r4, #1
-    bxeq    lr @ exit if r4 == 0
+    subs    r4, #1
+    bxeq    lr                  @ exit if r4 == 0
 .lz4_mc16_dst_halfword_aligned:
-    @ check how many bytes are left. pre-decrement r4 by the minimum copy count to save some instructions in the copy loops
-    subs     r4, r4, #2
+    @ check how many bytes are left
+    @ pre-decrement r4 by the minimum copy count to save some instructions in the copy loops
+    subs     r4, #2
     bmi     .lz4_mc16_tail_fixup_r4 @ only [0,1] bytes left
-    @ >= 2 bytes left. check for an overlapping copy with distance <= 2. this happens when src and dst are in the same memory area and is basically a RLE run
+    @ >= 2 bytes left. check for an overlapping copy with distance <= 2
+    @ this happens when src and dst are in the same memory area and is basically a RLE run
     subs    r5, r1, r0            @ r5 = r1 - r0
     rsbmi   r5, r5, #0            @ r5 = (r1 - r0) < 0 ? (0 - r5) : r5
     cmp     r5, #2                @ |r1 - r0| < 2?
