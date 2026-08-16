@@ -153,7 +153,7 @@ LZ4UnCompWrite16bit_ASM:
 #endif
     @ stop if this isn't LZ4
     cmp     r3, #0x40
-    bne     .lz4_return0_if_notequal
+    bne     .lz4_ucw_return0
     @ r2 = uncompressed size
 #if (__ARM_ARCH < 5)
     ldrb    r2, [r0], #1
@@ -163,8 +163,7 @@ LZ4UnCompWrite16bit_ASM:
     orr     r2, r3, lsl #8
     orrs    r2, r12, lsl #16
     @ stop if uncompressed size is 0
-    moveq   r0, #0
-    bxeq    lr
+    beq     .lz4_ucw_return0
     @ r2 = end of decompressed data (past the last byte)
     add     r2, r1
 #ifdef USE_DMA3
@@ -202,9 +201,9 @@ LZ4UnCompWrite16bit_ASM:
     @ r12 = 16-bit match offset
     ldrb    r12, [r0], #1
     ldrb    r5, [r0], #1
-    orr     r12, r5, r12, lsl #8
     @ read extra match length if initial length == 15
     cmp     r4, #15
+    orr     r12, r5, r12, lsl #8 @ reordered for NDS
 .lz4_ucw_read_match_length:
     ldreqb  r5, [r0], #1
     addeq   r4, r4, r5
@@ -219,12 +218,14 @@ LZ4UnCompWrite16bit_ASM:
 .lz4_ucw_match_end:
     cmp     r1, r2 @ still data left to decompress?
     blo     .lz4_ucw_decode_loop
-.lz4_ucw_end:
 #ifdef USE_DMA3
     pop     {r4 - r6, lr}
 #else
     pop     {r4 - r5, lr}
 #endif
+    bx      lr
+.lz4_ucw_return0:
+    mov     r0, #0
     bx      lr
 
 .arm
@@ -259,6 +260,5 @@ LZ4UnCompGetSize_ASM:
     ldreqb  r1, [r0, #3]
     orreq   r0, r2, r3, lsl #8
     orreq   r0, r1, lsl #16
-.lz4_return0_if_notequal:
     movne   r0, #0
     bx      lr
