@@ -1,6 +1,6 @@
 @ ARM v4/v5 LZ4 decompressor
 @ Author: HorstBaerbel / https://github.com/HorstBaerbel
-@ Improvements by: aikku93 / https://github.com/Aikku93
+@ Improvements: aikku93 / https://github.com/Aikku93
 
 #define LZ4_CONSTANTS_MIN_MATCH_LENGTH 4     // A match needs at least 3 bytes to encode, thus 4 is the minimum match length
 #define LZ4_CONSTANTS_LITERAL_LENGTH_SHIFT 4 // Left-shift of literal length in token byte
@@ -26,9 +26,11 @@ LZ4_MemCopy16:
     @ r1: destination pointer (will point to r1 + r4 on return)
     @ r4: number of bytes to copy (trashed)
     @ r6: DMA3 register address, if USE_DMA3 defined
+    @ r7: DMA control, if USE_DMA3 defined
     @ ------------------------------
     @ In function:
     @ r5,r12 trashed
+    @ RLE uses temporary src, so we can trash r0 if needed
 
     @ check if dst aligned to halfwords
     tst     r1, #1
@@ -43,80 +45,141 @@ LZ4_MemCopy16:
 .lz4_mc16_dst_halfword_aligned:
     @ check how many bytes are left
     @ pre-decrement r4 by the minimum copy count to save some instructions in the copy loops
-    subs     r4, #2
-    bmi     .lz4_mc16_tail_fixup_r4 @ only [0,1] bytes left
-    @ >= 2 bytes left. check for an overlapping copy with distance <= 2
-    @ this happens when src and dst are in the same memory area and is basically a RLE run
-    subs    r5, r1, r0            @ r5 = r1 - r0
-    rsbmi   r5, r5, #0            @ r5 = (r1 - r0) < 0 ? (0 - r5) : r5
-    cmp     r5, #2                @ |r1 - r0| < 2?
-    blt     .lz4_mc16_repeat_byte @ if |r1 - r0| < 2, do repeating byte copy
+    subs    r4, #2
+    blo     .lz4_mc16_tail_fixup_odd @ only 1 byte left
+
+    @ >= 2 bytes left. check for an overlapping copy with distance == 1
+    @ this happens when src and dst are one byte apart and is basically a RLE run
+    sub     r5, r1, r0
+    cmp     r5, #1
+    beq     .lz4_mc16_repeat_byte
+
     @ check if src aligned to halfwords
     tst     r0, #1
     beq     .lz4_mc16_src_halfword_aligned
+.lz4_mc16_src_halfword_unaligned:
     @ src unaligned so read bytes and assemble halfwords
-    ldrb    r5, [r0], #1 @ pre-read 1 byte
-.lz4_mc16_src_unaligned_loop:
+    ldrb    r12, [r0], #1            @ pre-read 1 byte
     @ now src is halfword aligned. r4 is actually -2
-    ldrh    r12, [r0], #2
-    orr     r5, r5, r12, lsl #8
-    strh    r5, [r1], #2
-    mov     r5, r5, lsr #16
-    subs    r4, r4, #2
-    bpl     .lz4_mc16_src_unaligned_loop
-    sub     r0, r0, #1 @ we have read one byte too much from src, so decrement src once
-    b       .lz4_mc16_tail_fixup_r4
+1:  ldrh    r5, [r0], #2             @ copy 2 bytes, next byte to r12
+    subs    r4, #2
+    orr     r12, r5, lsl #8
+    strh    r12, [r1], #2
+    lsr     r12, r5, #8
+    bhs     1b
+    tst     r4, #1                   @ if we needed one more byte, we already have it in r12
+    bne     .lz4_mc16_tail_fixup_odd_r12src_ready
+    sub     r0, #1                   @ we have read one byte too much from src, so decrement src once
+    bx      lr
+
+.lz4_mc16_repeat_byte:
+    @ overlapping RLE run with distance == 1 that repeats >= 2 bytes. r4 is actually -2
+    @ keep repeat byte in r12 for storing the tail byte if needed
+    ldrb    r12, [r0]                @ r12 = src[last]
+    ands    r5, r1, #2               @ prepare for 4-byte loop
+    add     r5, #4-2
+    orr     r0, r12, r12, lsl #8     @ r0 = src[last] * 0x01010101
+    orr     r0, r0, lsl #16
+    strneh  r0, [r1], #2             @ copy 2 bytes to align to words as needed
+    subs    r4, r5
+1:  strhs   r0, [r1], #4             @ copy 4 bytes
+    subhss  r4, #4
+    bhs     1b
+    lsls    r5, r4, #31              @ copy 2 bytes, then tail byte if needed
+    strcsh  r0, [r1], #2
+    bmi     .lz4_mc16_tail_fixup_odd_r12src_ready
+    bx      lr
+
 .lz4_mc16_src_halfword_aligned:
 #ifdef USE_DMA3
     @ set up DMA3 to copy halfwords
-    mov     r5, r4, lsr #1
-    add     r5, #1
-    subs    r4, r5, lsl #1
-    orr     r12, r5, #0x80000000 @ enable DMA
-    stmia   r6, {r0, r1, r12}
-    add     r0, r5, lsl #1       @ src += hwords*2
-    add     r1, r5, lsl #1       @ dst += hwords*2
-    b       .lz4_mc16_tail_fixup_r4
+    add     r5, r7, r4, lsr #1       @ r5 = DMA_COUNT((count-2)/2 + 1) | DMA_ENABLE
+    stmia   r6, {r0, r1, r5}
+    add     r0, r5, lsl #1           @ src += hwords*2
+    add     r1, r5, lsl #1           @ dst += hwords*2
+    tst     r4, #1                   @ copy tail byte as needed
 #else
-    @ src halfword aligned, so copy halfwords. r4 is actually -2
-    cmp     r5, #4                              @ |r1 - r0| < 4?
-    blt     .lz4_mc16_src_halfword_aligned_loop @ if |r1 - r0| < 4, copy halfwords
-.lz4_mc16_src_halfword_aligned_loop8:
-    cmp     r4, #8
-    blo     .lz4_mc16_src_halfword_aligned_loop
-    ldrh    r5, [r0], #2
-    ldrh    r12, [r0], #2
-    strh    r5, [r1], #2
-    strh    r12, [r1], #2
-    ldrh    r5, [r0], #2
-    ldrh    r12, [r0], #2
-    strh    r5, [r1], #2
-    strh    r12, [r1], #2
-    sub     r4, r4, #8
-    b      .lz4_mc16_src_halfword_aligned_loop8
-.lz4_mc16_src_halfword_aligned_loop:
-    ldrh    r5, [r0], #2
-    strh    r5, [r1], #2
-    subs    r4, r4, #2
-    bpl     .lz4_mc16_src_halfword_aligned_loop
-    b       .lz4_mc16_tail_fixup_r4
+    @ because src and dst are hword aligned now, then
+    @ the distance between them must be n*2 (n > 0).
+    @ because we read/write in multiples of 4 bytes, we
+    @ must check for all cases of dist that are < 4,
+    @ which happens to only be dist == 2.
+    lsrs    r5, #2
+    beq     .lz4_mc16_repeat_hword
+    @ if src and dst share word alignment, copy words directly
+    bcc     .lz4_mc16_copy_normal_congruent
+
+.lz4_mc16_copy_normal:
+    @ src or dst unaligned so read hword and assemble words
+    ands    r5, r0, #2
+    ldrneh  r12, [r0], #2            @ pre-read 2 bytes, aligning to words as needed
+    ldreqh  r12, [r1, #-2]!
+    subs    r4, r5                   @ prepare for 4-byte loop
+    blo     2f
+1:  ldr     r5, [r0], #4             @ copy 4 bytes, next hword to r12
+    subs    r4, #4
+    orr     r12, r5, lsl #16
+    str     r12, [r1], #4
+    lsr     r12, r5, #16
+    bhs     1b
+2:  lsls    r5, r4, #31              @ copy 2 bytes, tail byte as needed
+    strcsh  r12, [r1], #2
+    subcc   r0, #2                   @ we have read 2 bytes too much from src, so decrement src
+    bmi     .lz4_mc16_tail_fixup_odd
+    bx      lr
+
+.lz4_mc16_repeat_hword:
+    @ overlapping RLE run with distance == 2 that repeats >= 2 bytes. r4 is actually -2
+    ldrh    r12, [r0]                @ r12 = src[last] (hword)
+    ands    r5, r1, #2               @ prepare for 4-byte loop
+    add     r5, #4-2
+    orr     r12, r12, lsl #16        @ r12 = src[last] * 0x00010001
+    strneh  r12, [r1], #2            @ copy 2 bytes to align to words as needed
+    subs    r4, r5
+1:  strhs   r12, [r1], #4            @ copy 4 bytes
+    subhss  r4, #4
+    bhs     1b
+    lsls    r5, r4, #31              @ copy 2 bytes, tail byte as needed
+    strcsh  r12, [r1], #2
+    bxpl    lr
+    and     r12, #0xFF
+    b       .lz4_mc16_tail_fixup_odd_r12src_ready
+
+.lz4_mc16_copy_normal_congruent:
+    ands    r5, r0, #2
+    ldrneh  r12, [r0], #2            @ copy 2 bytes to align to words as needed
+    add     r5, #4-2                 @ prepare for 4-byte loop
+    strneh  r12, [r1], #2
+    subs    r4, r5
+#if (__ARM_ARCH >= 5)
+    blo     2f
+1:  ldr     r5, [r0], #4             @ copy 4 bytes
+    subs    r4, #4
+    str     r5, [r1], #4
+    bhs     1b
+#else
+1:  ldrhs   r5, [r0], #4
+    strhs   r5, [r1], #4
+    subhss  r4, #4
+    bhs     1b
 #endif
-.lz4_mc16_repeat_byte:
-    @ overlapping RLE run with distance == 1 that repeats >= 2 times. r4 is actually -2
-    ldrb    r12, [r0], #1    @ r12 = src[last]
-    orr     r12, r12, lsl #8 @ r12 = (src[last] << 8) | src[last]
-    add     r0, r0, r4       @ we will not be reading src, so increment it here
-.lz4_mc16_repeat_loop:
-    strh    r12, [r1], #2
-    subs    r4, r4, #2
-    bpl     .lz4_mc16_repeat_loop
-.lz4_mc16_tail_fixup_r4:
-    adds    r4, r4, #2 @ post-incement r4, because we decremented it earlier and set flags
-    @ if r4 > 0, dst halfword aligned, so we read-modify-write a word to update only the low byte
-    ldrhib  r5, [r1, #1]        @ r4 == 1, r5 = dst[last+1]
-    ldrhib  r12, [r0], #1       @ r4 == 1, r12 = src[last]
-    orrhi   r5, r12, r5, lsl #8 @ r4 == 1, r5 = (dst[last+1] << 8) | src[last]
-    strhih  r5, [r1], #1        @ r4 == 1, write src[last], dst[last+1] to dst
+2:  lsls    r5, r4, #31              @ copy 2 bytes, tail byte as needed
+    ldrcsh  r5, [r0], #2
+    strcsh  r5, [r1], #2
+#endif // #ifdef USE_DMA3
+
+@ read-modify-write to update only the low byte
+@ relies on Z=0 flag to signal if last byte is needed
+.lz4_mc16_tail_fixup_odd:
+    ldrneb  r12, [r0], #1            @ r12 = src[last]
+.lz4_mc16_tail_fixup_odd_r12src_ready:
+    ldrneb  r5, [r1, #1]             @ r5 = dst[last+1]
+#if (__ARM_ARCH >= 5)
+    @ use stall cycle for early exit
+    bxeq    lr
+#endif
+    orrne   r5, r12, r5, lsl #8      @ r5 = (dst[last+1] << 8) | src[last]
+    strneh  r5, [r1], #1             @ write src[last], dst[last+1] to dst
     bx      lr
 
  .arm
@@ -141,7 +204,7 @@ LZ4UnCompWrite16bit_ASM:
     @ In function:
     @ r2: end of decompressed data in destination buffer (past the last byte)
     @ r3,r12 trashed, r4,r5 used and saved / restored
-    @ r6 used and saved / restore, if USE_DMA3 defined
+    @ r6,r7 used and saved / restore, if USE_DMA3 defined
 
     @ read header word:
     @ Bit 0-7: Compressed type (40h for LZ4)
@@ -166,10 +229,12 @@ LZ4UnCompWrite16bit_ASM:
     @ r2 = end of decompressed data (past the last byte)
     add     r2, r1
 #ifdef USE_DMA3
-    push    {r4 - r6, lr}
+    push    {r4 - r7, lr}
     @ r6 = DMA3 register address
+    @ r7 = DMA_COUNT(1) | DMA_ENABLE
     mov     r6, #0x04000000
     add     r6, #0x000000D4
+    mov     r7, #0x80000001
 #else
     push    {r4 - r5, lr}
 #endif
@@ -223,7 +288,7 @@ LZ4UnCompWrite16bit_ASM:
     cmp     r1, r2 @ still data left to decompress?
     blo     .lz4_ucw_decode_loop
 #ifdef USE_DMA3
-    pop     {r4 - r6, lr}
+    pop     {r4 - r7, lr}
 #else
     pop     {r4 - r5, lr}
 #endif
