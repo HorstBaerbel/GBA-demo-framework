@@ -4,11 +4,116 @@
 #include "adpcm_tables.h"
 
 #define ADPCM_DITHER
-#define ADPCM_DITHER_SHIFT 24
+static constexpr uint32_t ADPCM_DITHER_SHIFT = 24;
 // #define ADPCM_ROUNDING
+static constexpr uint32_t ADPCM_RESAMPLER_PRECISION = 18; // this is good up to 262144 Hz sample rate
+static constexpr uint32_t ADPCM_POSITION_ONE = (1 << ADPCM_RESAMPLER_PRECISION);
+static constexpr uint32_t ADPCM_POSITION_TWO = (2 << ADPCM_RESAMPLER_PRECISION);
 
 namespace Adpcm
 {
+
+    auto UpsampleInit(uint32_t srcRateHz, uint32_t dstRateHz) -> void
+    {
+        ADPCM_LinearResamplerData[0].history[0] = 0;
+        ADPCM_LinearResamplerData[0].history[1] = 0;
+        ADPCM_LinearResamplerData[0].position = 2 << ADPCM_RESAMPLER_PRECISION;
+        ADPCM_LinearResamplerData[0].step = (static_cast<uint64_t>(srcRateHz) << ADPCM_RESAMPLER_PRECISION) / dstRateHz;
+        ADPCM_LinearResamplerData[1].history[0] = 0;
+        ADPCM_LinearResamplerData[1].history[1] = 0;
+        ADPCM_LinearResamplerData[1].position = 2 << ADPCM_RESAMPLER_PRECISION;
+        ADPCM_LinearResamplerData[1].step = (static_cast<uint64_t>(srcRateHz) << ADPCM_RESAMPLER_PRECISION) / dstRateHz;
+    }
+
+    auto UnCompWrite32bit_8bit_upsample(const uint32_t *data, uint32_t dataSize, uint32_t *dst) -> uint32_t
+    {
+        //  copy frame header and skip to data
+        const Audio::AdpcmFrameHeader frameHeader = Audio::AdpcmFrameHeader::read(data);
+        auto data8 = reinterpret_cast<const uint8_t *>(data + sizeof(Audio::AdpcmFrameHeader) / 4);
+        // uncompress 4-bit ADPCM samples. These are stored planar / per channel, e.g. L0 L1 ... R0 R1 ...
+        const auto adpcmChannelNrOfSamples = (frameHeader.uncompressedSize / sizeof(int16_t)) / frameHeader.nrOfChannels;
+        // we decode one less nibble than samples, as the first sample is verbatim
+        const auto adpcmChannelNrOfNibbles = adpcmChannelNrOfSamples - 1;
+        auto dst8 = reinterpret_cast<uint8_t *>(dst);
+        uint32_t dstSamplesGenerated = 0;
+        for (uint32_t channel = 0; channel < frameHeader.nrOfChannels; ++channel)
+        {
+            // align output buffer to next word boundary
+            dst8 = reinterpret_cast<uint8_t *>((reinterpret_cast<uint32_t>(dst8) + 3) & 0xFFFFFFFC);
+            // first sample is stored verbatim in header
+            int32_t pcmData = *reinterpret_cast<const int16_t *>(data8);
+            int32_t index = *reinterpret_cast<const int16_t *>(data8 + 2);
+            data8 += 4;
+            // we can have history from previous calls, but at most one sample,
+            // because we must have output data until resampler.position >= ADPCM_POSITION_ONE
+            // we can also have no history at all for a first call
+            // this means we need at least one new sample here
+            auto &resampler = ADPCM_LinearResamplerData[channel];
+            if (resampler.position >= ADPCM_POSITION_TWO)
+            {
+                // no samples for a first call
+                resampler.history[0] = pcmData;
+                resampler.history[1] = pcmData;
+                resampler.position -= ADPCM_POSITION_ONE;
+            }
+            else if (resampler.position >= ADPCM_POSITION_ONE)
+            {
+                // one sample from previous call
+                resampler.history[0] = resampler.history[1];
+                resampler.history[1] = pcmData;
+                resampler.position -= ADPCM_POSITION_ONE;
+            }
+            else
+            {
+                // technically an error. should never happen
+                return 0;
+            }
+            // start output loop
+            uint32_t adpcmNibblesDecoded = 0;
+            uint32_t nibbles = 0;
+            while (adpcmNibblesDecoded < adpcmChannelNrOfNibbles)
+            {
+                // check if we need more PCM samples
+                if (resampler.position >= ADPCM_POSITION_ONE)
+                {
+                    // load two ADPCM nibbles every 2 ADPCM samples
+                    if ((adpcmNibblesDecoded & 1) == 0)
+                    {
+                        nibbles = *data8++;
+                    }
+                    // decode nibble
+                    uint32_t delta = ADPCM_DeltaTable_4bit[index][nibbles & 0x07];
+                    pcmData += (nibbles & 8) ? -delta : delta;
+                    index += ADPCM_IndexTable_4bit[nibbles & 0x07];
+                    index = index < 0 ? 0 : index;
+                    index = index > 88 ? 88 : index;
+                    // clamp sample value
+                    pcmData = pcmData < -32768 ? -32768 : pcmData;
+                    pcmData = pcmData > 32767 ? 32767 : pcmData;
+                    // move new PCM data to resampler history
+                    resampler.history[0] = resampler.history[1];
+                    resampler.history[1] = pcmData;
+                    resampler.position -= ADPCM_POSITION_ONE;
+                    // move next nibble into position
+                    nibbles >>= 4;
+                    adpcmNibblesDecoded++;
+                }
+                // check if we need more PCM samples
+                while (resampler.position < ADPCM_POSITION_ONE)
+                {
+                    // linear interpolation of samples
+                    int32_t diff = static_cast<int32_t>(resampler.history[1]) - static_cast<int32_t>(resampler.history[0]);
+                    int32_t sample = static_cast<int32_t>(resampler.history[0]) + (diff * (resampler.position >> (ADPCM_RESAMPLER_PRECISION - 8)) >> 8);
+                    resampler.position += resampler.step;
+                    // write to output buffer
+                    *dst8++ = sample >> 8;
+                    dstSamplesGenerated++;
+                }
+            }
+        }
+        return dstSamplesGenerated;
+    }
+
     void IWRAM_FUNC UnCompWrite32bit_8bit(const uint32_t *data, uint32_t dataSize, uint32_t *dst)
     {
         //  copy frame header and skip to data
