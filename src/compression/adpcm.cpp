@@ -25,24 +25,23 @@ namespace Adpcm
         ADPCM_LinearResamplerData[1].step = (static_cast<uint64_t>(srcRateHz) << ADPCM_RESAMPLER_PRECISION) / dstRateHz;
     }
 
-    auto UnCompWrite32bit_8bit_upsample(const uint32_t *data, uint32_t dataSize, uint32_t *dst) -> uint32_t
+    auto UnCompWrite32bit_8bit_upsample(const void *data, uint32_t dataSize, uint8_t *dst[2]) -> uint32_t
     {
         //  copy frame header and skip to data
         const Audio::AdpcmFrameHeader frameHeader = Audio::AdpcmFrameHeader::read(data);
-        auto data8 = reinterpret_cast<const uint8_t *>(data + sizeof(Audio::AdpcmFrameHeader) / 4);
+        auto data8 = reinterpret_cast<const uint8_t *>(data) + sizeof(Audio::AdpcmFrameHeader);
         // uncompress 4-bit ADPCM samples. These are stored planar / per channel, e.g. L0 L1 ... R0 R1 ...
         const auto adpcmChannelNrOfSamples = (frameHeader.uncompressedSize / sizeof(int16_t)) / frameHeader.nrOfChannels;
         // we decode one less nibble than samples, as the first sample is verbatim
         const auto adpcmChannelNrOfNibbles = adpcmChannelNrOfSamples - 1;
-        auto dst8 = reinterpret_cast<uint8_t *>(dst);
         uint32_t dstSamplesGenerated = 0;
         for (uint32_t channel = 0; channel < frameHeader.nrOfChannels; ++channel)
         {
             // align output buffer to next word boundary
-            dst8 = reinterpret_cast<uint8_t *>((reinterpret_cast<uint32_t>(dst8) + 3) & 0xFFFFFFFC);
+            auto dst8 = dst[channel];
             // first sample is stored verbatim in header
-            int32_t pcmData = *reinterpret_cast<const int16_t *>(data8);
-            int32_t index = *reinterpret_cast<const int16_t *>(data8 + 2);
+            int32_t pcmData = static_cast<int16_t>(data8[0] | (data8[1] << 8));
+            int32_t index = static_cast<int16_t>(data8[2] | (data8[3] << 8));
             data8 += 4;
             // we can have history from previous calls, but at most one sample,
             // because we must have output data until resampler.position >= ADPCM_POSITION_ONE
@@ -114,21 +113,21 @@ namespace Adpcm
         return dstSamplesGenerated;
     }
 
-    void IWRAM_FUNC UnCompWrite32bit_8bit(const uint32_t *data, uint32_t dataSize, uint32_t *dst)
+    auto IWRAM_FUNC UnCompWrite32bit_8bit(const void *data, uint32_t dataSize, uint8_t *dst[2]) -> uint32_t
     {
         //  copy frame header and skip to data
         const Audio::AdpcmFrameHeader frameHeader = Audio::AdpcmFrameHeader::read(data);
-        auto data8 = reinterpret_cast<const uint8_t *>(data + sizeof(Audio::AdpcmFrameHeader) / 4);
+        auto data8 = reinterpret_cast<const uint8_t *>(data) + sizeof(Audio::AdpcmFrameHeader);
         // uncompress 4-bit ADPCM samples. These are stored planar / per channel, e.g. L0 L1 ... R0 R1 ...
         const auto adpcmDataSize = dataSize - sizeof(Audio::AdpcmFrameHeader);
-        auto dst8 = reinterpret_cast<uint8_t *>(dst);
         const auto adpcmChannelBlockSize = adpcmDataSize / frameHeader.nrOfChannels;
+        uint32_t dstSamplesGenerated = frameHeader.nrOfChannels;
         for (uint32_t channel = 0; channel < frameHeader.nrOfChannels; ++channel)
         {
             // align output buffer to next word boundary
-            dst8 = reinterpret_cast<uint8_t *>((reinterpret_cast<uint32_t>(dst8) + 3) & 0xFFFFFFFC);
+            auto dst8 = dst[channel];
             // first sample is stored verbatim in header
-            int32_t pcmData = *reinterpret_cast<const int16_t *>(data8);
+            int32_t pcmData = static_cast<int16_t>(data8[0] | (data8[1] << 8));
 #ifdef ADPCM_DITHER
             pcmData += (ADPCM_DitherState[1] >> ADPCM_DITHER_SHIFT) - ADPCM_DitherState[0];
             ADPCM_DitherState[0] = ADPCM_DitherState[1] >> ADPCM_DITHER_SHIFT;
@@ -141,7 +140,7 @@ namespace Adpcm
 #else
             *dst8++ = pcmData >> 8;
 #endif
-            int32_t index = *reinterpret_cast<const int16_t *>(data8 + 2);
+            int32_t index = static_cast<int16_t>(data8[2] | (data8[3] << 8));
             data8 += 4;
             uint32_t bytesLeft = adpcmChannelBlockSize - 4;
             while (bytesLeft--)
@@ -169,6 +168,7 @@ namespace Adpcm
 #else
                 *dst8++ = pcmData >> 8;
 #endif
+                dstSamplesGenerated++;
                 // decode second nibble only if not last sample
                 if (bytesLeft > 0)
                 {
@@ -192,14 +192,16 @@ namespace Adpcm
 #else
                     *dst8++ = pcmData >> 8;
 #endif
+                    dstSamplesGenerated++;
                 }
                 // advance input data
                 data8++;
             }
         }
+        return dstSamplesGenerated;
     }
 
-    uint32_t IWRAM_FUNC UnCompGetSize_8bit(const uint32_t *data)
+    uint32_t IWRAM_FUNC UnCompGetSize_8bit(const void *data)
     {
         const Audio::AdpcmFrameHeader frameHeader = Audio::AdpcmFrameHeader::read(data);
         // if we're down-converting the PCM sample depth during decompression, adjust the uncompressed data size too

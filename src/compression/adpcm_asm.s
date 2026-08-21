@@ -11,18 +11,18 @@
 
  .arm
  .align
- .global Adpcm_UnCompWrite32bit_8bit
- .type Adpcm_UnCompWrite32bit_8bit,function
+ .global UnCompWrite32bit_8bit_ASM
+ .type UnCompWrite32bit_8bit_ASM,function
 #ifdef __NDS__
  .section .itcm, "ax", %progbits
 #else
  .section .iwram, "ax", %progbits
 #endif
-Adpcm_UnCompWrite32bit_8bit:
+UnCompWrite32bit_8bit_ASM:
     @ Decode a frame of ADPCM data
     @ r0: pointer to ADPCM frame data, must be 4-byte-aligned (trashed)
     @ r1: size of ADPCM frame data (trashed)
-    @ r2: pointer to the 8bit sample buffer, must be 4-byte-aligned (trashed)
+    @ r2: pointer to the 8bit sample buffer(s) (trashed)
     @ r3 trashed, r4-r12 and r14 used and saved / restored
     @ r6,r7 are scratch registers
     push {r4 - r12, r14}
@@ -180,14 +180,14 @@ Adpcm_UnCompWrite32bit_8bit:
 
  .arm
  .align
- .global Adpcm_UnCompGetSize_8bit
- .type Adpcm_UnCompGetSize_8bit,function
+ .global UnCompGetSize_8bit_ASM
+ .type UnCompGetSize_8bit_ASM,function
 #ifdef __NDS__
  .section .itcm, "ax", %progbits
 #else
  .section .iwram, "ax", %progbits
 #endif
-Adpcm_UnCompGetSize_8bit:
+UnCompGetSize_8bit_ASM:
     @ Calculate decompressed PCM data size
     @ r0: pointer to ADPCM frame data, must be 4-byte-aligned
     ldrh r1, [r0] @ load first header half-word header into r1
