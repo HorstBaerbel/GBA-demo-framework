@@ -10,10 +10,10 @@ static constexpr uint32_t ADPCM_RESAMPLER_PRECISION = 18; // this is good up to 
 static constexpr uint32_t ADPCM_POSITION_ONE = (1 << ADPCM_RESAMPLER_PRECISION);
 static constexpr uint32_t ADPCM_POSITION_TWO = (2 << ADPCM_RESAMPLER_PRECISION);
 
-namespace Adpcm
+namespace Audio
 {
 
-    auto UpsampleInit(uint32_t srcRateHz, uint32_t dstRateHz) -> void
+    auto ADPCMUpsampleInit(uint32_t srcRateHz, uint32_t dstRateHz) -> void
     {
         ADPCM_LinearResamplerData[0].history[0] = 0;
         ADPCM_LinearResamplerData[0].history[1] = 0;
@@ -25,7 +25,7 @@ namespace Adpcm
         ADPCM_LinearResamplerData[1].step = (static_cast<uint64_t>(srcRateHz) << ADPCM_RESAMPLER_PRECISION) / dstRateHz;
     }
 
-    auto UnCompWrite32bit_8bit_upsample(const void *data, uint32_t dataSize, uint8_t *dst[2]) -> uint32_t
+    auto IWRAM_FUNC ADPCMUnCompWrite8bit_8bit_upsample(const void *data, uint32_t dataSize, uint8_t *dst[2]) -> uint32_t
     {
         //  copy frame header and skip to data
         const Audio::AdpcmFrameHeader frameHeader = Audio::AdpcmFrameHeader::read(data);
@@ -127,7 +127,7 @@ namespace Adpcm
         return dstSamplesGenerated;
     }
 
-    auto IWRAM_FUNC UnCompWrite32bit_8bit(const void *data, uint32_t dataSize, uint8_t *dst[2]) -> uint32_t
+    auto IWRAM_FUNC ADPCMUnCompWrite8bit_8bit(const void *data, uint32_t dataSize, uint8_t *dst[2]) -> uint32_t
     {
         //  copy frame header and skip to data
         const Audio::AdpcmFrameHeader frameHeader = Audio::AdpcmFrameHeader::read(data);
@@ -215,7 +215,7 @@ namespace Adpcm
         return dstSamplesGenerated;
     }
 
-    uint32_t IWRAM_FUNC UnCompGetSize_8bit(const void *data)
+    uint32_t IWRAM_FUNC ADPCMUnCompGetSize_8bit(const void *data)
     {
         const Audio::AdpcmFrameHeader frameHeader = Audio::AdpcmFrameHeader::read(data);
         // if we're down-converting the PCM sample depth during decompression, adjust the uncompressed data size too
