@@ -53,13 +53,16 @@ namespace Adpcm
                 // no samples for a first call
                 resampler.history[0] = pcmData;
                 resampler.history[1] = pcmData;
+                resampler.prev = pcmData;
                 resampler.position -= ADPCM_POSITION_ONE;
             }
             else if (resampler.position >= ADPCM_POSITION_ONE)
             {
                 // one sample from previous call
+                auto pcmFiltered = resampler.prev + (resampler.prev >> 1) - (pcmData >> 1);
                 resampler.history[0] = resampler.history[1];
-                resampler.history[1] = pcmData;
+                resampler.history[1] = pcmFiltered;
+                resampler.prev = pcmData;
                 resampler.position -= ADPCM_POSITION_ONE;
             }
             else
@@ -72,7 +75,7 @@ namespace Adpcm
             uint32_t nibbles = 0;
             while (adpcmNibblesDecoded < adpcmChannelNrOfNibbles)
             {
-                // check if we need more PCM samples
+                // check if we need more input samples
                 if (resampler.position >= ADPCM_POSITION_ONE)
                 {
                     // load two ADPCM nibbles every 2 ADPCM samples
@@ -89,15 +92,26 @@ namespace Adpcm
                     // clamp sample value
                     pcmData = pcmData < -32768 ? -32768 : pcmData;
                     pcmData = pcmData > 32767 ? 32767 : pcmData;
+                    // apply a 2-tap FIR 6dB high-shelf filter to counter the "muffling" of the audio
+                    // y[n] = x[n-1] * a0 + x[n] * a1
+                    // Gain = [high gain]
+                    // a0 = 0.5 * (1 + Gain)
+                    // a1 = 0.5 * (1 - Gain)
+                    // Gain = 10^(x/20) -> 10^(6/20)
+                    // Thus @ 6dB:
+                    // a0 = 1.5
+                    // a1 = -0.5
+                    auto pcmFiltered = resampler.prev + (resampler.prev >> 1) - (pcmData >> 1);
                     // move new PCM data to resampler history
                     resampler.history[0] = resampler.history[1];
-                    resampler.history[1] = pcmData;
+                    resampler.history[1] = pcmFiltered;
+                    resampler.prev = pcmData;
                     resampler.position -= ADPCM_POSITION_ONE;
                     // move next nibble into position
                     nibbles >>= 4;
                     adpcmNibblesDecoded++;
                 }
-                // check if we need more PCM samples
+                // check if we can produce new output samples
                 while (resampler.position < ADPCM_POSITION_ONE)
                 {
                     // linear interpolation of samples
