@@ -80,9 +80,8 @@ namespace Audio
     /// @param dst8 Output sample buffer
     /// @param nrOfNibbles Number of ADPCM nibbles to decode
     /// @param resamplerData Pointer to reampler runtime information (content modified)
-    auto IWRAM_FUNC ADPCMDecodeChannel_8bit_resample(const uint8_t *&data8, uint8_t *dst8, const uint32_t nrOfNibbles, LinearResamplerChannelData *resamplerData) -> uint32_t
+    auto IWRAM_FUNC ADPCMDecodeChannel_8bit_resample(const uint8_t *&data8, uint8_t *dst8, const uint32_t nrOfNibbles, LinearResamplerChannelData &resamplerData) -> uint32_t
     {
-        auto const dst8in = dst8;
         // first sample is stored verbatim in header
         int32_t pcmData = static_cast<int16_t>(data8[0] | (data8[1] << 8));
         int32_t index = static_cast<int16_t>(data8[2] | (data8[3] << 8));
@@ -95,31 +94,31 @@ namespace Audio
         pcmData = pcmData > 32767 ? 32767 : pcmData;
 #endif
         // we can have history from previous calls, but at most one sample,
-        // because we must have output data until resamplerData->position >= RESAMPLER_POSITION_ONE
+        // because we must have output data until resamplerData.position >= RESAMPLER_POSITION_ONE
         // we can also have no history at all for a first call
         // this means we need at least one new sample here
-        if (resamplerData->position >= RESAMPLER_POSITION_TWO)
+        if (resamplerData.position >= RESAMPLER_POSITION_TWO)
         {
             // no samples for a first call
-            resamplerData->history[0] = pcmData;
-            resamplerData->history[1] = pcmData;
-            resamplerData->prev = pcmData;
-            resamplerData->position -= RESAMPLER_POSITION_ONE;
+            resamplerData.pcmHistory[0] = pcmData;
+            resamplerData.pcmHistory[1] = pcmData;
+            resamplerData.pcmRaw = pcmData;
+            resamplerData.position -= RESAMPLER_POSITION_ONE;
         }
-        else if (resamplerData->position >= RESAMPLER_POSITION_ONE)
+        else if (resamplerData.position >= RESAMPLER_POSITION_ONE)
         {
             // one sample from previous call
             // move new PCM data to resampler history
-            resamplerData->history[0] = resamplerData->history[1];
+            resamplerData.pcmHistory[0] = resamplerData.pcmHistory[1];
 #ifdef ADPCM_APPLY_HIGH_SHELF
             // apply high-shelf filter
-            auto pcmFiltered = resamplerData->prev + (resamplerData->prev >> 2) - (pcmData >> 2);
-            resamplerData->history[1] = pcmFiltered;
-            resamplerData->prev = pcmData;
+            auto pcmFiltered = resamplerData.pcmRaw + (resamplerData.pcmRaw >> 2) - (pcmData >> 2);
+            resamplerData.pcmHistory[1] = pcmFiltered;
+            resamplerData.pcmRaw = pcmData;
 #else
-            resamplerData->history[1] = pcmData;
+            resamplerData.pcmHistory[1] = pcmData;
 #endif
-            resamplerData->position -= RESAMPLER_POSITION_ONE;
+            resamplerData.position -= RESAMPLER_POSITION_ONE;
         }
         // else
         // {
@@ -129,10 +128,11 @@ namespace Audio
         // start output loop
         uint32_t nibblesDecoded = 0;
         uint32_t nibbles = 0;
+        uint32_t dstSamplesGenerated = 0;
         while (nibblesDecoded < nrOfNibbles)
         {
             // check if we need more input samples
-            if (resamplerData->position >= RESAMPLER_POSITION_ONE)
+            if (resamplerData.position >= RESAMPLER_POSITION_ONE)
             {
                 // load two ADPCM nibbles every 2 ADPCM samples
                 if ((nibblesDecoded & 1) == 0)
@@ -154,36 +154,37 @@ namespace Audio
                 pcmData = pcmData < -32768 ? -32768 : pcmData;
                 pcmData = pcmData > 32767 ? 32767 : pcmData;
                 // move new PCM data to resampler history
-                resamplerData->history[0] = resamplerData->history[1];
+                resamplerData.pcmHistory[0] = resamplerData.pcmHistory[1];
 #ifdef ADPCM_APPLY_HIGH_SHELF
                 // apply high-shelf filter
-                auto pcmFiltered = resamplerData->prev + (resamplerData->prev >> 2) - (pcmData >> 2);
-                resamplerData->history[1] = pcmFiltered;
-                resamplerData->prev = pcmData;
+                auto pcmFiltered = resamplerData.pcmRaw + (resamplerData.pcmRaw >> 2) - (pcmData >> 2);
+                resamplerData.pcmHistory[1] = pcmFiltered;
+                resamplerData.pcmRaw = pcmData;
 #else
-                resamplerData->history[1] = pcmData;
+                resamplerData.pcmHistory[1] = pcmData;
 #endif
-                resamplerData->position -= RESAMPLER_POSITION_ONE;
+                resamplerData.position -= RESAMPLER_POSITION_ONE;
                 // move next nibble into position
                 nibbles >>= 4;
                 nibblesDecoded++;
             }
             // check if we can produce new output samples
-            while (resamplerData->position < RESAMPLER_POSITION_ONE)
+            while (resamplerData.position < RESAMPLER_POSITION_ONE)
             {
                 // linear interpolation of samples
-                int32_t diff = static_cast<int32_t>(resamplerData->history[1]) - static_cast<int32_t>(resamplerData->history[0]);
-                int32_t sample = static_cast<int32_t>(resamplerData->history[0]) + (diff * (resamplerData->position >> (RESAMPLER_PRECISION - 8)) >> 8);
-                resamplerData->position += resamplerData->step;
+                int32_t diff = static_cast<int32_t>(resamplerData.pcmHistory[1]) - static_cast<int32_t>(resamplerData.pcmHistory[0]);
+                int32_t sample = static_cast<int32_t>(resamplerData.pcmHistory[0]) + (diff * (resamplerData.position >> (RESAMPLER_PRECISION - 8)) >> 8);
+                resamplerData.position += resamplerData.step;
                 // write to output buffer
 #ifdef ADPCM_ROUNDING
                 *dst8++ = (sample + 128) >> 8;
 #else
                 *dst8++ = sample >> 8;
 #endif
+                dstSamplesGenerated++;
             }
         }
-        return dst8 - dst8in;
+        return dstSamplesGenerated;
     }
 
     auto IWRAM_FUNC ADPCMUnCompWrite8bit_8bit(const void *data, [[maybe_unused]] uint32_t dataSize, uint8_t *dst[2], LinearResamplerData *resamplerData) -> uint32_t
@@ -201,7 +202,7 @@ namespace Audio
             // check if we want to decode with resampling or not
             if (resamplerData)
             {
-                dstSamplesGenerated += ADPCMDecodeChannel_8bit_resample(data8, dst[channel], adpcmChannelNrOfNibbles, resamplerData[channel]);
+                dstSamplesGenerated += ADPCMDecodeChannel_8bit_resample(data8, dst[channel], adpcmChannelNrOfNibbles, (*resamplerData)[channel]);
             }
             else
             {
