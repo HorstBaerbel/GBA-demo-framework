@@ -3,21 +3,21 @@
 
 namespace Compression
 {
-    IWRAM_FUNC void LZ4UnCompWrite8bit(const uint32_t *data, uint32_t *dst)
+    IWRAM_FUNC void LZ4UnCompWrite8bit(const void *data, void *dst)
     {
         // read data header and skip to data
-        const uint32_t header = *data++;
-        if ((header & 0xFF) != Lz4Constants::TYPE_MARKER)
+        auto data8 = reinterpret_cast<const uint8_t *>(data);
+        if (data8[0] != Lz4Constants::TYPE_MARKER)
         {
             return;
         }
-        int32_t uncompressedSize = (header >> 8);
+        uint32_t uncompressedSize = data8[1] | (data8[1] << 8) | (data8[2] << 8);
         if (uncompressedSize == 0)
         {
             return;
         }
+        data8 += 4;
         // decompress data
-        auto data8 = reinterpret_cast<const uint8_t *>(data);
         auto dst8 = reinterpret_cast<uint8_t *>(dst);
         while (uncompressedSize > 0)
         {
@@ -77,15 +77,14 @@ namespace Compression
         }
     }
 
-    auto LZ4UnCompGetSize(const uint32_t *data) -> uint32_t
+    auto LZ4UnCompGetSize(const void *data) -> uint32_t
     {
-        // read data header and skip to data
-        const uint32_t header = *data;
-        if ((header & 0xFF) != Lz4Constants::TYPE_MARKER)
+        auto data8 = reinterpret_cast<const uint8_t *>(data);
+        if (data8[0] != Lz4Constants::TYPE_MARKER)
         {
             return 0;
         }
-        const uint32_t uncompressedSize = (header >> 8);
+        const uint32_t uncompressedSize = data8[1] | (data8[1] << 8) | (data8[2] << 8);
         return uncompressedSize;
     }
 }

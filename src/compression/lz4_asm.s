@@ -184,17 +184,17 @@ LZ4_MemCopy16:
 
  .arm
  .align
- .global LZ4UnCompWrite8bit_ASM
- .global LZ4UnCompWrite16bit_ASM
- .type LZ4UnCompWrite8bit_ASM,function
- .type LZ4UnCompWrite16bit_ASM,function
+ .global LZ4UnCompWrite8bit
+ .global LZ4UnCompWrite16bit
+ .type LZ4UnCompWrite8bit,function
+ .type LZ4UnCompWrite16bit,function
 #ifdef __NDS__
  .section .itcm, "ax", %progbits
 #else
  .section .iwram, "ax", %progbits
 #endif
-LZ4UnCompWrite8bit_ASM:
-LZ4UnCompWrite16bit_ASM:
+LZ4UnCompWrite8bit:
+LZ4UnCompWrite16bit:
     @ Decode LZ4 data
     @ ------------------------------
     @ Input:
@@ -299,14 +299,14 @@ LZ4UnCompWrite16bit_ASM:
 
 .arm
  .align
- .global LZ4UnCompGetSize_ASM
- .type LZ4UnCompGetSize_ASM,function
+ .global LZ4UnCompGetSize
+ .type LZ4UnCompGetSize,function
 #ifdef __NDS__
  .section .itcm, "ax", %progbits
 #else
  .section .iwram, "ax", %progbits
 #endif
-LZ4UnCompGetSize_ASM:
+LZ4UnCompGetSize:
     @ Get uncompressed size from LZ4 data
     @ r0: pointer to LZ4 data, must be 4-byte-aligned (trashed)
     @ r1,r2,r3 are scratch registers (trashed)
