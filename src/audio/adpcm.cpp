@@ -187,7 +187,7 @@ namespace Audio
         return dstSamplesGenerated;
     }
 
-    auto IWRAM_FUNC ADPCMUnCompWrite8bit_8bit(const void *data, [[maybe_unused]] uint32_t dataSize, uint8_t *dst[2], LinearResamplerData *resamplerData) -> uint32_t
+    auto IWRAM_FUNC ADPCMUnCompWrite8bit_8bit(const void *data, uint8_t *dst[2], LinearResamplerData *resamplerData) -> uint32_t
     {
         // copy frame header and skip to data
         const Audio::AdpcmFrameHeader frameHeader = Audio::AdpcmFrameHeader::read(data);

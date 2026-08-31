@@ -10,11 +10,10 @@ namespace Audio
 
     /// @brief Decode 4-bit ADPCM sample data, truncate/dither to 8bit and resample. Initialize first with ResamplerInit()
     /// @param data Pointer to 4-bit ADPCM data
-    /// @param dataSize Size of compressed audio data in bytes
     /// @param dst Pointers to output sample buffer(s). Will be written to as bytes. Make sure dst is big enough (more samples than ADPCM sample rate)
     /// @param resamplerData Pass resampler data initialized with ResamplerInit() to resample, or nullptr to output straight PCM data
     /// @return Size of decoded data written to dst in bytes
-    extern "C" auto ADPCMUnCompWrite8bit_8bit(const void *data, uint32_t dataSize, uint8_t *dst[2], LinearResamplerData *resamplerData = nullptr) -> uint32_t;
+    extern "C" auto ADPCMUnCompWrite8bit_8bit(const void *data, uint8_t *dst[2], LinearResamplerData *resamplerData) -> uint32_t;
 
     /// @brief Get stored uncompressed size of sample data after decoding and truncating to 8-bit. Written in ARMv4 assembler
     /// @param data Pointer to ADPCM data
