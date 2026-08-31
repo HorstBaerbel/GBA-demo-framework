@@ -6,17 +6,18 @@
 namespace Audio
 {
 
-    // #define ADPCM_ROUNDING
-    // #define ADPCM_DITHER
+    // #define ADPCM_ROUNDING // Uncomment to apply rounding when converting to 8-bit
+    // #define ADPCM_DITHER  // Uncomment to apply dithering to PCM data
     static constexpr uint32_t ADPCM_DITHER_SHIFT = 24;
+
+#define ADPCM_APPLY_HIGH_SHELF // Uncomment to apply 3.5dB high-shelf filter before resampling
 
     /// @brief Decode one channel of ADPCM data
     /// @param data8 Input ADPCM data (pointer modified)
     /// @param dst8 Output sample buffer
     /// @param nrOfNibbles Number of ADPCM nibbles to decode
-    auto IWRAM_FUNC ADPCMDecodeChannel_8bit(const uint8_t *data8, uint8_t *dst8, const uint32_t nrOfNibbles) -> uint32_t
+    auto IWRAM_FUNC ADPCMDecodeChannel_8bit(const uint8_t *&data8, uint8_t *dst8, const uint32_t nrOfNibbles) -> uint32_t
     {
-        auto const dst8in = dst8;
         // first sample is stored verbatim in header
         int32_t pcmData = static_cast<int16_t>(data8[0] | (data8[1] << 8));
         int32_t index = static_cast<int16_t>(data8[2] | (data8[3] << 8));
@@ -64,7 +65,7 @@ namespace Audio
             nibbles >>= 4;
             nibblesDecoded++;
         }
-        return dst8 - dst8in;
+        return nrOfNibbles + 1;
     }
 
     /// @brief Decode one channel of ADPCM data while resampling
@@ -79,7 +80,7 @@ namespace Audio
     /// @param dst8 Output sample buffer
     /// @param nrOfNibbles Number of ADPCM nibbles to decode
     /// @param resamplerData Pointer to reampler runtime information (content modified)
-    auto IWRAM_FUNC ADPCMDecodeChannel_8bit_resample(const uint8_t *data8, uint8_t *dst8, const uint32_t nrOfNibbles, LinearResamplerChannelData *resamplerData) -> uint32_t
+    auto IWRAM_FUNC ADPCMDecodeChannel_8bit_resample(const uint8_t *&data8, uint8_t *dst8, const uint32_t nrOfNibbles, LinearResamplerChannelData *resamplerData) -> uint32_t
     {
         auto const dst8in = dst8;
         // first sample is stored verbatim in header
@@ -108,12 +109,16 @@ namespace Audio
         else if (resamplerData->position >= RESAMPLER_POSITION_ONE)
         {
             // one sample from previous call
-            // apply high-shelf filter
-            auto pcmFiltered = resamplerData->prev + (resamplerData->prev >> 2) - (pcmData >> 2);
             // move new PCM data to resampler history
             resamplerData->history[0] = resamplerData->history[1];
+#ifdef ADPCM_APPLY_HIGH_SHELF
+            // apply high-shelf filter
+            auto pcmFiltered = resamplerData->prev + (resamplerData->prev >> 2) - (pcmData >> 2);
             resamplerData->history[1] = pcmFiltered;
             resamplerData->prev = pcmData;
+#else
+            resamplerData->history[1] = pcmData;
+#endif
             resamplerData->position -= RESAMPLER_POSITION_ONE;
         }
         // else
@@ -148,12 +153,16 @@ namespace Audio
                 // clamp sample value
                 pcmData = pcmData < -32768 ? -32768 : pcmData;
                 pcmData = pcmData > 32767 ? 32767 : pcmData;
-                // apply high-shelf filter
-                auto pcmFiltered = resamplerData->prev + (resamplerData->prev >> 2) - (pcmData >> 2);
                 // move new PCM data to resampler history
                 resamplerData->history[0] = resamplerData->history[1];
+#ifdef ADPCM_APPLY_HIGH_SHELF
+                // apply high-shelf filter
+                auto pcmFiltered = resamplerData->prev + (resamplerData->prev >> 2) - (pcmData >> 2);
                 resamplerData->history[1] = pcmFiltered;
                 resamplerData->prev = pcmData;
+#else
+                resamplerData->history[1] = pcmData;
+#endif
                 resamplerData->position -= RESAMPLER_POSITION_ONE;
                 // move next nibble into position
                 nibbles >>= 4;
