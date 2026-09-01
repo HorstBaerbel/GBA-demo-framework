@@ -4,10 +4,13 @@
  .global ADPCM_IndexTable_4bit
  .global ADPCM_DitherState
 
- #define ADPCM_DITHER
+ //#define ADPCM_DITHER
  #define ADPCM_DITHER_SHIFT 24
  //#define ADPCM_ROUNDING
  #define ADPCM_CLAMP
+
+ // baseline: Audio avg. decode: 6.31 ms (max. 7.81 ms)
+ // smc1      Audio avg. decode: 6.14 ms (max. 6.83 ms)
 
  .arm
  .align
@@ -22,9 +25,9 @@
     @ Decode one channel of a frame of ADPCM data
     @ ------------------------------
     @ Input:
-    @ r0: pointer to ADPCM frame data (points to start of next channel, if any)
+    @ r0: pointer to ADPCM frame data (afterwards points to start of next channel)
     @ r1: pointer to the 8bit sample buffer (trashed)
-    @ r2: number of nibbles to decode (output samples - 1) (preserved)
+    @ r2: number of nibbles to decode (output samples - 1) (trashed)
     @ r8: 0x7FFFFFFF
     @ r9: adress of ADPCM_DeltaTable_4bit
     @ r10: adress of ADPCM_IndexTable_4bit
@@ -35,9 +38,8 @@
     @ r3 = PCM data
     @ r4 = Current ADPCM index
     @ r5 = Current ADPCM byte (2*4 bit data)
-    @ r14 = Nibble counter
     @ r6,r7 are scratch registers
-    push    {lr}
+
     @ load first verbatim PCM sample to r3
     ldrb    r3, [r0], #1       @ load lower byte
     ldrsb   r6, [r0], #1       @ load higher byte and sign-extend
@@ -68,25 +70,34 @@
     ldrb    r4, [r0], #1       @ load lower byte
     ldrsb   r6, [r0], #1       @ load higher byte and sign-extend
     orr     r4, r4, r6, lsl #8 @ combine the two
-    mov     r14, #0 @ clear nibble counter
+    @ build byte load operation for patching depending on nr of nibbles
+    add     r7, pc, #.adpcm_channel_decode_sample_byteload - . - 8
+    mov     r6, #0x04D00000     @ r6 = 0x04D00000
+    orr     r6, r6, #0x5000     @ r6 = 0x04D05000
+    orr     r6, r6, #0x0001     @ r6 = 0x04D05001 (ldreqb r5, [r0], #1)
+    tst     r2, #1              @ check if nr of nibbles is even
+    orrne   r6, r6, #0x10000000 @ r6 = 0x14D05001 (ldrneb r5, [r0], #1)
+    str     r6, [r7]            @ patch instruction
 .adpcm_channel_decode_sample_loop:
     @ load two ADPCM nibbles to r5 if we need them
-    tst     r14, #1
-    ldreqb  r5, [r0], #1
+    tst     r2, #1
+.adpcm_channel_decode_sample_byteload:
+    nop                    @ <---- will be patched to:
+                           @ "ldrneb r5, [r0], #1" for odd r2
+                           @ "ldreqb r5, [r0], #1" for even r2
     @ decode nibble
-    and     r6, r5, #0x07 @ r6=nibble&7 
-    mov     r7, r4, lsl #4 @ r7=index*2*8, because uint16_t and 8 entries per index
-    add     r7, r6, lsl #1 @ r7=index*2*8 + (nibble&7)*2
-    ldrh    r7, [r9, r7] @ load delta to r7
-    tst     r5, #0x08 @ ADPCM value & 8?
-    subne   r3, r3, r7
-    addeq   r3, r3, r7
-    ldrsb   r7, [r10, r6] @ load index into r7 and 
-    adds    r4, r4, r7 @ add to old index in r4. sets flags
-    @ clamp index in r4 to [0, 88]
-    movmi   r4, #0
-    cmp     r4, #88
-    movgt   r4, #88
+    and     r6, r5, #0x07  @ r6 = nibble & 7 
+    mov     r7, r4, lsl #4 @ r7 = index * 2 * 8, because uint16_t and 8 entries per index
+    add     r7, r6, lsl #1 @ r7 = index * 2 * 8 + (nibble & 7) * 2
+    ldrh    r7, [r9, r7]   @ load delta to r7
+    tst     r5, #0x08      @ ADPCM value & 8?
+    subne   r3, r3, r7     @ true  -> pcmData -= delta
+    addeq   r3, r3, r7     @ false -> pcmData += delta
+    ldrsb   r7, [r10, r6]  @ load index into r7 and 
+    adds    r4, r4, r7     @ add to old index in r4. sets flags
+    movmi   r4, #0         @ index = index < 0 ? 0 : index
+    cmp     r4, #88        @ index > 88 ?
+    movgt   r4, #88        @ index = index > 88 ? 88 : index
 #ifdef ADPCM_DITHER
     @ dither PCM data in r3
     sub     r3, r3, r11 @ pcmData -= last_dither
@@ -108,12 +119,11 @@
 #else
     mov     r7, r3, asr #8 @ r7 = pcmData >> 8
 #endif
-    strb    r7, [r1], #1 @ store nibble / 8-bit PCM sample
+    strb    r7, [r1], #1   @ store nibble / 8-bit PCM sample
+    @ loop finish
     mov     r5, r5, lsr #4 @ r5 = (nibble >> 4) 
-    add     r14, #1 @ increase nibble counter
-    cmp     r14, r2 @ less than number of nibbles?
-    blt     .adpcm_channel_decode_sample_loop
-    pop     {lr}
+    subs    r2, #1 @ less than number of nibbles?
+    bne     .adpcm_channel_decode_sample_loop
     bx      lr
 
  .arm
@@ -165,23 +175,26 @@ ADPCMUnCompWrite8bit_8bit:
 @    mov     r6, ...
 @    b       .adpcm_ucw8_8_channel_end
     mov     r2, r3
+    push    {r2}
     ldr     r1, [r1, #0] @ get first output buffer
     bleq    .adpcm_ucw8_8_channel_decode
-    mov     r6, r2
-    add     r6, #1
+    pop     {r2}
+    add     r2, #1
     b       .adpcm_ucw8_8_channel_channel_end
 .adpcm_ucw8_8_channel_stereo:
     cmp     r2, #0       @ check if we want resampling or not
     bne     .adpcm_ucw8_8_channel_stereo_resampling
     mov     r2, r3
-    push    {r1}
+    push    {r1, r2}
     ldr     r1, [r1, #0] @ get first output buffer
     bl      .adpcm_ucw8_8_channel_decode
-    pop     {r1}
+    ldr     r1, [sp, #0]
+    ldr     r2, [sp, #4]
     ldr     r1, [r1, #4] @ get second output buffer
     bl      .adpcm_ucw8_8_channel_decode
-    mov     r6, r2, lsl #1
-    add     r6, #2
+    pop     {r1, r2}
+    mov     r2, r2, lsl #1
+    add     r2, #2
     b       .adpcm_ucw8_8_channel_channel_end
 .adpcm_ucw8_8_channel_stereo_resampling:
 @    ldr     r2, [r2, #0] @ get first resampler data (if resampling)
@@ -194,7 +207,7 @@ ADPCMUnCompWrite8bit_8bit:
     ldr     r5, =ADPCM_DitherState
     stmia   r5, {r11, r12} @ store r11 = last_dither, r12 = dither
 #endif
-    mov     r0, r6 @ return number of samples generated
+    mov     r0, r2 @ return number of samples generated
     pop     {r4 - r12, lr}
     bx      lr
 
