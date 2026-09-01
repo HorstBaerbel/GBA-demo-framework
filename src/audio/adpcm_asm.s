@@ -27,7 +27,7 @@
     @ Input:
     @ r0: pointer to ADPCM frame data (afterwards points to start of next channel)
     @ r1: pointer to the 8bit sample buffer (trashed)
-    @ r2: number of nibbles to decode (output samples - 1) (trashed)
+    @ r2: number of samples to decode (trashed)
     @ r8: 0x7FFFFFFF
     @ r9: adress of ADPCM_DeltaTable_4bit
     @ r10: adress of ADPCM_IndexTable_4bit
@@ -39,7 +39,7 @@
     @ r4 = Current ADPCM index
     @ r5 = Current ADPCM byte (2*4 bit data)
     @ r6,r7 are scratch registers
-
+    sub     r2, #1 @ r2 = nr of nibbles to decode (nr of samples - 1)
     @ load first verbatim PCM sample to r3
     ldrb    r3, [r0], #1       @ load lower byte
     ldrsb   r6, [r0], #1       @ load higher byte and sign-extend
@@ -161,73 +161,62 @@ ADPCMUnCompWrite8bit_8bit:
     @ r2: pointer to resampler data, if resampling enabled, or nullptr
     @ r3,r12 trashed, r4-r11 and r14 used and saved / restored
     @ r6,r7 are scratch registers
-
-    push    {r4 - r12, lr}
+    @ returns: number of generated samples in r0
+    push    {r4 - r10, lr}
     @ store constants
     ldr     r8, =#0x7FFFFFFF @ used for clamping PCM data
     ldr     r9, =ADPCM_DeltaTable_4bit
     ldr     r10, =ADPCM_IndexTable_4bit
+    @ load first header half-word to r3
+    ldrb    r6, [r0], #1       @ load lower byte of flags
+    ldrb    r7, [r0], #1       @ load higher byte of flags
+    orr     r3, r6, r7, lsl #8 @ combine the two
+    and     r3, r3, #0x60      @ get number of channels into r3
+    mov     r3, r3, lsr #5     @ r3 = number of channnels
+    @ load number of samples into r4
+    ldrb    r6, [r0], #1       @ load lower byte of uncompressed size
+    ldrb    r7, [r0], #1       @ load higher byte of uncompressed size
+    orr     r4, r6, r7, lsl #8 @ combine the two
+    lsr     r4, r4, #1         @ halve count, as we're outputting 8 bits instead of 16
+    cmp     r3, #1             @ stereo data?
+    movgt   r4, r4, lsr #1     @ divide size of data by two for stereo data
+    cmp     r2, #0             @ check if we want resampling or not
+    @blne    .adpcm_ucw8_8_resample
+.adpcm_ucw8_8_normal:
 #ifdef ADPCM_DITHER
     @ load dither state
+    push    {r11}
     ldr     r5, =ADPCM_DitherState
     ldmia   r5, {r11, r12} @ load r11 = last_dither, r12 = dither
 #endif
-    @ load first header half-word to r3
-    ldrb    r6, [r0], #1       @ load lower byte
-    ldrb    r7, [r0], #1       @ load higher byte
-    orr     r3, r6, r7, lsl #8 @ combine the two
-    and     r3, r3, #0x60      @ get number of channels into r3
-    mov     r3, r3, lsr #5
-    cmp     r3, #1
-    @ load uncompressed size half-word to r3
-    ldrb    r6, [r0], #1       @ load lower byte
-    ldrb    r7, [r0], #1       @ load higher byte
-    orr     r3, r6, r7, lsl #8 @ combine the two
-    lsr     r3, r3, #1         @ halve count, as we're outputting 8 bits instead of 16
-    movgt   r3, r3, lsr #1     @ divide size of data by two for stereo data
-    sub     r3, #1             @ r3 = nr of nibbles (nr of samples - 1)
-    bgt     .adpcm_ucw8_8_channel_stereo
-.adpcm_ucw8_8_channel_mono:
-    cmp     r2, #0       @ check if we want resampling or not
-    ldrne   r2, [r2, #0] @ get first resampler data (if resampling)
-@    blne    .adpcm_ucw8_8_channel_resample
-@    mov     r6, ...
-@    b       .adpcm_ucw8_8_channel_end
-    mov     r2, r3
+    mov     r2, r4
+    cmp     r3, #1 @ mono or stereo?
+    bgt     .adpcm_ucw8_8_normal_stereo
     push    {r2}
     ldr     r1, [r1, #0] @ get first output buffer
-    bleq    .adpcm_ucw8_8_channel_decode
-    pop     {r2}
-    add     r2, #1
-    b       .adpcm_ucw8_8_channel_channel_end
-.adpcm_ucw8_8_channel_stereo:
-    cmp     r2, #0       @ check if we want resampling or not
-    bne     .adpcm_ucw8_8_channel_stereo_resampling
-    mov     r2, r3
+    bl      .adpcm_ucw8_8_channel_decode @ decode first channel
+    pop     {r0}
+    b       .adpcm_ucw8_8_normal_finish
+.adpcm_ucw8_8_normal_stereo:
     push    {r1, r2}
     ldr     r1, [r1, #0] @ get first output buffer
-    bl      .adpcm_ucw8_8_channel_decode
-    ldr     r1, [sp, #0]
-    ldr     r2, [sp, #4]
+    bl      .adpcm_ucw8_8_channel_decode @ decode first channel
+    ldr     r1, [sp, #0] @ restore r1
+    ldr     r2, [sp, #4] @ restore r2
     ldr     r1, [r1, #4] @ get second output buffer
-    bl      .adpcm_ucw8_8_channel_decode
-    pop     {r1, r2}
-    mov     r2, r2, lsl #1
-    add     r2, #2
-    b       .adpcm_ucw8_8_channel_channel_end
-.adpcm_ucw8_8_channel_stereo_resampling:
-@    ldr     r2, [r2, #0] @ get first resampler data (if resampling)
-@    blne    .adpcm_ucw8_8_channel_resample
-@    mov     r6, ...
-@    b       .adpcm_ucw8_8_channel_end
-.adpcm_ucw8_8_channel_channel_end:
+    bl      .adpcm_ucw8_8_channel_decode @ decode second channel
+    pop     {r1}
+    pop     {r0}
+    mov     r0, r0, lsl #1
+.adpcm_ucw8_8_normal_finish:
 #ifdef ADPCM_DITHER
     @ store dither state
     ldr     r5, =ADPCM_DitherState
     stmia   r5, {r11, r12} @ store r11 = last_dither, r12 = dither
+    pop     {r11}
 #endif
-    mov     r0, r2 @ return number of samples generated
-    pop     {r4 - r12, lr}
+.adpcm_ucw8_8_finish:
+    pop     {r4 - r10, lr}
     bx      lr
 
  .arm
