@@ -7,10 +7,10 @@
  //#define ADPCM_DITHER
  #define ADPCM_DITHER_SHIFT 24
  //#define ADPCM_ROUNDING
- #define ADPCM_CLAMP
 
  // baseline: Audio avg. decode: 6.31 ms (max. 7.81 ms)
  // smc1      Audio avg. decode: 6.14 ms (max. 6.83 ms)
+ // unrolled: Audio avg. decode: 5.65 ms (max. 6.83 ms)
 
  .arm
  .align
@@ -53,12 +53,10 @@
     mov     r11, r11, lsr #ADPCM_DITHER_SHIFT @ r11 = dither >> ADPCM_DITHER_SHIFT
     add     r3, r3, r11 @ pcmData += dither >> ADPCM_DITHER_SHIFT
 #endif
-#ifdef ADPCM_CLAMP
     @ clamp PCM data in r3 to [-32768, 32767]
     mov     r7, r3, lsl #16 @ r7 = r3 << 16
     cmp     r3, r7, asr #16 @ shift back and sign-extend r7 and compare with r3. check if r3 fits into signed 16-bit
     eorne   r7, r3, r8, asr #31 @ extract sign bit of r3. xor with r8 and apply to saturate
-#endif
 #ifdef ADPCM_ROUNDING
     add     r7, r3, #128 @ r7 = pcmData + 128
     mov     r7, r7, asr #8 @ r7 = (pcmData + 128) >> 8
@@ -70,22 +68,10 @@
     ldrb    r4, [r0], #1       @ load lower byte
     ldrsb   r6, [r0], #1       @ load higher byte and sign-extend
     orr     r4, r4, r6, lsl #8 @ combine the two
-    @ build byte load operation for patching depending on nr of nibbles
-    add     r7, pc, #.adpcm_channel_decode_sample_byteload - . - 8
-    mov     r6, #0x04D00000     @ r6 = 0x04D00000
-    orr     r6, r6, #0x5000     @ r6 = 0x04D05000
-    orr     r6, r6, #0x0001     @ r6 = 0x04D05001 (ldreqb r5, [r0], #1)
-    tst     r2, #1              @ check if nr of nibbles is even
-    orrne   r6, r6, #0x10000000 @ r6 = 0x14D05001 (ldrneb r5, [r0], #1)
-    str     r6, [r7]            @ patch instruction
 .adpcm_channel_decode_sample_loop:
-    @ load two ADPCM nibbles to r5 if we need them
-    tst     r2, #1
-.adpcm_channel_decode_sample_byteload:
-    nop                    @ <---- will be patched to:
-                           @ "ldrneb r5, [r0], #1" for odd r2
-                           @ "ldreqb r5, [r0], #1" for even r2
-    @ decode nibble
+    @ load two ADPCM nibbles to r5
+    ldrb r5, [r0], #1
+    @ decode first nibble
     and     r6, r5, #0x07  @ r6 = nibble & 7 
     mov     r7, r4, lsl #4 @ r7 = index * 2 * 8, because uint16_t and 8 entries per index
     add     r7, r6, lsl #1 @ r7 = index * 2 * 8 + (nibble & 7) * 2
@@ -107,12 +93,10 @@
     mov     r11, r11, lsr #ADPCM_DITHER_SHIFT @ r11 = dither >> ADPCM_DITHER_SHIFT
     add     r3, r3, r11 @ pcmData += dither >> ADPCM_DITHER_SHIFT
 #endif
-#ifdef ADPCM_CLAMP
     @ clamp PCM data in r3 to [-32768, 32767]
     mov     r7, r3, lsl #16 @ r7 = r3 << 16
     cmp     r3, r7, asr #16 @ shift back and sign-extend r7 and compare with r3. check if r3 fits into signed 16-bit
     eorne   r7, r3, r8, asr #31 @ extract sign bit of r3. xor with r8 and apply to saturate
-#endif
 #ifdef ADPCM_ROUNDING
     add     r7, r3, #128 @ r7 = pcmData + 128
     mov     r7, r7, asr #8 @ r7 = (pcmData + 128) >> 8
@@ -120,10 +104,45 @@
     mov     r7, r3, asr #8 @ r7 = pcmData >> 8
 #endif
     strb    r7, [r1], #1   @ store nibble / 8-bit PCM sample
-    @ loop finish
-    mov     r5, r5, lsr #4 @ r5 = (nibble >> 4) 
-    subs    r2, #1 @ less than number of nibbles?
+    subs    r2, #1 @ no more nibbles?
+    beq     .adpcm_channel_decode_sample_end
+    mov     r5, r5, lsr #4 @ r5 = (nibble >> 4)
+    @ decode second nibble
+    and     r6, r5, #0x07  @ r6 = nibble & 7 
+    mov     r7, r4, lsl #4 @ r7 = index * 2 * 8, because uint16_t and 8 entries per index
+    add     r7, r6, lsl #1 @ r7 = index * 2 * 8 + (nibble & 7) * 2
+    ldrh    r7, [r9, r7]   @ load delta to r7
+    tst     r5, #0x08      @ ADPCM value & 8?
+    subne   r3, r3, r7     @ true  -> pcmData -= delta
+    addeq   r3, r3, r7     @ false -> pcmData += delta
+    ldrsb   r7, [r10, r6]  @ load index into r7 and 
+    adds    r4, r4, r7     @ add to old index in r4. sets flags
+    movmi   r4, #0         @ index = index < 0 ? 0 : index
+    cmp     r4, #88        @ index > 88 ?
+    movgt   r4, #88        @ index = index > 88 ? 88 : index
+#ifdef ADPCM_DITHER
+    @ dither PCM data in r3
+    sub     r3, r3, r11 @ pcmData -= last_dither
+    mov     r11, r12 @ r11 = dither
+    rsb     r12, r11, r12, lsl #4 @ r12 = (dither << 4) - dither
+    eor     r12, r12, #1 @ r12 ^= 1
+    mov     r11, r11, lsr #ADPCM_DITHER_SHIFT @ r11 = dither >> ADPCM_DITHER_SHIFT
+    add     r3, r3, r11 @ pcmData += dither >> ADPCM_DITHER_SHIFT
+#endif
+    @ clamp PCM data in r3 to [-32768, 32767]
+    mov     r7, r3, lsl #16 @ r7 = r3 << 16
+    cmp     r3, r7, asr #16 @ shift back and sign-extend r7 and compare with r3. check if r3 fits into signed 16-bit
+    eorne   r7, r3, r8, asr #31 @ extract sign bit of r3. xor with r8 and apply to saturate
+#ifdef ADPCM_ROUNDING
+    add     r7, r3, #128 @ r7 = pcmData + 128
+    mov     r7, r7, asr #8 @ r7 = (pcmData + 128) >> 8
+#else
+    mov     r7, r3, asr #8 @ r7 = pcmData >> 8
+#endif
+    strb    r7, [r1], #1   @ store nibble / 8-bit PCM sample
+    subs    r2, #1 @ no more nibbles?
     bne     .adpcm_channel_decode_sample_loop
+.adpcm_channel_decode_sample_end:
     bx      lr
 
  .arm
