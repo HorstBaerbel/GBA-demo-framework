@@ -33,20 +33,20 @@ DecodeBlock4x4:
     moveq r9, r3 @ r9 = same frame (r3) or previous frame (r4)
     // get x-offset of the source block
     and r6, r5, #DXTV_CONSTANTS_BLOCK_MOTION_MASK
-    subs r6, r6, #DXTV_CONSTANTS_BLOCK_HALF_RANGE
+    sub r6, r6, #DXTV_CONSTANTS_BLOCK_HALF_RANGE
     mov r6, r6, lsl #1 @ multiply x-offset by 2, because pixels are 2 bytes wide
     // get y-offset of the source block
     mov r5, r5, lsr #DXTV_CONSTANTS_BLOCK_MOTION_Y_SHIFT
     and r5, r5, #DXTV_CONSTANTS_BLOCK_MOTION_MASK
-    subs r5, r5, #DXTV_CONSTANTS_BLOCK_HALF_RANGE
+    sub r5, r5, #DXTV_CONSTANTS_BLOCK_HALF_RANGE
     // calculate offset to source block
-    mlas r7, r5, r9, r6 @ multiply y-offset by line stride and add x-offset
-    adds r2, r2, r7 @ calculate source address
+    mla r7, r5, r9, r6 @ multiply y-offset by line stride and add x-offset
+    add r2, r2, r7 @ calculate source address
     // check if block is word-aligned
     ands r5, r2, #0x03 @ check if source pointer is aligned to 4 bytes / 2 pixels
     beq .mc4x4_aligned
-.mc4x4_unaligned:
-    // unaligned block copy
+.mc4x4_half_aligned:
+    // half-word aligned block copy
     // line 0
     ldrh r5, [r2, #0]
     strh r5, [r1, #0]
@@ -83,7 +83,7 @@ DecodeBlock4x4:
     strh r5, [r1, #4]
     ldrh r5, [r2, #6]
     strh r5, [r1, #6]
-    b .db4x4_end
+    bx lr
 .mc4x4_aligned:
     // handle aligned block copy
     // line 0
@@ -104,7 +104,7 @@ DecodeBlock4x4:
     // line 3
     ldmia r2, {r5, r6}
     stmia r1, {r5, r6}
-    b .db4x4_end
+    bx lr
 .db4x4_dxt:
     // ----- uncompress DXT block -----
     ldrh r6, [r0], #2 @ load c1 to r6
@@ -207,7 +207,6 @@ DecodeBlock4x4:
     ldrh r8, [r2, r8]
     orr r7, r7, r8, lsl #16
     stmia r1, {r6, r7}
-.db4x4_end:
     bx lr
 
 .arm
@@ -238,23 +237,23 @@ DecodeBlock8x8:
     moveq r11, r3 @ r11 = same frame (r3) or previous frame (r4)
     // get x-offset of the source block
     and r6, r5, #DXTV_CONSTANTS_BLOCK_MOTION_MASK
-    subs r6, r6, #DXTV_CONSTANTS_BLOCK_HALF_RANGE
+    sub r6, r6, #DXTV_CONSTANTS_BLOCK_HALF_RANGE
     mov r6, r6, lsl #1 @ multiply x-offset by 2, because pixels are 2 bytes wide
     // get y-offset of the source block
     mov r5, r5, lsr #DXTV_CONSTANTS_BLOCK_MOTION_Y_SHIFT
     and r5, r5, #DXTV_CONSTANTS_BLOCK_MOTION_MASK
-    subs r5, r5, #DXTV_CONSTANTS_BLOCK_HALF_RANGE
+    sub r5, r5, #DXTV_CONSTANTS_BLOCK_HALF_RANGE
     // calculate offset to source block
-    mlas r7, r5, r11, r6 @ multiply y-offset by line stride and add x-offset
-    adds r2, r2, r7 @ calculate source address
+    mla r7, r5, r11, r6 @ multiply y-offset by line stride and add x-offset
+    add r2, r2, r7 @ calculate source address
     // check if block is word-aligned
     ands r5, r2, #0x03 @ check if source pointer is aligned to 4 bytes / 2 pixels
     beq .mc8x8_aligned
-.mc8x8_unaligned:
-   // unaligned block copy
+.mc8x8_half_aligned:
+    // half-word aligned block copy
     mov r10, #8 @ number of lines to copy
     subs r2, r2, r11 @ adjust source pointer for the first line
-.mc8x8_unaligned_loop:
+.mc8x8_half_aligned_loop:
     ldrh r5, [r2, r11]! @ r5 = hw0 (bits 15:0)
     ldr r6, [r2, #2] @ load 3 consecutive aligned words into r6, r7, r8
     ldr r7, [r2, #6]
@@ -270,8 +269,8 @@ DecodeBlock8x8:
     stmia r1, {r5 - r8} @ store the 4 reassembled words from to destination
     add r1, r1, r3 @ increment destination pointer by line stride
     subs r10, r10, #1 @ decrement line counter
-    bne .mc8x8_unaligned_loop @ repeat for the next line
-    b .db8x8_end
+    bne .mc8x8_half_aligned_loop @ repeat for the next line
+    bx lr
 .mc8x8_aligned:
     // aligned block copy
     mov r10, #7 @ number of lines to copy
@@ -284,7 +283,7 @@ DecodeBlock8x8:
     bne .mc8x8_aligned_loop @ repeat for the next line
     ldmia r2, {r5 - r8}
     stmia r1, {r5 - r8}
-    b .db8x8_end
+    bx lr
 .db8x8_dxt:
     // ----- uncompress DXT block -----
     ldrh r6, [r0], #2 @ load c1 to r6
@@ -363,7 +362,6 @@ DecodeBlock8x8:
     add r1, r1, r3 @ increment destination pointer by line stride
     subs r10, r10, #1 @ decrement line counter
     bne .dxt8x8_line @ repeat for the next line
-.db8x8_end:
     bx lr
 
 .arm
