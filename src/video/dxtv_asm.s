@@ -50,37 +50,29 @@ DecodeBlock4x4:
     // line 0
     ldrh r5, [r2, #0]
     strh r5, [r1, #0]
-    ldrh r5, [r2, #2]
-    strh r5, [r1, #2]
-    ldrh r5, [r2, #4]
-    strh r5, [r1, #4]
+    ldr  r5, [r2, #2]
+    str  r5, [r1, #2]
     ldrh r5, [r2, #6]
     strh r5, [r1, #6]
     // line 1
     ldrh r5, [r2, r9]!
     strh r5, [r1, r3]!
-    ldrh r5, [r2, #2]
-    strh r5, [r1, #2]
-    ldrh r5, [r2, #4]
-    strh r5, [r1, #4]
+    ldr  r5, [r2, #2]
+    str  r5, [r1, #2]
     ldrh r5, [r2, #6]
     strh r5, [r1, #6]
     // line 2
     ldrh r5, [r2, r9]!
     strh r5, [r1, r3]!
-    ldrh r5, [r2, #2]
-    strh r5, [r1, #2]
-    ldrh r5, [r2, #4]
-    strh r5, [r1, #4]
+    ldr  r5, [r2, #2]
+    str  r5, [r1, #2]
     ldrh r5, [r2, #6]
     strh r5, [r1, #6]
     // line 3
     ldrh r5, [r2, r9]!
     strh r5, [r1, r3]!
-    ldrh r5, [r2, #2]
-    strh r5, [r1, #2]
-    ldrh r5, [r2, #4]
-    strh r5, [r1, #4]
+    ldr  r5, [r2, #2]
+    str  r5, [r1, #2]
     ldrh r5, [r2, #6]
     strh r5, [r1, #6]
     bx lr
