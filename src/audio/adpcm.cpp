@@ -10,7 +10,7 @@ namespace Audio
     // #define ADPCM_DITHER  // Uncomment to apply dithering to PCM data
     static constexpr uint32_t ADPCM_DITHER_SHIFT = 24;
 
-#define ADPCM_APPLY_HIGH_SHELF // Uncomment to apply 3.5dB high-shelf filter before resampling
+    // #define ADPCM_APPLY_HIGH_SHELF // Uncomment to apply 3.5dB high-shelf filter before resampling
 
     /// @brief Decode one channel of ADPCM data
     /// @param data8 Input ADPCM data (pointer modified)
@@ -102,7 +102,9 @@ namespace Audio
             // no samples for a first call
             resamplerData.pcmHistory[0] = pcmData;
             resamplerData.pcmHistory[1] = pcmData;
+#ifdef ADPCM_APPLY_HIGH_SHELF
             resamplerData.pcmRaw = pcmData;
+#endif
             resamplerData.position -= RESAMPLER_POSITION_ONE;
         }
         else if (resamplerData.position >= RESAMPLER_POSITION_ONE)
@@ -150,7 +152,7 @@ namespace Audio
                 ADPCM_DitherState[0] = ADPCM_DitherState[1] >> ADPCM_DITHER_SHIFT;
                 ADPCM_DitherState[1] = ((ADPCM_DitherState[1] << 4) - ADPCM_DitherState[1]) ^ 1;
 #endif
-                // clamp sample value
+                // clamp PCM data to [-32768, 32767]
                 pcmData = pcmData < -32768 ? -32768 : pcmData;
                 pcmData = pcmData > 32767 ? 32767 : pcmData;
                 // move new PCM data to resampler history
@@ -173,7 +175,7 @@ namespace Audio
             {
                 // linear interpolation of samples
                 int32_t diff = static_cast<int32_t>(resamplerData.pcmHistory[1]) - static_cast<int32_t>(resamplerData.pcmHistory[0]);
-                int32_t sample = static_cast<int32_t>(resamplerData.pcmHistory[0]) + (diff * (resamplerData.position >> (RESAMPLER_PRECISION - 8)) >> 8);
+                int32_t sample = static_cast<int32_t>(resamplerData.pcmHistory[0]) + ((diff * (resamplerData.position >> (RESAMPLER_PRECISION - 8))) >> 8);
                 resamplerData.position += resamplerData.step;
                 // write to output buffer
 #ifdef ADPCM_ROUNDING

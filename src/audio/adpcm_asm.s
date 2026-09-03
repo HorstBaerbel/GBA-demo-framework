@@ -1,16 +1,20 @@
+#include "resampler_structs.h"
 #include "adpcm_structs.h"
 
  .global ADPCM_DeltaTable_4bit
  .global ADPCM_IndexTable_4bit
  .global ADPCM_DitherState
 
- //#define ADPCM_DITHER
- #define ADPCM_DITHER_SHIFT 24
- //#define ADPCM_ROUNDING
+//#define ADPCM_DITHER
+#define ADPCM_DITHER_SHIFT 24
+//#define ADPCM_ROUNDING
 
- // baseline: Audio avg. decode: 6.31 ms (max. 7.81 ms)
- // smc1      Audio avg. decode: 6.14 ms (max. 6.83 ms)
- // unrolled: Audio avg. decode: 5.65 ms (max. 6.83 ms)
+// baseline: Audio avg. decode: 6.31 ms (max. 7.81 ms)
+// unrolled: Audio avg. decode: 5.65 ms (max. 6.83 ms)
+
+// Resampling
+// C++: Audio avg. decode: 35.25 ms (max. 37.10 ms)
+// ASM: Audio avg. decode: 12.84 ms (max. 13.67 ms)
 
  .arm
  .align
@@ -54,9 +58,9 @@
     add     r3, r3, r11 @ pcmData += dither >> ADPCM_DITHER_SHIFT
 #endif
     @ clamp PCM data in r3 to [-32768, 32767]
-    mov     r7, r3, lsl #16 @ r7 = r3 << 16
-    cmp     r3, r7, asr #16 @ shift back and sign-extend r7 and compare with r3. check if r3 fits into signed 16-bit
-    eorne   r7, r3, r8, asr #31 @ extract sign bit of r3. xor with r8 and apply to saturate
+    mov     r7, r3, lsl #16     @ r7 = r3 << 16
+    cmp     r3, r7, asr #16     @ shift back and sign-extend r7 and compare with r3. check if r3 fits into signed 16-bit
+    eorne   r3, r3, r8, asr #31 @ extract sign bit of r3. xor with r8 and apply to saturate
 #ifdef ADPCM_ROUNDING
     add     r7, r3, #128 @ r7 = pcmData + 128
     mov     r7, r7, asr #8 @ r7 = (pcmData + 128) >> 8
@@ -70,7 +74,7 @@
     orr     r4, r4, r6, lsl #8 @ combine the two
 .adpcm_channel_decode_sample_loop:
     @ load two ADPCM nibbles to r5
-    ldrb r5, [r0], #1
+    ldrb    r5, [r0], #1
     @ decode first nibble
     and     r6, r5, #0x07  @ r6 = nibble & 7 
     mov     r7, r4, lsl #4 @ r7 = index * 2 * 8, because uint16_t and 8 entries per index
@@ -94,9 +98,9 @@
     add     r3, r3, r11 @ pcmData += dither >> ADPCM_DITHER_SHIFT
 #endif
     @ clamp PCM data in r3 to [-32768, 32767]
-    mov     r7, r3, lsl #16 @ r7 = r3 << 16
-    cmp     r3, r7, asr #16 @ shift back and sign-extend r7 and compare with r3. check if r3 fits into signed 16-bit
-    eorne   r7, r3, r8, asr #31 @ extract sign bit of r3. xor with r8 and apply to saturate
+    mov     r7, r3, lsl #16     @ r7 = r3 << 16
+    cmp     r3, r7, asr #16     @ shift back and sign-extend r7 and compare with r3. check if r3 fits into signed 16-bit
+    eorne   r3, r3, r8, asr #31 @ extract sign bit of r3. xor with r8 and apply to saturate
 #ifdef ADPCM_ROUNDING
     add     r7, r3, #128 @ r7 = pcmData + 128
     mov     r7, r7, asr #8 @ r7 = (pcmData + 128) >> 8
@@ -104,7 +108,7 @@
     mov     r7, r3, asr #8 @ r7 = pcmData >> 8
 #endif
     strb    r7, [r1], #1   @ store nibble / 8-bit PCM sample
-    subs    r2, #1 @ no more nibbles?
+    subs    r2, #1 @ more nibbles?
     beq     .adpcm_channel_decode_sample_end
     mov     r5, r5, lsr #4 @ r5 = (nibble >> 4)
     @ decode second nibble
@@ -130,9 +134,9 @@
     add     r3, r3, r11 @ pcmData += dither >> ADPCM_DITHER_SHIFT
 #endif
     @ clamp PCM data in r3 to [-32768, 32767]
-    mov     r7, r3, lsl #16 @ r7 = r3 << 16
-    cmp     r3, r7, asr #16 @ shift back and sign-extend r7 and compare with r3. check if r3 fits into signed 16-bit
-    eorne   r7, r3, r8, asr #31 @ extract sign bit of r3. xor with r8 and apply to saturate
+    mov     r7, r3, lsl #16     @ r7 = r3 << 16
+    cmp     r3, r7, asr #16     @ shift back and sign-extend r7 and compare with r3. check if r3 fits into signed 16-bit
+    eorne   r3, r3, r8, asr #31 @ extract sign bit of r3. xor with r8 and apply to saturate
 #ifdef ADPCM_ROUNDING
     add     r7, r3, #128 @ r7 = pcmData + 128
     mov     r7, r7, asr #8 @ r7 = (pcmData + 128) >> 8
@@ -140,7 +144,7 @@
     mov     r7, r3, asr #8 @ r7 = pcmData >> 8
 #endif
     strb    r7, [r1], #1   @ store nibble / 8-bit PCM sample
-    subs    r2, #1 @ no more nibbles?
+    subs    r2, #1 @ more nibbles?
     bne     .adpcm_channel_decode_sample_loop
 .adpcm_channel_decode_sample_end:
     bx      lr
@@ -162,17 +166,116 @@
     @ r1: pointer to the 8bit sample buffer (trashed)
     @ r2: resampler channel data (preserved)
     @ r3: number of samples to decode (trashed)
-    @ r8: 0x7FFFFFFF
     @ r9: adress of ADPCM_DeltaTable_4bit
     @ r10: adress of ADPCM_IndexTable_4bit
-    @ r11: last_dither (if dithering enabled)
-    @ r12: dither (if dithering enabled)
     @ ------------------------------
     @ In function:
-    @ r3 = PCM data
-    @ r4 = Current ADPCM index
-    @ r5 = Current ADPCM byte (2*4 bit data)
-    @ r6,r7 are scratch registers
+    @ r4 = PCM data
+    @ r5 = Current ADPCM index
+    @ r6 = Current ADPCM byte (2*4 bit data)
+    @ r7 = resampler position
+    @ r8 = nr of samples generated
+    @ r11,r12,r14 are scratch registers
+    push    {lr}
+    sub     r3, #1 @ r3 = nr of nibbles to decode (nr of samples - 1)
+    @ load first verbatim PCM sample to r4
+    ldrb    r4, [r0], #1        @ load lower byte
+    ldrsb   r12, [r0], #1       @ load higher byte and sign-extend
+    orr     r4, r4, r12, lsl #8 @ combine the two
+    @ load first index to r5
+    ldrb    r5, [r0], #1        @ load lower byte
+    ldrsb   r12, [r0], #1       @ load higher byte and sign-extend
+    orr     r5, r5, r12, lsl #8 @ combine the two
+    @ we can have history from previous calls, but at most one sample,
+    @ because we must have output data until resamplerData.position >= RESAMPLER_POSITION_ONE
+    @ we can also have no history at all for a first call
+    @ this means we need at least one new sample here
+    ldr     r7, [r2, #RESAMPLER_OFFSET_POSITION]
+    cmp     r7, #RESAMPLER_POSITION_TWO
+    blt     .adpcm_channel_resample_start_below_two
+    @ resampler position >= RESAMPLER_POSITION_TWO (initial frame / first call)
+    @ we have no samples in history
+    strh    r4, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_0]
+    strh    r4, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1]
+    sub     r7, #RESAMPLER_POSITION_ONE
+    b       .adpcm_channel_resample_loop_setup
+.adpcm_channel_resample_start_below_two:
+    cmp     r7, #RESAMPLER_POSITION_ONE
+    blt     .adpcm_channel_resample_loop_setup
+    @ resampler position >= RESAMPLER_POSITION_ONE (regular frames)
+    @ we have one samples in history. add new PCM sample
+    ldrsh   r12, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1]
+    strh    r12, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_0]
+    strh    r4, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1]
+    sub     r7, #RESAMPLER_POSITION_ONE
+.adpcm_channel_resample_loop_setup:
+    @ build byte load operation for patching depending on nr of nibbles
+    add     r14, pc, #.adpcm_channel_resample_byteload - . - 8
+    mov     r12, #0x04D00000      @ r12 = 0x04D00000
+    orr     r12, r12, #0x6000     @ r12 = 0x04D06000
+    orr     r12, r12, #0x0001     @ r12 = 0x04D06001 (ldreqb r6, [r0], #1)
+    tst     r3, #1                @ check if nr of nibbles is even
+    orrne   r12, r12, #0x10000000 @ r12 = 0x14D06001 (ldrneb r6, [r0], #1)
+    str     r12, [r14]            @ patch instruction
+    @ clear nr of samples generated
+    mov     r8, #0
+.adpcm_channel_resample_loop:
+    @ check if we need to decode more input samples or emit output samples
+    cmp     r7, #RESAMPLER_POSITION_ONE
+    blt     .adpcm_channel_resample_output
+    @ resampler position >= RESAMPLER_POSITION_ONE
+    @ load two ADPCM nibbles to r6 if needed
+    tst     r3, #1
+.adpcm_channel_resample_byteload:
+    nop @ <---- will be patched to:
+        @ ldrneb r6, [r0], #1 for odd r3
+        @ ldreqb r6, [r0], #1 for even r3
+    @ decode nibble
+    and     r14, r6, #0x07   @ r14 = nibble & 7 
+    mov     r12, r5, lsl #4  @ r12 = index * 2 * 8, because uint16_t and 8 entries per index
+    add     r12, r14, lsl #1 @ r12 = index * 2 * 8 + (nibble & 7) * 2
+    ldrh    r12, [r9, r12]   @ load delta to r12
+    tst     r6, #0x08        @ ADPCM value & 8?
+    subne   r4, r4, r12      @ true  -> pcmData -= delta
+    addeq   r4, r4, r12      @ false -> pcmData += delta
+    ldrsb   r12, [r10, r14]  @ load index into r12 and 
+    adds    r5, r5, r12      @ add to old index in r5. sets flags
+    movmi   r5, #0           @ index = index < 0 ? 0 : index
+    cmp     r5, #88          @ index > 88 ?
+    movgt   r5, #88          @ index = index > 88 ? 88 : index
+    @ clamp PCM data in r4 to [-32768, 32767]
+    mov     r12, r4, lsl #16     @ r12 = r4 << 16
+    cmp     r4, r12, asr #16     @ shift back and sign-extend r12 and compare with r4. check if r4 fits into signed 16-bit
+    mvn     r11, #0x80000000     @ r11 = 0x7FFFFFFF
+    eorne   r4, r4, r11, asr #31 @ extract sign bit of r4. xor with r11 and apply to saturate
+    @ move new PCM data to resampler history
+    ldrsh   r12, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1]
+    strh    r12, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_0]
+    strh    r4, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1]
+    sub     r7, #RESAMPLER_POSITION_ONE
+    mov     r6, r6, lsr #4 @ r6 = (nibble >> 4)
+    sub     r3, #1 @ we processed one nibble
+.adpcm_channel_resample_output:
+    @ resampler position < RESAMPLER_POSITION_ONE
+    ldrsh   r14, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_0]
+    ldrsh   r12, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1]
+    sub     r12, r14 @ r12 = diff = resampler.history[1] - resampler.history[0]
+.adpcm_channel_resample_sample_output:
+    @ calculate: resampler.history[0] - (((resampler.position >> (RESAMPLER_PRECISION - 8)) * diff) >> 8)
+    asr     r11, r7, #RESAMPLER_PRECISION - 8
+    mul     r11, r12
+    add     r11, r14, r11, asr #8
+    mov     r11, r11, asr #8 @ sample >> 8
+    strb    r11, [r1], #1    @ store PCM sample
+    add     r8, #1           @ increase nr of samples generated
+    ldr     r11, [r2, #RESAMPLER_OFFSET_STEP]
+    add     r7, r11
+    cmp     r7, #RESAMPLER_POSITION_ONE
+    blt     .adpcm_channel_resample_sample_output
+    cmp     r3, #0 @ more nibbles?
+    bgt     .adpcm_channel_resample_loop
+    str     r7, [r2, #RESAMPLER_OFFSET_POSITION]
+    pop     {lr}
     bx      lr
 
  .arm
@@ -208,8 +311,6 @@ ADPCMUnCompWrite8bit_8bit:
     ldrb    r7, [r0], #1       @ load higher byte of uncompressed size
     orr     r3, r6, r7, lsl #8 @ combine the two
     lsr     r3, r3, #1         @ halve count, as we're outputting 8 bits instead of 16
-    cmp     r4, #1             @ mono or stereo data?
-    movgt   r3, r3, lsr #1     @ divide size of data by two for stereo data
     cmp     r2, #0             @ check if we want resampling or not
     beq     .adpcm_ucw8_8_normal
 .adpcm_ucw8_8_resample:
@@ -217,23 +318,20 @@ ADPCMUnCompWrite8bit_8bit:
     bgt     .adpcm_ucw8_8_resample_stereo
     push    {r11}
     ldr     r1, [r1, #0] @ get first output buffer
-    ldr     r2, [r2, #0] @ get first resampler data
     bl      .adpcm_ucw8_8_channel_resample @ decode first channel
     pop     {r11}
     b       .adpcm_ucw8_8_finish
 .adpcm_ucw8_8_resample_stereo:
+    mov     r3, r3, lsr #1 @ divide size of data by two for stereo data
     push    {r1, r2, r3, r11}
     ldr     r1, [r1, #0] @ get first output buffer
-    ldr     r2, [r2, #0] @ get first resampler data
     bl      .adpcm_ucw8_8_channel_resample @ decode first channel
-    ldr     r1, [sp, #0] @ restore r1
-    ldr     r2, [sp, #4] @ restore r2
-    ldr     r3, [sp, #8] @ restore number of samples
+    pop     {r1 - r3}    @ restore r1, r2, r3
     ldr     r1, [r1, #4] @ get second output buffer
-    ldr     r2, [r2, #0] @ get second resampler data
+    add     r2, #RESAMPLER_SIZEOF_CHANNEL_DATA @ get second resampler data
     bl      .adpcm_ucw8_8_channel_resample @ decode second channel
-    pop     {r1, r2, r3, r11}
-    mov     r0, r0, lsl #1
+    pop     {r11}
+    mov     r0, r8, lsl #1 @ number of samples generated returned in r8
     b       .adpcm_ucw8_8_finish
 .adpcm_ucw8_8_normal:
 #ifdef ADPCM_DITHER
@@ -242,15 +340,16 @@ ADPCMUnCompWrite8bit_8bit:
     ldr     r5, =ADPCM_DitherState
     ldmia   r5, {r11, r12} @ load r11 = last_dither, r12 = dither
 #endif
-    mov     r2, r3
     cmp     r4, #1 @ mono or stereo?
     bgt     .adpcm_ucw8_8_normal_stereo
+    mov     r2, r3 @ move sample count to r2
     push    {r2}
     ldr     r1, [r1, #0] @ get first output buffer
     bl      .adpcm_ucw8_8_channel_decode @ decode first channel
     pop     {r0}
     b       .adpcm_ucw8_8_normal_finish
 .adpcm_ucw8_8_normal_stereo:
+    mov     r2, r3, lsr #1 @ divide size of data by two for stereo data and move to r2
     push    {r1, r2}
     ldr     r1, [r1, #0] @ get first output buffer
     bl      .adpcm_ucw8_8_channel_decode @ decode first channel
