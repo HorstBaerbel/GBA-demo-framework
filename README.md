@@ -52,6 +52,16 @@ The build process generates .map files for each executable built. It can be inte
 
 * [CapeLeidokos / elf_diff](https://github.com/CapeLeidokos/elf_diff) (Python. Compares two ELF files and displays adiff of their memory layout)
 
+### Using SVD for better debugging
+
+The [svd/gba.svd](svd/gba.svd) file (originally built by [Xilefian](https://github.com/felixjones)) contains GBA registers and can be used to get their state during debugging. Install a debug extension, e.g. [Peripheral Viewer / mcu-debug.peripheral-viewer](https://marketplace.visualstudio.com/items?itemName=mcu-debug.peripheral-viewer) and add the svd file to your launch config:
+
+```json
+    "svdPath": "${workspaceFolder}/src/GBA-demo-framework/svd/gba.svd"
+```
+
+This will give you a new panel "XPeripherals" in "Run and Debug" that lists device registers.
+
 ### Running the toolchain in a container
 
 There's a nice writeup by James Grimwood [here](https://www.gamedev.net/blogs/entry/2268899-gameboy-advance-dev-workflow-in-2020/).
