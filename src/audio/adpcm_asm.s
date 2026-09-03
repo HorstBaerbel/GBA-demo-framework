@@ -8,13 +8,7 @@
 //#define ADPCM_DITHER
 #define ADPCM_DITHER_SHIFT 24
 //#define ADPCM_ROUNDING
-
-// baseline: Audio avg. decode: 6.31 ms (max. 7.81 ms)
-// unrolled: Audio avg. decode: 5.65 ms (max. 6.83 ms)
-
-// Resampling
-// C++: Audio avg. decode: 35.25 ms (max. 37.10 ms)
-// ASM: Audio avg. decode: 12.84 ms (max. 13.67 ms)
+//#define ADPCM_APPLY_HIGH_SHELF
 
  .arm
  .align
@@ -197,6 +191,9 @@
     @ we have no samples in history
     strh    r4, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_0]
     strh    r4, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1]
+#ifdef ADPCM_APPLY_HIGH_SHELF
+    strh    r4, [r2, #RESAMPLER_OFFSET_PCM_RAW]
+#endif
     sub     r7, #RESAMPLER_POSITION_ONE
     b       .adpcm_channel_resample_loop_setup
 .adpcm_channel_resample_start_below_two:
@@ -206,7 +203,21 @@
     @ we have one samples in history. add new PCM sample
     ldrsh   r12, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1]
     strh    r12, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_0]
+#ifdef ADPCM_APPLY_HIGH_SHELF
+    @ calculate pcmFiltered = resampler.pcmRaw + (resampler.pcmRaw >> 2) - (pcmData >> 2);
+    ldrsh   r11, [r2, #RESAMPLER_OFFSET_PCM_RAW]
+    add     r11, r11, asr #2
+    add     r11, r4, asr #2
+    @ clamp filtered PCM data in r11 to [-32768, 32767]
+    mov     r12, r11, lsl #16      @ r12 = r11 << 16
+    cmp     r11, r12, asr #16      @ shift back and sign-extend r12 and compare with r11. check if r11 fits into signed 16-bit
+    mvn     r14, #0x80000000       @ r11 = 0x7FFFFFFF
+    eorne   r11, r11, r14, asr #31 @ extract sign bit of r11. xor with r14 and apply to saturate
+    strh    r11, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1] @ store filtered PCM to resampler history
+    strh    r4, [r2, #RESAMPLER_OFFSET_PCM_RAW]        @ store raw sample to resampler
+#else
     strh    r4, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1]
+#endif
     sub     r7, #RESAMPLER_POSITION_ONE
 .adpcm_channel_resample_loop_setup:
     @ build byte load operation for patching depending on nr of nibbles
@@ -243,15 +254,29 @@
     movmi   r5, #0           @ index = index < 0 ? 0 : index
     cmp     r5, #88          @ index > 88 ?
     movgt   r5, #88          @ index = index > 88 ? 88 : index
-    @ clamp PCM data in r4 to [-32768, 32767]
-    mov     r12, r4, lsl #16     @ r12 = r4 << 16
-    cmp     r4, r12, asr #16     @ shift back and sign-extend r12 and compare with r4. check if r4 fits into signed 16-bit
-    mvn     r11, #0x80000000     @ r11 = 0x7FFFFFFF
-    eorne   r4, r4, r11, asr #31 @ extract sign bit of r4. xor with r11 and apply to saturate
     @ move new PCM data to resampler history
     ldrsh   r12, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1]
     strh    r12, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_0]
+#ifdef ADPCM_APPLY_HIGH_SHELF
+    @ calculate pcmFiltered = resampler.pcmRaw + (resampler.pcmRaw >> 2) - (pcmData >> 2);
+    ldrsh   r11, [r2, #RESAMPLER_OFFSET_PCM_RAW]
+    add     r11, r11, asr #2
+    add     r11, r4, asr #2
+    @ clamp filtered PCM data in r11 to [-32768, 32767]
+    mov     r12, r11, lsl #16      @ r12 = r11 << 16
+    cmp     r11, r12, asr #16      @ shift back and sign-extend r12 and compare with r11. check if r11 fits into signed 16-bit
+    mvn     r14, #0x80000000       @ r11 = 0x7FFFFFFF
+    eorne   r11, r11, r14, asr #31 @ extract sign bit of r11. xor with r14 and apply to saturate
+    strh    r11, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1] @ store filtered PCM to resampler history
+    strh    r4, [r2, #RESAMPLER_OFFSET_PCM_RAW]        @ store raw sample to resampler
+#else
+    @ clamp PCM data in r4 to [-32768, 32767]
+    mov     r12, r4, lsl #16     @ r12 = r4 << 16
+    cmp     r4, r12, asr #16     @ shift back and sign-extend r12 and compare with r4. check if r4 fits into signed 16-bit
+    mvn     r14, #0x80000000     @ r14 = 0x7FFFFFFF
+    eorne   r4, r4, r14, asr #31 @ extract sign bit of r4. xor with r14 and apply to saturate
     strh    r4, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1]
+#endif
     sub     r7, #RESAMPLER_POSITION_ONE
     mov     r6, r6, lsr #4 @ r6 = (nibble >> 4)
     sub     r3, #1 @ we processed one nibble
@@ -320,6 +345,7 @@ ADPCMUnCompWrite8bit_8bit:
     ldr     r1, [r1, #0] @ get first output buffer
     bl      .adpcm_ucw8_8_channel_resample @ decode first channel
     pop     {r11}
+    mov     r0, r8 @ number of samples generated returned in r8
     b       .adpcm_ucw8_8_finish
 .adpcm_ucw8_8_resample_stereo:
     mov     r3, r3, lsr #1 @ divide size of data by two for stereo data

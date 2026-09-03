@@ -115,6 +115,9 @@ namespace Audio
 #ifdef ADPCM_APPLY_HIGH_SHELF
             // apply high-shelf filter
             auto pcmFiltered = resamplerData.pcmRaw + (resamplerData.pcmRaw >> 2) - (pcmData >> 2);
+            // clamp filtered PCM data to [-32768, 32767]
+            pcmFiltered = pcmFiltered < -32768 ? -32768 : pcmFiltered;
+            pcmFiltered = pcmFiltered > 32767 ? 32767 : pcmFiltered;
             resamplerData.pcmHistory[1] = pcmFiltered;
             resamplerData.pcmRaw = pcmData;
 #else
@@ -152,17 +155,20 @@ namespace Audio
                 ADPCM_DitherState[0] = ADPCM_DitherState[1] >> ADPCM_DITHER_SHIFT;
                 ADPCM_DitherState[1] = ((ADPCM_DitherState[1] << 4) - ADPCM_DitherState[1]) ^ 1;
 #endif
-                // clamp PCM data to [-32768, 32767]
-                pcmData = pcmData < -32768 ? -32768 : pcmData;
-                pcmData = pcmData > 32767 ? 32767 : pcmData;
                 // move new PCM data to resampler history
                 resamplerData.pcmHistory[0] = resamplerData.pcmHistory[1];
 #ifdef ADPCM_APPLY_HIGH_SHELF
                 // apply high-shelf filter
                 auto pcmFiltered = resamplerData.pcmRaw + (resamplerData.pcmRaw >> 2) - (pcmData >> 2);
+                // clamp filtered PCM data to [-32768, 32767]
+                pcmFiltered = pcmFiltered < -32768 ? -32768 : pcmFiltered;
+                pcmFiltered = pcmFiltered > 32767 ? 32767 : pcmFiltered;
                 resamplerData.pcmHistory[1] = pcmFiltered;
                 resamplerData.pcmRaw = pcmData;
 #else
+                // clamp PCM data to [-32768, 32767]
+                pcmData = pcmData < -32768 ? -32768 : pcmData;
+                pcmData = pcmData > 32767 ? 32767 : pcmData;
                 resamplerData.pcmHistory[1] = pcmData;
 #endif
                 resamplerData.position -= RESAMPLER_POSITION_ONE;
