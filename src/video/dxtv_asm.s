@@ -48,51 +48,35 @@ DecodeBlock4x4:
 .mc4x4_half_aligned:
     // half-word aligned block copy
     // line 0
-    ldrh r5, [r2, #0]
-    strh r5, [r1, #0]
-    ldr  r5, [r2, #2]
-    str  r5, [r1, #2]
-    ldrh r5, [r2, #6]
-    strh r5, [r1, #6]
-    // line 1
-    ldrh r5, [r2, r9]!
-    strh r5, [r1, r3]!
-    ldr  r5, [r2, #2]
-    str  r5, [r1, #2]
-    ldrh r5, [r2, #6]
-    strh r5, [r1, #6]
-    // line 2
-    ldrh r5, [r2, r9]!
-    strh r5, [r1, r3]!
-    ldr  r5, [r2, #2]
-    str  r5, [r1, #2]
-    ldrh r5, [r2, #6]
-    strh r5, [r1, #6]
-    // line 3
-    ldrh r5, [r2, r9]!
-    strh r5, [r1, r3]!
-    ldr  r5, [r2, #2]
-    str  r5, [r1, #2]
-    ldrh r5, [r2, #6]
-    strh r5, [r1, #6]
+    ldrh r5, [r2, #0]        @ r2 is half-word aligned, read pixel 0
+    ldr  r6, [r2, #2]        @ r2+2 is now word-aligned, read pixel 1,2
+    ldrh r7, [r2, #6]        @ read pixel 3
+    orr  r5, r5, r6, lsl #16 @ recombine pixel 0,1
+    str  r5, [r1, #0]        @ r1 is always word-aligned, write pixel 0,1
+    mov  r6, r6, lsr #16     @ recombine pixel 2,3
+    orr  r6, r6, r7, lsl #16 @ recombine pixel 2,3
+    str  r6, [r1, #4]        @ write pixel 2,3
+    // line 1-3
+    .rept 3
+    ldrh r5, [r2, r9]!       @ pre-indexed advance r2
+    ldr  r6, [r2, #2]
+    ldrh r7, [r2, #6]
+    orr  r5, r5, r6, lsl #16
+    str  r5, [r1, r3]!       @ pre-indexed advance r1
+    mov  r6, r6, lsr #16
+    orr  r6, r6, r7, lsl #16
+    str  r6, [r1, #4]
+    .endr
     bx lr
 .mc4x4_aligned:
-    // handle aligned block copy
-    // line 0
+    // word-aligned block copy
+    // line 0-2
+    .rept 3
     ldmia r2, {r5, r6}
     stmia r1, {r5, r6}
     add r2, r2, r9
     add r1, r1, r3
-    // line 1
-    ldmia r2, {r5, r6}
-    stmia r1, {r5, r6}
-    add r2, r2, r9
-    add r1, r1, r3
-    // line 2
-    ldmia r2, {r5, r6}
-    stmia r1, {r5, r6}
-    add r2, r2, r9
-    add r1, r1, r3
+    .endr
     // line 3
     ldmia r2, {r5, r6}
     stmia r1, {r5, r6}
@@ -264,15 +248,13 @@ DecodeBlock8x8:
     bne .mc8x8_half_aligned_loop @ repeat for the next line
     bx lr
 .mc8x8_aligned:
-    // aligned block copy
-    mov r10, #7 @ number of lines to copy
-.mc8x8_aligned_loop:
+    // word-aligned block copy
+    .rept 7
     ldmia r2, {r5 - r8}
     stmia r1, {r5 - r8}
     add r2, r2, r11
     add r1, r1, r3
-    subs r10, r10, #1 @ decrement line counter
-    bne .mc8x8_aligned_loop @ repeat for the next line
+    .endr
     ldmia r2, {r5 - r8}
     stmia r1, {r5 - r8}
     bx lr
@@ -393,7 +375,6 @@ DXTVUnCompWrite16bit:
     @ r6 / on stack: block-y counter max
     ldr r6, [sp, #44] @ load height from stack
     mov r6, r6, lsr #DXTV_CONSTANTS_BLOCK_MAX_SHIFT @ on stack = height >> DXTV_CONSTANTS_BLOCK_MAX_SHIFT
-
 .ucw16_block_y_loop:
     @ r12: block flags
     mov r12, #0x0 @ clear flags
@@ -402,7 +383,6 @@ DXTVUnCompWrite16bit:
     mov r5, r5, lsr #DXTV_CONSTANTS_BLOCK_MAX_SHIFT @ r5 = width >> DXTV_CONSTANTS_BLOCK_MAX_SHIFT
     @ save y-counter, destination and previous source pointer
     push {r1, r2, r6}
-
 .ucw16_block_x_loop:
     @ save x-counter, destination and previous source pointer
     push {r5}
@@ -458,7 +438,6 @@ DXTVUnCompWrite16bit:
     @ check if there are blocks remaining vertically
     subs r6, r6, #1
     bne .ucw16_block_y_loop
-
 .ucw16_end:
     pop {r4 - r12, lr}
     bx lr
