@@ -39,7 +39,7 @@
             <field>
               <name>BGMode</name>
               <description>Background mode selection.</description>
-              <bitRange>2-0</bitRange>
+              <bitRange>[2:0]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Mode 0</name>
@@ -70,7 +70,7 @@
             <field>
               <name>CGBMode</name>
               <description>Selects GBA or CGB compatibility mode.</description>
-              <bitRange>3</bitRange>
+              <bitRange>[3:3]</bitRange>
               <access>read-only</access>
               <enumeratedValues>
                 <enumeratedValue>
@@ -86,7 +86,7 @@
             <field>
               <name>FrameSelect</name>
               <description>Selects the displayed framebuffer.</description>
-              <bitRange>4</bitRange>
+              <bitRange>[4:4]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Frame 0</name>
@@ -97,7 +97,7 @@
             <field>
               <name>HBlankFree</name>
               <description>Allows OAM access during H-Blank when set.</description>
-              <bitRange>5</bitRange>
+              <bitRange>[5:5]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Normal</name>
@@ -112,7 +112,7 @@
             <field>
               <name>OBJVRAMMapping</name>
               <description>Selects the OBJ character VRAM mapping mode.</description>
-              <bitRange>6</bitRange>
+              <bitRange>[6:6]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Two dimensional</name>
@@ -127,7 +127,7 @@
             <field>
               <name>ForcedBlank</name>
               <description>Forces the display into blank mode when set.</description>
-              <bitRange>7</bitRange>
+              <bitRange>[7:7]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Normal</name>
@@ -142,7 +142,7 @@
             <field>
               <name>BG0Display</name>
               <description>Enables display of background layer 0.</description>
-              <bitRange>8</bitRange>
+              <bitRange>[8:8]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Off</name>
@@ -157,7 +157,7 @@
             <field>
               <name>BG1Display</name>
               <description>Enables display of background layer 1.</description>
-              <bitRange>9</bitRange>
+              <bitRange>[9:9]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Off</name>
@@ -172,7 +172,7 @@
             <field>
               <name>BG2Display</name>
               <description>Enables display of background layer 2.</description>
-              <bitRange>10</bitRange>
+              <bitRange>[10:10]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Off</name>
@@ -187,7 +187,7 @@
             <field>
               <name>BG3Display</name>
               <description>Enables display of background layer 3.</description>
-              <bitRange>11</bitRange>
+              <bitRange>[11:11]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Off</name>
@@ -202,7 +202,7 @@
             <field>
               <name>OBJDisplay</name>
               <description>Enables display of sprites.</description>
-              <bitRange>12</bitRange>
+              <bitRange>[12:12]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Off</name>
@@ -217,7 +217,7 @@
             <field>
               <name>Window0Display</name>
               <description>Enables window 0.</description>
-              <bitRange>13</bitRange>
+              <bitRange>[13:13]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Off</name>
@@ -232,7 +232,7 @@
             <field>
               <name>Window1Display</name>
               <description>Enables window 1.</description>
-              <bitRange>14</bitRange>
+              <bitRange>[14:14]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Off</name>
@@ -257,7 +257,7 @@
             <field>
               <name>STEREO_3D</name>
               <description>Undocumented stereoscopic display enable; historically known as GREEN_SWAP</description>
-              <bitRange>0</bitRange>
+              <bitRange>[0:0]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Disabled</name>
@@ -282,7 +282,7 @@
             <field>
               <name>VBlank</name>
               <description>Indicates that the LCD is in V-Blank.</description>
-              <bitRange>0</bitRange>
+              <bitRange>[0:0]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>VBlank</name>
@@ -293,7 +293,7 @@
             <field>
               <name>HBlank</name>
               <description>Indicates that the LCD is in H-Blank.</description>
-              <bitRange>1</bitRange>
+              <bitRange>[1:1]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>HBlank</name>
@@ -304,27 +304,27 @@
             <field>
               <name>VCountMatch</name>
               <description>Indicates that the current scanline matches the comparison value.</description>
-              <bitRange>2</bitRange>
+              <bitRange>[2:2]</bitRange>
             </field>
             <field>
               <name>VBlankIRQEnable</name>
               <description>Enables a V-Blank interrupt.</description>
-              <bitRange>3</bitRange>
+              <bitRange>[3:3]</bitRange>
             </field>
             <field>
               <name>HBlankIRQEnable</name>
               <description>Enables an H-Blank interrupt.</description>
-              <bitRange>4</bitRange>
+              <bitRange>[4:4]</bitRange>
             </field>
             <field>
               <name>VCountIRQEnable</name>
               <description>Enables a V-counter interrupt.</description>
-              <bitRange>5</bitRange>
+              <bitRange>[5:5]</bitRange>
             </field>
             <field>
               <name>VCountSetting</name>
               <description>Scanline used for the V-counter comparison.</description>
-              <bitRange>15-8</bitRange>
+              <bitRange>[15:8]</bitRange>
             </field>
           </fields>
         </register>
@@ -356,7 +356,7 @@
             <field>
               <name>Priority</name>
               <description>BG priority relative to other backgrounds.</description>
-              <bitRange>1-0</bitRange>
+              <bitRange>[1:0]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Highest</name>
@@ -367,7 +367,7 @@
             <field>
               <name>CBB</name>
               <description>Tile-data character base block, in 16 KiB units.</description>
-              <bitRange>3-2</bitRange>
+              <bitRange>[3:2]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>BG Tile Data</name>
@@ -378,7 +378,7 @@
             <field>
               <name>Mosaic</name>
               <description>Enables mosaic processing for this background.</description>
-              <bitRange>6</bitRange>
+              <bitRange>[6:6]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Disabled</name>
@@ -393,7 +393,7 @@
             <field>
               <name>ColorMode</name>
               <description>Selects 16-color or 256-color tiles.</description>
-              <bitRange>7</bitRange>
+              <bitRange>[7:7]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>16/16</name>
@@ -408,7 +408,7 @@
             <field>
               <name>SBB</name>
               <description>Tile-map screen base block, in 2 KiB units.</description>
-              <bitRange>12-8</bitRange>
+              <bitRange>[12:8]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>BG Map Data</name>
@@ -906,12 +906,12 @@
             <field>
               <name>BGMosaicHSize</name>
               <description>Horizontal mosaic size for background layers.</description>
-              <bitRange>3-0</bitRange>
+              <bitRange>[3:0]</bitRange>
             </field>
             <field>
               <name>BGMosaicVSize</name>
               <description>Vertical mosaic size for background layers.</description>
-              <bitRange>7-4</bitRange>
+              <bitRange>[7:4]</bitRange>
             </field>
           </fields>
         </register>
@@ -926,12 +926,12 @@
             <field>
               <name>None</name>
               <description>No color special effect is selected.</description>
-              <bitRange>0</bitRange>
+              <bitRange>[0:0]</bitRange>
             </field>
             <field>
               <name>Alpha Blending</name>
               <description>Selects alpha blending as the color special effect.</description>
-              <bitRange>1</bitRange>
+              <bitRange>[1:1]</bitRange>
             </field>
           </fields>
         </register>
@@ -992,7 +992,7 @@
             <field>
               <name>Center</name>
               <description>OBJ window center value.</description>
-              <bitRange>7-0</bitRange>
+              <bitRange>[7:0]</bitRange>
             </field>
           </fields>
         </register>
@@ -1180,7 +1180,7 @@
         </register>
         <register>
           <name>SOUNDCNT_L</name>
-          <description>Control Stereo/Volume/Enable   (NR50, NR51)</description>
+          <description>Control Stereo/Volume/Enable (NR50, NR51)</description>
           <addressOffset>0x20</addressOffset>
           <size>16</size>
           <access>read-write</access>
@@ -1189,22 +1189,22 @@
             <field>
               <name>MasterVolumeRight</name>
               <description>Master volume for PSG channels on the right output.</description>
-              <bitRange>2-0</bitRange>
+              <bitRange>[2:0]</bitRange>
             </field>
             <field>
               <name>MasterVolumeLeft</name>
               <description>Master volume for PSG channels on the left output.</description>
-              <bitRange>6-4</bitRange>
+              <bitRange>[6:4]</bitRange>
             </field>
             <field>
               <name>ChannelEnableRight</name>
               <description>Enable flags for PSG channels on the right output.</description>
-              <bitRange>11-8</bitRange>
+              <bitRange>[11:8]</bitRange>
             </field>
             <field>
               <name>ChannelEnableLeft</name>
               <description>Enable flags for PSG channels on the left output.</description>
-              <bitRange>15-12</bitRange>
+              <bitRange>[15:12]</bitRange>
             </field>
           </fields>
         </register>
@@ -1219,42 +1219,33 @@
             <field>
               <name>PSGVolume</name>
               <description>PSG channel volume: 0=25%, 1=50%, 2=100%, 3=prohibited.</description>
-              <bitRange>1-0</bitRange>
+              <bitRange>[1:0]</bitRange>
             </field>
-            <field><name>FIFOAVolume</name><description>FIFO A volume: 0=50%, 1=100%.</description><bitRange>2</bitRange></field>
-            <field><name>FIFOBVolume</name><description>FIFO B volume: 0=50%, 1=100%.</description><bitRange>3</bitRange></field>
-            <field><name>FIFOARight</name><description>Enable FIFO A on the right output.</description><bitRange>8</bitRange></field>
-            <field><name>FIFOALeft</name><description>Enable FIFO A on the left output.</description><bitRange>9</bitRange></field>
-            <field><name>FIFOATimer</name><description>FIFO A timer select: 0=Timer 0, 1=Timer 1.</description><bitRange>10</bitRange></field>
-            <field><name>FIFOARestart</name><description>Reset FIFO A.</description><bitRange>11</bitRange></field>
-            <field><name>FIFOBRight</name><description>Enable FIFO B on the right output.</description><bitRange>12</bitRange></field>
-            <field><name>FIFOBLeft</name><description>Enable FIFO B on the left output.</description><bitRange>13</bitRange></field>
-            <field><name>FIFOBTimer</name><description>FIFO B timer select: 0=Timer 0, 1=Timer 1.</description><bitRange>14</bitRange></field>
-            <field><name>FIFOBRestart</name><description>Reset FIFO B.</description><bitRange>15</bitRange></field>
+            <field><name>FIFOAVolume</name><description>FIFO A volume: 0=50%, 1=100%.</description><bitRange>[2:2]</bitRange></field>
+            <field><name>FIFOBVolume</name><description>FIFO B volume: 0=50%, 1=100%.</description><bitRange>[3:3]</bitRange></field>
+            <field><name>FIFOARight</name><description>Enable FIFO A on the right output.</description><bitRange>[8:8]</bitRange></field>
+            <field><name>FIFOALeft</name><description>Enable FIFO A on the left output.</description><bitRange>[9:9]</bitRange></field>
+            <field><name>FIFOATimer</name><description>FIFO A timer select: 0=Timer 0, 1=Timer 1.</description><bitRange>[10:10]</bitRange></field>
+            <field><name>FIFOAReset</name><description>Reset FIFO A.</description><bitRange>[11:11]</bitRange></field>
+            <field><name>FIFOBRight</name><description>Enable FIFO B on the right output.</description><bitRange>[12:12]</bitRange></field>
+            <field><name>FIFOBLeft</name><description>Enable FIFO B on the left output.</description><bitRange>[13:13]</bitRange></field>
+            <field><name>FIFOBTimer</name><description>FIFO B timer select: 0=Timer 0, 1=Timer 1.</description><bitRange>[14:14]</bitRange></field>
+            <field><name>FIFOBReset</name><description>Reset FIFO B.</description><bitRange>[15:15]</bitRange></field>
           </fields>
         </register>
         <register>
           <name>SOUNDCNT_X</name>
-          <description>Control Sound on/off           (NR52)</description>
+          <description>Control Sound on/off (NR52)</description>
           <addressOffset>0x24</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
-            <field>
-              <name>Channel1On</name>
-              <description>Channel 1 active status.</description>
-              <bitRange>0</bitRange>
-              <access>read-only</access>
-            </field>
-            <field><name>Channel2On</name><description>Channel 2 active status.</description><bitRange>1</bitRange><access>read-only</access></field>
-            <field><name>Channel3On</name><description>Channel 3 active status.</description><bitRange>2</bitRange><access>read-only</access></field>
-            <field><name>Channel4On</name><description>Channel 4 active status.</description><bitRange>3</bitRange><access>read-only</access></field>
-            <field>
-              <name>MasterEnable</name>
-              <description>Enable PSG and FIFO sound output.</description>
-              <bitRange>7</bitRange>
-            </field>
+            <field><name>Channel1On</name><description>Channel 1 active status.</description><bitRange>[0:0]</bitRange><access>read-only</access></field>
+            <field><name>Channel2On</name><description>Channel 2 active status.</description><bitRange>[1:1]</bitRange><access>read-only</access></field>
+            <field><name>Channel3On</name><description>Channel 3 active status.</description><bitRange>[2:2]</bitRange><access>read-only</access></field>
+            <field><name>Channel4On</name><description>Channel 4 active status.</description><bitRange>[3:3]</bitRange><access>read-only</access></field>
+            <field><name>MasterEnable</name><description>Enable PSG and FIFO sound output.</description><bitRange>[7:7]</bitRange></field>
           </fields>
         </register>
         <register>
@@ -1365,42 +1356,42 @@
             <field>
               <name>DestControl</name>
               <description>Destination address adjustment.</description>
-              <bitRange>6-5</bitRange>
+              <bitRange>[6:5]</bitRange>
             </field>
             <field>
               <name>SrcControl</name>
               <description>Source address adjustment.</description>
-              <bitRange>8-7</bitRange>
+              <bitRange>[8:7]</bitRange>
             </field>
             <field>
               <name>Repeat</name>
               <description>Repeat the transfer at the selected timing.</description>
-              <bitRange>9</bitRange>
+              <bitRange>[9:9]</bitRange>
             </field>
             <field>
               <name>TransferType</name>
               <description>Transfer width: 0=16-bit, 1=32-bit.</description>
-              <bitRange>10</bitRange>
+              <bitRange>[10:10]</bitRange>
             </field>
             <field>
               <name>GamePakDRQ</name>
               <description>Use Game Pak DRQ timing.</description>
-              <bitRange>11</bitRange>
+              <bitRange>[11:11]</bitRange>
             </field>
             <field>
               <name>StartTiming</name>
               <description>Start timing: 0=immediate, 1=VBlank, 2=HBlank, 3=special.</description>
-              <bitRange>13-12</bitRange>
+              <bitRange>[13:12]</bitRange>
             </field>
             <field>
               <name>IRQEnable</name>
               <description>Generate an interrupt when the transfer completes.</description>
-              <bitRange>14</bitRange>
+              <bitRange>[14:14]</bitRange>
             </field>
             <field>
               <name>DMAEnable</name>
               <description>Enable the DMA channel.</description>
-              <bitRange>15</bitRange>
+              <bitRange>[15:15]</bitRange>
             </field>
           </fields>
         </register>
@@ -1466,15 +1457,15 @@
             <field>
               <name>DestControl</name>
               <description>Destination address adjustment.</description>
-              <bitRange>6-5</bitRange>
+              <bitRange>[6:5]</bitRange>
             </field>
-            <field><name>SrcControl</name><description>Source address adjustment.</description><bitRange>8-7</bitRange></field>
-            <field><name>Repeat</name><description>Repeat the transfer at the selected timing.</description><bitRange>9</bitRange></field>
-            <field><name>TransferType</name><description>Transfer width: 0=16-bit, 1=32-bit.</description><bitRange>10</bitRange></field>
-            <field><name>GamePakDRQ</name><description>Use Game Pak DRQ timing.</description><bitRange>11</bitRange></field>
-            <field><name>StartTiming</name><description>Start timing: 0=immediate, 1=VBlank, 2=HBlank, 3=special.</description><bitRange>13-12</bitRange></field>
-            <field><name>IRQEnable</name><description>Generate an interrupt when the transfer completes.</description><bitRange>14</bitRange></field>
-            <field><name>DMAEnable</name><description>Enable the DMA channel.</description><bitRange>15</bitRange></field>
+            <field><name>SrcControl</name><description>Source address adjustment.</description><bitRange>[8:7]</bitRange></field>
+            <field><name>Repeat</name><description>Repeat the transfer at the selected timing.</description><bitRange>[9:9]</bitRange></field>
+            <field><name>TransferType</name><description>Transfer width: 0=16-bit, 1=32-bit.</description><bitRange>[10:10]</bitRange></field>
+            <field><name>GamePakDRQ</name><description>Use Game Pak DRQ timing.</description><bitRange>[11:11]</bitRange></field>
+            <field><name>StartTiming</name><description>Start timing: 0=immediate, 1=VBlank, 2=HBlank, 3=special.</description><bitRange>[13:12]</bitRange></field>
+            <field><name>IRQEnable</name><description>Generate an interrupt when the transfer completes.</description><bitRange>[14:14]</bitRange></field>
+            <field><name>DMAEnable</name><description>Enable the DMA channel.</description><bitRange>[15:15]</bitRange></field>
           </fields>
         </register>
         <register>
@@ -1539,15 +1530,15 @@
             <field>
               <name>DestControl</name>
               <description>Destination address adjustment.</description>
-              <bitRange>6-5</bitRange>
+              <bitRange>[6:5]</bitRange>
             </field>
-            <field><name>SrcControl</name><description>Source address adjustment.</description><bitRange>8-7</bitRange></field>
-            <field><name>Repeat</name><description>Repeat the transfer at the selected timing.</description><bitRange>9</bitRange></field>
-            <field><name>TransferType</name><description>Transfer width: 0=16-bit, 1=32-bit.</description><bitRange>10</bitRange></field>
-            <field><name>GamePakDRQ</name><description>Use Game Pak DRQ timing.</description><bitRange>11</bitRange></field>
-            <field><name>StartTiming</name><description>Start timing: 0=immediate, 1=VBlank, 2=HBlank, 3=special.</description><bitRange>13-12</bitRange></field>
-            <field><name>IRQEnable</name><description>Generate an interrupt when the transfer completes.</description><bitRange>14</bitRange></field>
-            <field><name>DMAEnable</name><description>Enable the DMA channel.</description><bitRange>15</bitRange></field>
+            <field><name>SrcControl</name><description>Source address adjustment.</description><bitRange>[8:7]</bitRange></field>
+            <field><name>Repeat</name><description>Repeat the transfer at the selected timing.</description><bitRange>[9:9]</bitRange></field>
+            <field><name>TransferType</name><description>Transfer width: 0=16-bit, 1=32-bit.</description><bitRange>[10:10]</bitRange></field>
+            <field><name>GamePakDRQ</name><description>Use Game Pak DRQ timing.</description><bitRange>[11:11]</bitRange></field>
+            <field><name>StartTiming</name><description>Start timing: 0=immediate, 1=VBlank, 2=HBlank, 3=special.</description><bitRange>[13:12]</bitRange></field>
+            <field><name>IRQEnable</name><description>Generate an interrupt when the transfer completes.</description><bitRange>[14:14]</bitRange></field>
+            <field><name>DMAEnable</name><description>Enable the DMA channel.</description><bitRange>[15:15]</bitRange></field>
           </fields>
         </register>
         <register>
@@ -1612,15 +1603,15 @@
             <field>
               <name>DestControl</name>
               <description>Destination address adjustment.</description>
-              <bitRange>6-5</bitRange>
+              <bitRange>[6:5]</bitRange>
             </field>
-            <field><name>SrcControl</name><description>Source address adjustment.</description><bitRange>8-7</bitRange></field>
-            <field><name>Repeat</name><description>Repeat the transfer at the selected timing.</description><bitRange>9</bitRange></field>
-            <field><name>TransferType</name><description>Transfer width: 0=16-bit, 1=32-bit.</description><bitRange>10</bitRange></field>
-            <field><name>GamePakDRQ</name><description>Use Game Pak DRQ timing.</description><bitRange>11</bitRange></field>
-            <field><name>StartTiming</name><description>Start timing: 0=immediate, 1=VBlank, 2=HBlank, 3=special.</description><bitRange>13-12</bitRange></field>
-            <field><name>IRQEnable</name><description>Generate an interrupt when the transfer completes.</description><bitRange>14</bitRange></field>
-            <field><name>DMAEnable</name><description>Enable the DMA channel.</description><bitRange>15</bitRange></field>
+            <field><name>SrcControl</name><description>Source address adjustment.</description><bitRange>[8:7]</bitRange></field>
+            <field><name>Repeat</name><description>Repeat the transfer at the selected timing.</description><bitRange>[9:9]</bitRange></field>
+            <field><name>TransferType</name><description>Transfer width: 0=16-bit, 1=32-bit.</description><bitRange>[10:10]</bitRange></field>
+            <field><name>GamePakDRQ</name><description>Use Game Pak DRQ timing.</description><bitRange>[11:11]</bitRange></field>
+            <field><name>StartTiming</name><description>Start timing: 0=immediate, 1=VBlank, 2=HBlank, 3=special.</description><bitRange>[13:12]</bitRange></field>
+            <field><name>IRQEnable</name><description>Generate an interrupt when the transfer completes.</description><bitRange>[14:14]</bitRange></field>
+            <field><name>DMAEnable</name><description>Enable the DMA channel.</description><bitRange>[15:15]</bitRange></field>
           </fields>
         </register>
       </registers>
@@ -1663,22 +1654,22 @@
             <field>
               <name>Prescaler</name>
               <description>Timer prescaler: 0=1, 1=64, 2=256, 3=1024 cycles</description>
-              <bitRange>1-0</bitRange>
+              <bitRange>[1:0]</bitRange>
             </field>
             <field>
               <name>Cascade</name>
               <description>Count-up from previous timer when set</description>
-              <bitRange>2</bitRange>
+              <bitRange>[2:2]</bitRange>
             </field>
             <field>
               <name>IRQEnable</name>
               <description>Generate interrupt on overflow</description>
-              <bitRange>6</bitRange>
+              <bitRange>[6:6]</bitRange>
             </field>
             <field>
               <name>Start</name>
               <description>Start / stop timer</description>
-              <bitRange>7</bitRange>
+              <bitRange>[7:7]</bitRange>
             </field>
           </fields>
         </register>
@@ -1710,22 +1701,22 @@
             <field>
               <name>Prescaler</name>
               <description>Timer prescaler: 0=1, 1=64, 2=256, 3=1024 cycles</description>
-              <bitRange>1-0</bitRange>
+              <bitRange>[1:0]</bitRange>
             </field>
             <field>
               <name>Cascade</name>
               <description>Count-up from previous timer when set</description>
-              <bitRange>2</bitRange>
+              <bitRange>[2:2]</bitRange>
             </field>
             <field>
               <name>IRQEnable</name>
               <description>Generate interrupt on overflow</description>
-              <bitRange>6</bitRange>
+              <bitRange>[6:6]</bitRange>
             </field>
             <field>
               <name>Start</name>
               <description>Start / stop timer</description>
-              <bitRange>7</bitRange>
+              <bitRange>[7:7]</bitRange>
             </field>
           </fields>
         </register>
@@ -1757,22 +1748,22 @@
             <field>
               <name>Prescaler</name>
               <description>Timer prescaler: 0=1, 1=64, 2=256, 3=1024 cycles</description>
-              <bitRange>1-0</bitRange>
+              <bitRange>[1:0]</bitRange>
             </field>
             <field>
               <name>Cascade</name>
               <description>Count-up from previous timer when set</description>
-              <bitRange>2</bitRange>
+              <bitRange>[2:2]</bitRange>
             </field>
             <field>
               <name>IRQEnable</name>
               <description>Generate interrupt on overflow</description>
-              <bitRange>6</bitRange>
+              <bitRange>[6:6]</bitRange>
             </field>
             <field>
               <name>Start</name>
               <description>Start / stop timer</description>
-              <bitRange>7</bitRange>
+              <bitRange>[7:7]</bitRange>
             </field>
           </fields>
         </register>
@@ -1804,22 +1795,22 @@
             <field>
               <name>Prescaler</name>
               <description>Timer prescaler: 0=1, 1=64, 2=256, 3=1024 cycles</description>
-              <bitRange>1-0</bitRange>
+              <bitRange>[1:0]</bitRange>
             </field>
             <field>
               <name>Cascade</name>
               <description>Count-up from previous timer when set</description>
-              <bitRange>2</bitRange>
+              <bitRange>[2:2]</bitRange>
             </field>
             <field>
               <name>IRQEnable</name>
               <description>Generate interrupt on overflow</description>
-              <bitRange>6</bitRange>
+              <bitRange>[6:6]</bitRange>
             </field>
             <field>
               <name>Start</name>
               <description>Start / stop timer</description>
-              <bitRange>7</bitRange>
+              <bitRange>[7:7]</bitRange>
             </field>
           </fields>
         </register>
@@ -1994,7 +1985,7 @@
             <field>
               <name>ButtonA</name>
               <description>Button A state; 0=pressed, 1=released</description>
-              <bitRange>0</bitRange>
+              <bitRange>[0:0]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Pressed</name>
@@ -2009,47 +2000,47 @@
             <field>
               <name>ButtonB</name>
               <description>Button B state; 0=pressed, 1=released</description>
-              <bitRange>1</bitRange>
+              <bitRange>[1:1]</bitRange>
             </field>
             <field>
               <name>Select</name>
               <description>Select state; 0=pressed, 1=released</description>
-              <bitRange>2</bitRange>
+              <bitRange>[2:2]</bitRange>
             </field>
             <field>
               <name>Start</name>
               <description>Start state; 0=pressed, 1=released</description>
-              <bitRange>3</bitRange>
+              <bitRange>[3:3]</bitRange>
             </field>
             <field>
               <name>Right</name>
               <description>Right direction pad state; 0=pressed, 1=released</description>
-              <bitRange>4</bitRange>
+              <bitRange>[4:4]</bitRange>
             </field>
             <field>
               <name>Left</name>
               <description>Left direction pad state; 0=pressed, 1=released</description>
-              <bitRange>5</bitRange>
+              <bitRange>[5:5]</bitRange>
             </field>
             <field>
               <name>Up</name>
               <description>Up direction pad state; 0=pressed, 1=released</description>
-              <bitRange>6</bitRange>
+              <bitRange>[6:6]</bitRange>
             </field>
             <field>
               <name>Down</name>
               <description>Down direction pad state; 0=pressed, 1=released</description>
-              <bitRange>7</bitRange>
+              <bitRange>[7:7]</bitRange>
             </field>
             <field>
               <name>ButtonR</name>
               <description>Right shoulder button state; 0=pressed, 1=released</description>
-              <bitRange>8</bitRange>
+              <bitRange>[8:8]</bitRange>
             </field>
             <field>
               <name>ButtonL</name>
               <description>Left shoulder button state; 0=pressed, 1=released</description>
-              <bitRange>9</bitRange>
+              <bitRange>[9:9]</bitRange>
             </field>
           </fields>
         </register>
@@ -2064,62 +2055,62 @@
             <field>
               <name>ButtonA</name>
               <description>Enable interrupt on A key</description>
-              <bitRange>0</bitRange>
+              <bitRange>[0:0]</bitRange>
             </field>
             <field>
               <name>ButtonB</name>
               <description>Enable interrupt on B key</description>
-              <bitRange>1</bitRange>
+              <bitRange>[1:1]</bitRange>
             </field>
             <field>
               <name>Select</name>
               <description>Enable interrupt on Select key</description>
-              <bitRange>2</bitRange>
+              <bitRange>[2:2]</bitRange>
             </field>
             <field>
               <name>Start</name>
               <description>Enable interrupt on Start key</description>
-              <bitRange>3</bitRange>
+              <bitRange>[3:3]</bitRange>
             </field>
             <field>
               <name>Right</name>
               <description>Enable interrupt on Right key</description>
-              <bitRange>4</bitRange>
+              <bitRange>[4:4]</bitRange>
             </field>
             <field>
               <name>Left</name>
               <description>Enable interrupt on Left key</description>
-              <bitRange>5</bitRange>
+              <bitRange>[5:5]</bitRange>
             </field>
             <field>
               <name>Up</name>
               <description>Enable interrupt on Up key</description>
-              <bitRange>6</bitRange>
+              <bitRange>[6:6]</bitRange>
             </field>
             <field>
               <name>Down</name>
               <description>Enable interrupt on Down key</description>
-              <bitRange>7</bitRange>
+              <bitRange>[7:7]</bitRange>
             </field>
             <field>
               <name>ButtonR</name>
               <description>Enable interrupt on R key</description>
-              <bitRange>8</bitRange>
+              <bitRange>[8:8]</bitRange>
             </field>
             <field>
               <name>ButtonL</name>
               <description>Enable interrupt on L key</description>
-              <bitRange>9</bitRange>
+              <bitRange>[9:9]</bitRange>
             </field>
             <field>
               <name>IRQEnable</name>
               <description>Enable keypad interrupt generation</description>
-              <bitRange>14</bitRange>
+              <bitRange>[14:14]</bitRange>
             </field>
             <field>
               <name>IRQCondition</name>
               <description>0=OR of selected keys, 1=AND of selected keys</description>
-              <bitRange>15</bitRange>
+              <bitRange>[15:15]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>OR</name>
@@ -2156,47 +2147,47 @@
             <field>
               <name>SC</name>
               <description>SC data / direction</description>
-              <bitRange>0</bitRange>
+              <bitRange>[0:0]</bitRange>
             </field>
             <field>
               <name>SD</name>
               <description>SD data / direction</description>
-              <bitRange>1</bitRange>
+              <bitRange>[1:1]</bitRange>
             </field>
             <field>
               <name>SI</name>
               <description>SI data / direction</description>
-              <bitRange>2</bitRange>
+              <bitRange>[2:2]</bitRange>
             </field>
             <field>
               <name>SO</name>
               <description>SO data / direction</description>
-              <bitRange>3</bitRange>
+              <bitRange>[3:3]</bitRange>
             </field>
             <field>
               <name>SC_Direction</name>
               <description>SC pin direction; 0=input, 1=output</description>
-              <bitRange>4</bitRange>
+              <bitRange>[4:4]</bitRange>
             </field>
             <field>
               <name>SD_Direction</name>
               <description>SD pin direction; 0=input, 1=output</description>
-              <bitRange>5</bitRange>
+              <bitRange>[5:5]</bitRange>
             </field>
             <field>
               <name>SI_Direction</name>
               <description>SI pin direction; 0=input, 1=output</description>
-              <bitRange>6</bitRange>
+              <bitRange>[6:6]</bitRange>
             </field>
             <field>
               <name>SO_Direction</name>
               <description>SO pin direction; 0=input, 1=output</description>
-              <bitRange>7</bitRange>
+              <bitRange>[7:7]</bitRange>
             </field>
             <field>
               <name>GPIOMode</name>
               <description>General-purpose I/O mode enable</description>
-              <bitRange>14</bitRange>
+              <bitRange>[14:14]</bitRange>
             </field>
           </fields>
         </register>
@@ -2211,7 +2202,7 @@
             <field>
               <name>Reserved</name>
               <description>Reserved or undocumented prototype use; no public GBA definition</description>
-              <bitRange>15-0</bitRange>
+              <bitRange>[15:0]</bitRange>
             </field>
           </fields>
         </register>
@@ -2226,22 +2217,22 @@
             <field>
               <name>Reset</name>
               <description>Device reset received</description>
-              <bitRange>0</bitRange>
+              <bitRange>[0:0]</bitRange>
             </field>
             <field>
               <name>Receive</name>
               <description>Receive complete</description>
-              <bitRange>1</bitRange>
+              <bitRange>[1:1]</bitRange>
             </field>
             <field>
               <name>Send</name>
               <description>Send complete</description>
-              <bitRange>2</bitRange>
+              <bitRange>[2:2]</bitRange>
             </field>
             <field>
               <name>IRQEnable</name>
               <description>Enable Joy Bus interrupt</description>
-              <bitRange>6</bitRange>
+              <bitRange>[6:6]</bitRange>
             </field>
           </fields>
         </register>
@@ -2518,7 +2509,7 @@
             <field>
               <name>SRAM Wait Control</name>
               <description>Game Pak SRAM access wait-state selection.</description>
-              <bitRange>1-0</bitRange>
+              <bitRange>[1:0]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>4</name>
@@ -2529,7 +2520,7 @@
             <field>
               <name>WaitState0FirstAccess</name>
               <description>Game Pak wait-state 0 first-access timing.</description>
-              <bitRange>3-2</bitRange>
+              <bitRange>[3:2]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>4</name>
@@ -2540,7 +2531,7 @@
             <field>
               <name>WaitState1FirstAccess</name>
               <description>Game Pak wait-state 1 first-access timing.</description>
-              <bitRange>6-5</bitRange>
+              <bitRange>[6:5]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>4</name>
@@ -2551,7 +2542,7 @@
             <field>
               <name>WaitState2FirstAccess</name>
               <description>Game Pak wait-state 2 first-access timing.</description>
-              <bitRange>9-8</bitRange>
+              <bitRange>[9:8]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>4</name>
@@ -2562,7 +2553,7 @@
             <field>
               <name>PhiOut</name>
               <description>External cartridge clock output selection.</description>
-              <bitRange>12-11</bitRange>
+              <bitRange>[12:11]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Disabled</name>
@@ -2573,12 +2564,12 @@
             <field>
               <name>GamePakPrefetch</name>
               <description>Enable the Game Pak prefetch buffer.</description>
-              <bitRange>14</bitRange>
+              <bitRange>[14:14]</bitRange>
             </field>
             <field>
               <name>GamePakTypeFlag</name>
               <description>Read-only Game Pak type signal: 0=GBA, 1=CGB.</description>
-              <bitRange>15</bitRange>
+              <bitRange>[15:15]</bitRange>
               <access>read-only</access>
               <enumeratedValues>
                 <enumeratedValue>
@@ -2604,7 +2595,7 @@
             <field>
               <name>IRQDisable</name>
               <description>Master interrupt enable; forwards enabled IRQ sources when set.</description>
-              <bitRange>0</bitRange>
+              <bitRange>[0:0]</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Disable All</name>
@@ -2629,7 +2620,7 @@
             <field>
               <name>POSTFLG</name>
               <description>POST boot flag; read and written by startup ROM code for cartridge/boot handshake</description>
-              <bitRange>7-0</bitRange>
+              <bitRange>[7:0]</bitRange>
             </field>
           </fields>
         </register>
@@ -2644,7 +2635,7 @@
             <field>
               <name>PowerDownMode</name>
               <description>Power-down mode: 0=Halt, 1=Stop.</description>
-              <bitRange>7</bitRange>
+              <bitRange>[7:7]</bitRange>
             </field>
           </fields>
         </register>
