@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <device schemaVersion="1.3">
   <vendor>Nintendo</vendor>
   <name>GBA</name>
@@ -21,7 +21,7 @@
     <peripheral>
       <name>LCD I/O Registers</name>
       <description>LCD I/O Registers</description>
-      <baseAddress>0x4000000</baseAddress>
+      <baseAddress>0x04000000</baseAddress>
       <addressBlock>
         <offset>0x0</offset>
         <size>0x64</size>
@@ -37,24 +37,41 @@
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>BG Mode</name>
-              <description/>
+              <name>BGMode</name>
+              <description>Background mode selection.</description>
               <bitRange>2-0</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
-                  <name>Video Mode 0-5</name>
+                  <name>Mode 0</name>
                   <value>0x0</value>
                 </enumeratedValue>
                 <enumeratedValue>
-                  <name>Prohibited</name>
-                  <value>0x0</value>
+                  <name>Mode 1</name>
+                  <value>0x1</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Mode 2</name>
+                  <value>0x2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Mode 3</name>
+                  <value>0x3</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Mode 4</name>
+                  <value>0x4</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Mode 5</name>
+                  <value>0x5</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>Reserved / CGB Mode</name>
-              <description/>
+              <name>CGBMode</name>
+              <description>Selects GBA or CGB compatibility mode.</description>
               <bitRange>3</bitRange>
+              <access>read-only</access>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>GBA</name>
@@ -62,46 +79,69 @@
                 </enumeratedValue>
                 <enumeratedValue>
                   <name>CGB; can be set only by BIOS opcodes</name>
-                  <value>0x0</value>
+                  <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>Display Frame Select</name>
-              <description/>
+              <name>FrameSelect</name>
+              <description>Selects the displayed framebuffer.</description>
               <bitRange>4</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
-                  <name>Frame 0-1) (for BG Modes 4</name>
+                  <name>Frame 0</name>
                   <value>0x0</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>H-Blank Interval Free</name>
-              <description/>
+              <name>HBlankFree</name>
+              <description>Allows OAM access during H-Blank when set.</description>
               <bitRange>5</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
-                  <name>Allow access to OAM during H-Blank</name>
+                  <name>Normal</name>
                   <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Allow access to OAM during H-Blank</name>
+                  <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>Forced Blank</name>
-              <description/>
+              <name>OBJVRAMMapping</name>
+              <description>Selects the OBJ character VRAM mapping mode.</description>
+              <bitRange>6</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Two dimensional</name>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>One dimensional</name>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>ForcedBlank</name>
+              <description>Forces the display into blank mode when set.</description>
               <bitRange>7</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
-                  <name>Allow FAST access to VRAM</name>
+                  <name>Normal</name>
                   <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Allow FAST access to VRAM, Palette, OAM</name>
+                  <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>Screen Display BG0</name>
-              <description/>
+              <name>BG0Display</name>
+              <description>Enables display of background layer 0.</description>
               <bitRange>8</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -110,13 +150,13 @@
                 </enumeratedValue>
                 <enumeratedValue>
                   <name>On</name>
-                  <value>0x0</value>
+                  <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>Screen Display BG1</name>
-              <description/>
+              <name>BG1Display</name>
+              <description>Enables display of background layer 1.</description>
               <bitRange>9</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -125,13 +165,13 @@
                 </enumeratedValue>
                 <enumeratedValue>
                   <name>On</name>
-                  <value>0x0</value>
+                  <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>Screen Display BG2</name>
-              <description/>
+              <name>BG2Display</name>
+              <description>Enables display of background layer 2.</description>
               <bitRange>10</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -140,13 +180,13 @@
                 </enumeratedValue>
                 <enumeratedValue>
                   <name>On</name>
-                  <value>0x0</value>
+                  <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>Screen Display BG3</name>
-              <description/>
+              <name>BG3Display</name>
+              <description>Enables display of background layer 3.</description>
               <bitRange>11</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -155,13 +195,13 @@
                 </enumeratedValue>
                 <enumeratedValue>
                   <name>On</name>
-                  <value>0x0</value>
+                  <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>Screen Display OBJ</name>
-              <description/>
+              <name>OBJDisplay</name>
+              <description>Enables display of sprites.</description>
               <bitRange>12</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -170,13 +210,13 @@
                 </enumeratedValue>
                 <enumeratedValue>
                   <name>On</name>
-                  <value>0x0</value>
+                  <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>Window 0 Display Flag</name>
-              <description/>
+              <name>Window0Display</name>
+              <description>Enables window 0.</description>
               <bitRange>13</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -185,13 +225,13 @@
                 </enumeratedValue>
                 <enumeratedValue>
                   <name>On</name>
-                  <value>0x0</value>
+                  <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>Window 1 Display Flag</name>
-              <description/>
+              <name>Window1Display</name>
+              <description>Enables window 1.</description>
               <bitRange>14</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -200,26 +240,34 @@
                 </enumeratedValue>
                 <enumeratedValue>
                   <name>On</name>
-                  <value>0x0</value>
+                  <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
           </fields>
         </register>
         <register>
-          <name>UNKNOWN_4000002</name>
-          <description>Undocumented - Green Swap</description>
+          <name>STEREO_3D</name>
+          <description>Undocumented stereo 3D / green swap register</description>
           <addressOffset>0x2</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>UNKNOWN_4000002</name>
-              <description>Undocumented - Green Swap</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>STEREO_3D</name>
+              <description>Undocumented stereoscopic display enable; historically known as GREEN_SWAP</description>
+              <bitRange>0</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
           </fields>
         </register>
@@ -232,50 +280,50 @@
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>V-Blank flag</name>
-              <description/>
+              <name>VBlank</name>
+              <description>Indicates that the LCD is in V-Blank.</description>
               <bitRange>0</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
-                  <name>VBlank) (set in line 160..226; not 227</name>
+                  <name>VBlank</name>
                   <value>0x0</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>H-Blank flag</name>
-              <description/>
+              <name>HBlank</name>
+              <description>Indicates that the LCD is in H-Blank.</description>
               <bitRange>1</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
-                  <name>HBlank) (toggled in all lines</name>
+                  <name>HBlank</name>
                   <value>0x0</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>V-Counter flag (Read only) (1=Match)  (set in selected line)</name>
-              <description/>
+              <name>VCountMatch</name>
+              <description>Indicates that the current scanline matches the comparison value.</description>
               <bitRange>2</bitRange>
             </field>
             <field>
-              <name>V-Blank IRQ Enable         (1=Enable)</name>
-              <description/>
+              <name>VBlankIRQEnable</name>
+              <description>Enables a V-Blank interrupt.</description>
               <bitRange>3</bitRange>
             </field>
             <field>
-              <name>H-Blank IRQ Enable         (1=Enable)</name>
-              <description/>
+              <name>HBlankIRQEnable</name>
+              <description>Enables an H-Blank interrupt.</description>
               <bitRange>4</bitRange>
             </field>
             <field>
-              <name>V-Counter IRQ Enable       (1=Enable)</name>
-              <description/>
+              <name>VCountIRQEnable</name>
+              <description>Enables a V-counter interrupt.</description>
               <bitRange>5</bitRange>
             </field>
             <field>
-              <name>V-Count Setting (LYC)      (0..227)</name>
-              <description/>
+              <name>VCountSetting</name>
+              <description>Scanline used for the V-counter comparison.</description>
               <bitRange>15-8</bitRange>
             </field>
           </fields>
@@ -306,8 +354,8 @@
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>BG Priority</name>
-              <description/>
+              <name>Priority</name>
+              <description>BG priority relative to other backgrounds.</description>
               <bitRange>1-0</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -317,8 +365,8 @@
               </enumeratedValues>
             </field>
             <field>
-              <name>Character Base Block</name>
-              <description/>
+              <name>CBB</name>
+              <description>Tile-data character base block, in 16 KiB units.</description>
               <bitRange>3-2</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -329,22 +377,22 @@
             </field>
             <field>
               <name>Mosaic</name>
-              <description/>
+              <description>Enables mosaic processing for this background.</description>
               <bitRange>6</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
-                  <name>Disable</name>
+                  <name>Disabled</name>
                   <value>0x0</value>
                 </enumeratedValue>
                 <enumeratedValue>
-                  <name>Enable</name>
-                  <value>0x0</value>
+                  <name>Enabled</name>
+                  <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>Colors/Palettes</name>
-              <description/>
+              <name>ColorMode</name>
+              <description>Selects 16-color or 256-color tiles.</description>
               <bitRange>7</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -353,13 +401,13 @@
                 </enumeratedValue>
                 <enumeratedValue>
                   <name>256/1</name>
-                  <value>0x0</value>
+                  <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>Screen Base Block</name>
-              <description/>
+              <name>SBB</name>
+              <description>Tile-map screen base block, in 2 KiB units.</description>
               <bitRange>12-8</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -428,7 +476,7 @@
           <size>16</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
-          <fields/>
+          <fields />
         </register>
         <register>
           <name>BG0VOFS</name>
@@ -551,7 +599,7 @@
         </register>
         <register>
           <name>BG2PA</name>
-          <description>BG2 Rotation/Scaling Parameter A (dx)</description>
+          <description>BG2 rotation/scaling parameter A (dx), signed 8.8 fixed-point.</description>
           <addressOffset>0x20</addressOffset>
           <size>16</size>
           <access>write-only</access>
@@ -559,7 +607,7 @@
           <fields>
             <field>
               <name>BG2PA</name>
-              <description>BG2 Rotation/Scaling Parameter A (dx)</description>
+              <description>Signed 8.8 fixed-point rotation/scaling parameter A (dx).</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>write-only</access>
@@ -568,7 +616,7 @@
         </register>
         <register>
           <name>BG2PB</name>
-          <description>BG2 Rotation/Scaling Parameter B (dmx)</description>
+          <description>BG2 rotation/scaling parameter B (dmx), signed 8.8 fixed-point.</description>
           <addressOffset>0x22</addressOffset>
           <size>16</size>
           <access>write-only</access>
@@ -576,7 +624,7 @@
           <fields>
             <field>
               <name>BG2PB</name>
-              <description>BG2 Rotation/Scaling Parameter B (dmx)</description>
+              <description>Signed 8.8 fixed-point rotation/scaling parameter B (dmx).</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>write-only</access>
@@ -585,7 +633,7 @@
         </register>
         <register>
           <name>BG2PC</name>
-          <description>BG2 Rotation/Scaling Parameter C (dy)</description>
+          <description>BG2 rotation/scaling parameter C (dy), signed 8.8 fixed-point.</description>
           <addressOffset>0x24</addressOffset>
           <size>16</size>
           <access>write-only</access>
@@ -593,7 +641,7 @@
           <fields>
             <field>
               <name>BG2PC</name>
-              <description>BG2 Rotation/Scaling Parameter C (dy)</description>
+              <description>Signed 8.8 fixed-point rotation/scaling parameter C (dy).</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>write-only</access>
@@ -602,7 +650,7 @@
         </register>
         <register>
           <name>BG2PD</name>
-          <description>BG2 Rotation/Scaling Parameter D (dmy)</description>
+          <description>BG2 rotation/scaling parameter D (dmy), signed 8.8 fixed-point.</description>
           <addressOffset>0x26</addressOffset>
           <size>16</size>
           <access>write-only</access>
@@ -610,7 +658,7 @@
           <fields>
             <field>
               <name>BG2PD</name>
-              <description>BG2 Rotation/Scaling Parameter D (dmy)</description>
+              <description>Signed 8.8 fixed-point rotation/scaling parameter D (dmy).</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>write-only</access>
@@ -619,7 +667,7 @@
         </register>
         <register>
           <name>BG2X</name>
-          <description>BG2 Reference Point X-Coordinate</description>
+          <description>BG2 reference point X-coordinate, signed 19.8 fixed-point.</description>
           <addressOffset>0x28</addressOffset>
           <size>32</size>
           <access>write-only</access>
@@ -627,7 +675,7 @@
           <fields>
             <field>
               <name>BG2X</name>
-              <description>BG2 Reference Point X-Coordinate</description>
+              <description>Signed 19.8 fixed-point BG2 reference point X-coordinate.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>32</bitWidth>
               <access>write-only</access>
@@ -636,7 +684,7 @@
         </register>
         <register>
           <name>BG2Y</name>
-          <description>BG2 Reference Point Y-Coordinate</description>
+          <description>BG2 reference point Y-coordinate, signed 19.8 fixed-point.</description>
           <addressOffset>0x2C</addressOffset>
           <size>32</size>
           <access>write-only</access>
@@ -644,7 +692,7 @@
           <fields>
             <field>
               <name>BG2Y</name>
-              <description>BG2 Reference Point Y-Coordinate</description>
+              <description>Signed 19.8 fixed-point BG2 reference point Y-coordinate.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>32</bitWidth>
               <access>write-only</access>
@@ -653,7 +701,7 @@
         </register>
         <register>
           <name>BG3PA</name>
-          <description>BG3 Rotation/Scaling Parameter A (dx)</description>
+          <description>BG3 rotation/scaling parameter A (dx), signed 8.8 fixed-point.</description>
           <addressOffset>0x30</addressOffset>
           <size>16</size>
           <access>write-only</access>
@@ -661,7 +709,7 @@
           <fields>
             <field>
               <name>BG3PA</name>
-              <description>BG3 Rotation/Scaling Parameter A (dx)</description>
+              <description>Signed 8.8 fixed-point rotation/scaling parameter A (dx).</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>write-only</access>
@@ -670,7 +718,7 @@
         </register>
         <register>
           <name>BG3PB</name>
-          <description>BG3 Rotation/Scaling Parameter B (dmx)</description>
+          <description>BG3 rotation/scaling parameter B (dmx), signed 8.8 fixed-point.</description>
           <addressOffset>0x32</addressOffset>
           <size>16</size>
           <access>write-only</access>
@@ -678,7 +726,7 @@
           <fields>
             <field>
               <name>BG3PB</name>
-              <description>BG3 Rotation/Scaling Parameter B (dmx)</description>
+              <description>Signed 8.8 fixed-point rotation/scaling parameter B (dmx).</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>write-only</access>
@@ -687,7 +735,7 @@
         </register>
         <register>
           <name>BG3PC</name>
-          <description>BG3 Rotation/Scaling Parameter C (dy)</description>
+          <description>BG3 rotation/scaling parameter C (dy), signed 8.8 fixed-point.</description>
           <addressOffset>0x34</addressOffset>
           <size>16</size>
           <access>write-only</access>
@@ -695,7 +743,7 @@
           <fields>
             <field>
               <name>BG3PC</name>
-              <description>BG3 Rotation/Scaling Parameter C (dy)</description>
+              <description>Signed 8.8 fixed-point rotation/scaling parameter C (dy).</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>write-only</access>
@@ -704,7 +752,7 @@
         </register>
         <register>
           <name>BG3PD</name>
-          <description>BG3 Rotation/Scaling Parameter D (dmy)</description>
+          <description>BG3 rotation/scaling parameter D (dmy), signed 8.8 fixed-point.</description>
           <addressOffset>0x36</addressOffset>
           <size>16</size>
           <access>write-only</access>
@@ -712,7 +760,7 @@
           <fields>
             <field>
               <name>BG3PD</name>
-              <description>BG3 Rotation/Scaling Parameter D (dmy)</description>
+              <description>Signed 8.8 fixed-point rotation/scaling parameter D (dmy).</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>write-only</access>
@@ -721,7 +769,7 @@
         </register>
         <register>
           <name>BG3X</name>
-          <description>BG3 Reference Point X-Coordinate</description>
+          <description>BG3 reference point X-coordinate, signed 19.8 fixed-point.</description>
           <addressOffset>0x38</addressOffset>
           <size>32</size>
           <access>write-only</access>
@@ -729,7 +777,7 @@
           <fields>
             <field>
               <name>BG3X</name>
-              <description>BG3 Reference Point X-Coordinate</description>
+              <description>Signed 19.8 fixed-point BG3 reference point X-coordinate.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>32</bitWidth>
               <access>write-only</access>
@@ -738,7 +786,7 @@
         </register>
         <register>
           <name>BG3Y</name>
-          <description>BG3 Reference Point Y-Coordinate</description>
+          <description>BG3 reference point Y-coordinate, signed 19.8 fixed-point.</description>
           <addressOffset>0x3C</addressOffset>
           <size>32</size>
           <access>write-only</access>
@@ -746,7 +794,7 @@
           <fields>
             <field>
               <name>BG3Y</name>
-              <description>BG3 Reference Point Y-Coordinate</description>
+              <description>Signed 19.8 fixed-point BG3 reference point Y-coordinate.</description>
               <bitOffset>0</bitOffset>
               <bitWidth>32</bitWidth>
               <access>write-only</access>
@@ -760,7 +808,7 @@
           <size>16</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
-          <fields/>
+          <fields />
         </register>
         <register>
           <name>WIN1H</name>
@@ -856,13 +904,13 @@
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>BG Mosaic H-Size</name>
-              <description/>
+              <name>BGMosaicHSize</name>
+              <description>Horizontal mosaic size for background layers.</description>
               <bitRange>3-0</bitRange>
             </field>
             <field>
-              <name>BG Mosaic V-Size</name>
-              <description/>
+              <name>BGMosaicVSize</name>
+              <description>Vertical mosaic size for background layers.</description>
               <bitRange>7-4</bitRange>
             </field>
           </fields>
@@ -876,13 +924,13 @@
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>= None</name>
-              <description/>
+              <name>None</name>
+              <description>No color special effect is selected.</description>
               <bitRange>0</bitRange>
             </field>
             <field>
-              <name>= Alpha Blending</name>
-              <description/>
+              <name>Alpha Blending</name>
+              <description>Selects alpha blending as the color special effect.</description>
               <bitRange>1</bitRange>
             </field>
           </fields>
@@ -924,11 +972,38 @@
       </registers>
     </peripheral>
     <peripheral>
+      <name>Undocumented LCD Registers</name>
+      <description>Undocumented LCD-related registers.</description>
+      <baseAddress>0x04000410</baseAddress>
+      <addressBlock>
+        <offset>0x0</offset>
+        <size>0x1</size>
+        <usage>registers</usage>
+      </addressBlock>
+      <registers>
+        <register>
+          <name>OBJ_CENTER</name>
+          <description>Undocumented OBJ window center register.</description>
+          <addressOffset>0x0</addressOffset>
+          <size>8</size>
+          <access>read-write</access>
+          <resetValue>0x0</resetValue>
+          <fields>
+            <field>
+              <name>Center</name>
+              <description>OBJ window center value.</description>
+              <bitRange>7-0</bitRange>
+            </field>
+          </fields>
+        </register>
+      </registers>
+    </peripheral>
+    <peripheral>
       <name>Sound Registers</name>
       <description>Sound Registers</description>
-      <baseAddress>0x4000000</baseAddress>
+      <baseAddress>0x04000060</baseAddress>
       <addressBlock>
-        <offset>0x60</offset>
+        <offset>0x0</offset>
         <size>0x64</size>
         <usage>registers</usage>
       </addressBlock>
@@ -936,14 +1011,14 @@
         <register>
           <name>SOUND1CNT_L</name>
           <description>Channel 1 Sweep register       (NR10)</description>
-          <addressOffset>0x60</addressOffset>
+          <addressOffset>0x0</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
               <name>SOUND1CNT_L</name>
-              <description>Channel 1 Sweep register       (NR10)</description>
+              <description>Channel 1 Sweep register (NR10)</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>read-write</access>
@@ -953,7 +1028,7 @@
         <register>
           <name>SOUND1CNT_H</name>
           <description>Channel 1 Duty/Length/Envelope (NR11, NR12)</description>
-          <addressOffset>0x62</addressOffset>
+          <addressOffset>0x2</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
@@ -970,14 +1045,14 @@
         <register>
           <name>SOUND1CNT_X</name>
           <description>Channel 1 Frequency/Control    (NR13, NR14)</description>
-          <addressOffset>0x64</addressOffset>
+          <addressOffset>0x4</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
               <name>SOUND1CNT_X</name>
-              <description>Channel 1 Frequency/Control    (NR13, NR14)</description>
+              <description>Channel 1 Frequency/Control (NR13, NR14)</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>read-write</access>
@@ -987,7 +1062,7 @@
         <register>
           <name>SOUND2CNT_L</name>
           <description>Channel 2 Duty/Length/Envelope (NR21, NR22)</description>
-          <addressOffset>0x68</addressOffset>
+          <addressOffset>0x8</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
@@ -1004,14 +1079,14 @@
         <register>
           <name>SOUND2CNT_H</name>
           <description>Channel 2 Frequency/Control    (NR23, NR24)</description>
-          <addressOffset>0x6C</addressOffset>
+          <addressOffset>0xC</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
               <name>SOUND2CNT_H</name>
-              <description>Channel 2 Frequency/Control    (NR23, NR24)</description>
+              <description>Channel 2 Frequency/Control (NR23, NR24)</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>read-write</access>
@@ -1021,7 +1096,7 @@
         <register>
           <name>SOUND3CNT_L</name>
           <description>Channel 3 Stop/Wave RAM select (NR30)</description>
-          <addressOffset>0x70</addressOffset>
+          <addressOffset>0x10</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
@@ -1038,14 +1113,14 @@
         <register>
           <name>SOUND3CNT_H</name>
           <description>Channel 3 Length/Volume        (NR31, NR32)</description>
-          <addressOffset>0x72</addressOffset>
+          <addressOffset>0x12</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
               <name>SOUND3CNT_H</name>
-              <description>Channel 3 Length/Volume        (NR31, NR32)</description>
+              <description>Channel 3 Length/Volume (NR31, NR32)</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>read-write</access>
@@ -1055,14 +1130,14 @@
         <register>
           <name>SOUND3CNT_X</name>
           <description>Channel 3 Frequency/Control    (NR33, NR34)</description>
-          <addressOffset>0x74</addressOffset>
+          <addressOffset>0x14</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
               <name>SOUND3CNT_X</name>
-              <description>Channel 3 Frequency/Control    (NR33, NR34)</description>
+              <description>Channel 3 Frequency/Control (NR33, NR34)</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>read-write</access>
@@ -1072,14 +1147,14 @@
         <register>
           <name>SOUND4CNT_L</name>
           <description>Channel 4 Length/Envelope      (NR41, NR42)</description>
-          <addressOffset>0x78</addressOffset>
+          <addressOffset>0x18</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
               <name>SOUND4CNT_L</name>
-              <description>Channel 4 Length/Envelope      (NR41, NR42)</description>
+              <description>Channel 4 Length/Envelope (NR41, NR42)</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>read-write</access>
@@ -1089,14 +1164,14 @@
         <register>
           <name>SOUND4CNT_H</name>
           <description>Channel 4 Frequency/Control    (NR43, NR44)</description>
-          <addressOffset>0x7C</addressOffset>
+          <addressOffset>0x1C</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
               <name>SOUND4CNT_H</name>
-              <description>Channel 4 Frequency/Control    (NR43, NR44)</description>
+              <description>Channel 4 Frequency/Control (NR43, NR44)</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>read-write</access>
@@ -1106,58 +1181,86 @@
         <register>
           <name>SOUNDCNT_L</name>
           <description>Control Stereo/Volume/Enable   (NR50, NR51)</description>
-          <addressOffset>0x80</addressOffset>
+          <addressOffset>0x20</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>SOUNDCNT_L</name>
-              <description>Control Stereo/Volume/Enable   (NR50, NR51)</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>MasterVolumeRight</name>
+              <description>Master volume for PSG channels on the right output.</description>
+              <bitRange>2-0</bitRange>
+            </field>
+            <field>
+              <name>MasterVolumeLeft</name>
+              <description>Master volume for PSG channels on the left output.</description>
+              <bitRange>6-4</bitRange>
+            </field>
+            <field>
+              <name>ChannelEnableRight</name>
+              <description>Enable flags for PSG channels on the right output.</description>
+              <bitRange>11-8</bitRange>
+            </field>
+            <field>
+              <name>ChannelEnableLeft</name>
+              <description>Enable flags for PSG channels on the left output.</description>
+              <bitRange>15-12</bitRange>
             </field>
           </fields>
         </register>
         <register>
           <name>SOUNDCNT_H</name>
           <description>Control Mixing/DMA Control</description>
-          <addressOffset>0x82</addressOffset>
+          <addressOffset>0x22</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>SOUNDCNT_H</name>
-              <description>Control Mixing/DMA Control</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>PSGVolume</name>
+              <description>PSG channel volume: 0=25%, 1=50%, 2=100%, 3=prohibited.</description>
+              <bitRange>1-0</bitRange>
             </field>
+            <field><name>FIFOAVolume</name><description>FIFO A volume: 0=50%, 1=100%.</description><bitRange>2</bitRange></field>
+            <field><name>FIFOBVolume</name><description>FIFO B volume: 0=50%, 1=100%.</description><bitRange>3</bitRange></field>
+            <field><name>FIFOARight</name><description>Enable FIFO A on the right output.</description><bitRange>8</bitRange></field>
+            <field><name>FIFOALeft</name><description>Enable FIFO A on the left output.</description><bitRange>9</bitRange></field>
+            <field><name>FIFOATimer</name><description>FIFO A timer select: 0=Timer 0, 1=Timer 1.</description><bitRange>10</bitRange></field>
+            <field><name>FIFOARestart</name><description>Reset FIFO A.</description><bitRange>11</bitRange></field>
+            <field><name>FIFOBRight</name><description>Enable FIFO B on the right output.</description><bitRange>12</bitRange></field>
+            <field><name>FIFOBLeft</name><description>Enable FIFO B on the left output.</description><bitRange>13</bitRange></field>
+            <field><name>FIFOBTimer</name><description>FIFO B timer select: 0=Timer 0, 1=Timer 1.</description><bitRange>14</bitRange></field>
+            <field><name>FIFOBRestart</name><description>Reset FIFO B.</description><bitRange>15</bitRange></field>
           </fields>
         </register>
         <register>
           <name>SOUNDCNT_X</name>
           <description>Control Sound on/off           (NR52)</description>
-          <addressOffset>0x84</addressOffset>
+          <addressOffset>0x24</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>SOUNDCNT_X</name>
-              <description>Control Sound on/off           (NR52)</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>Channel1On</name>
+              <description>Channel 1 active status.</description>
+              <bitRange>0</bitRange>
+              <access>read-only</access>
+            </field>
+            <field><name>Channel2On</name><description>Channel 2 active status.</description><bitRange>1</bitRange><access>read-only</access></field>
+            <field><name>Channel3On</name><description>Channel 3 active status.</description><bitRange>2</bitRange><access>read-only</access></field>
+            <field><name>Channel4On</name><description>Channel 4 active status.</description><bitRange>3</bitRange><access>read-only</access></field>
+            <field>
+              <name>MasterEnable</name>
+              <description>Enable PSG and FIFO sound output.</description>
+              <bitRange>7</bitRange>
             </field>
           </fields>
         </register>
         <register>
           <name>FIFO_A</name>
           <description>Channel A FIFO, Data 0-3</description>
-          <addressOffset>0xA0</addressOffset>
+          <addressOffset>0x40</addressOffset>
           <size>32</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
@@ -1174,7 +1277,7 @@
         <register>
           <name>FIFO_B</name>
           <description>Channel B FIFO, Data 0-3</description>
-          <addressOffset>0xA4</addressOffset>
+          <addressOffset>0x44</addressOffset>
           <size>32</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
@@ -1193,9 +1296,9 @@
     <peripheral>
       <name>DMA Transfer Channels</name>
       <description>DMA Transfer Channels</description>
-      <baseAddress>0x4000000</baseAddress>
+      <baseAddress>0x040000B0</baseAddress>
       <addressBlock>
-        <offset>0xB0</offset>
+        <offset>0x0</offset>
         <size>0x48</size>
         <usage>registers</usage>
       </addressBlock>
@@ -1203,138 +1306,24 @@
         <register>
           <name>DMA0SAD</name>
           <description>DMA 0 Source Address</description>
-          <addressOffset>0xB0</addressOffset>
+          <addressOffset>0x0</addressOffset>
           <size>32</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>Dest Addr Control</name>
-              <description/>
-              <bitRange>6-5</bitRange>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>Increment</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>Decrement</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>Fixed</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>Increment/Reload</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>DMA Repeat</name>
-              <description/>
-              <bitRange>9</bitRange>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>Off</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>On) (Must be zero if Bit 11 set</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>DMA Transfer Type</name>
-              <description/>
-              <bitRange>10</bitRange>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>16bit</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>32bit</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>Game Pak DRQ  - DMA3 only -</name>
-              <description/>
-              <bitRange>11</bitRange>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>Normal</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DRQ &lt;from&gt; Game Pak</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>DMA Start Timing</name>
-              <description/>
-              <bitRange>13-12</bitRange>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>Immediately</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>VBlank</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>HBlank</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>Special</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>IRQ upon end of Word Count</name>
-              <description/>
-              <bitRange>14</bitRange>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>Disable</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>Enable</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>DMA Enable</name>
-              <description/>
-              <bitRange>15</bitRange>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>Off</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>On</name>
-                  <value>0x0</value>
-                </enumeratedValue>
-              </enumeratedValues>
+              <name>DMA0SAD</name>
+              <description>DMA 0 source address</description>
+              <bitOffset>0</bitOffset>
+              <bitWidth>32</bitWidth>
+              <access>write-only</access>
             </field>
           </fields>
         </register>
         <register>
           <name>DMA0DAD</name>
           <description>DMA 0 Destination Address</description>
-          <addressOffset>0xB4</addressOffset>
+          <addressOffset>0x4</addressOffset>
           <size>32</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
@@ -1351,7 +1340,7 @@
         <register>
           <name>DMA0CNT_L</name>
           <description>DMA 0 Word Count</description>
-          <addressOffset>0xB8</addressOffset>
+          <addressOffset>0x8</addressOffset>
           <size>16</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
@@ -1368,24 +1357,57 @@
         <register>
           <name>DMA0CNT_H</name>
           <description>DMA 0 Control</description>
-          <addressOffset>0xBA</addressOffset>
+          <addressOffset>0xA</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>DMA0CNT_H</name>
-              <description>DMA 0 Control</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>DestControl</name>
+              <description>Destination address adjustment.</description>
+              <bitRange>6-5</bitRange>
+            </field>
+            <field>
+              <name>SrcControl</name>
+              <description>Source address adjustment.</description>
+              <bitRange>8-7</bitRange>
+            </field>
+            <field>
+              <name>Repeat</name>
+              <description>Repeat the transfer at the selected timing.</description>
+              <bitRange>9</bitRange>
+            </field>
+            <field>
+              <name>TransferType</name>
+              <description>Transfer width: 0=16-bit, 1=32-bit.</description>
+              <bitRange>10</bitRange>
+            </field>
+            <field>
+              <name>GamePakDRQ</name>
+              <description>Use Game Pak DRQ timing.</description>
+              <bitRange>11</bitRange>
+            </field>
+            <field>
+              <name>StartTiming</name>
+              <description>Start timing: 0=immediate, 1=VBlank, 2=HBlank, 3=special.</description>
+              <bitRange>13-12</bitRange>
+            </field>
+            <field>
+              <name>IRQEnable</name>
+              <description>Generate an interrupt when the transfer completes.</description>
+              <bitRange>14</bitRange>
+            </field>
+            <field>
+              <name>DMAEnable</name>
+              <description>Enable the DMA channel.</description>
+              <bitRange>15</bitRange>
             </field>
           </fields>
         </register>
         <register>
           <name>DMA1SAD</name>
           <description>DMA 1 Source Address</description>
-          <addressOffset>0xBC</addressOffset>
+          <addressOffset>0xC</addressOffset>
           <size>32</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
@@ -1402,7 +1424,7 @@
         <register>
           <name>DMA1DAD</name>
           <description>DMA 1 Destination Address</description>
-          <addressOffset>0xC0</addressOffset>
+          <addressOffset>0x10</addressOffset>
           <size>32</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
@@ -1419,7 +1441,7 @@
         <register>
           <name>DMA1CNT_L</name>
           <description>DMA 1 Word Count</description>
-          <addressOffset>0xC4</addressOffset>
+          <addressOffset>0x14</addressOffset>
           <size>16</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
@@ -1436,24 +1458,29 @@
         <register>
           <name>DMA1CNT_H</name>
           <description>DMA 1 Control</description>
-          <addressOffset>0xC6</addressOffset>
+          <addressOffset>0x16</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>DMA1CNT_H</name>
-              <description>DMA 1 Control</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>DestControl</name>
+              <description>Destination address adjustment.</description>
+              <bitRange>6-5</bitRange>
             </field>
+            <field><name>SrcControl</name><description>Source address adjustment.</description><bitRange>8-7</bitRange></field>
+            <field><name>Repeat</name><description>Repeat the transfer at the selected timing.</description><bitRange>9</bitRange></field>
+            <field><name>TransferType</name><description>Transfer width: 0=16-bit, 1=32-bit.</description><bitRange>10</bitRange></field>
+            <field><name>GamePakDRQ</name><description>Use Game Pak DRQ timing.</description><bitRange>11</bitRange></field>
+            <field><name>StartTiming</name><description>Start timing: 0=immediate, 1=VBlank, 2=HBlank, 3=special.</description><bitRange>13-12</bitRange></field>
+            <field><name>IRQEnable</name><description>Generate an interrupt when the transfer completes.</description><bitRange>14</bitRange></field>
+            <field><name>DMAEnable</name><description>Enable the DMA channel.</description><bitRange>15</bitRange></field>
           </fields>
         </register>
         <register>
           <name>DMA2SAD</name>
           <description>DMA 2 Source Address</description>
-          <addressOffset>0xC8</addressOffset>
+          <addressOffset>0x18</addressOffset>
           <size>32</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
@@ -1470,7 +1497,7 @@
         <register>
           <name>DMA2DAD</name>
           <description>DMA 2 Destination Address</description>
-          <addressOffset>0xCC</addressOffset>
+          <addressOffset>0x1C</addressOffset>
           <size>32</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
@@ -1487,7 +1514,7 @@
         <register>
           <name>DMA2CNT_L</name>
           <description>DMA 2 Word Count</description>
-          <addressOffset>0xD0</addressOffset>
+          <addressOffset>0x20</addressOffset>
           <size>16</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
@@ -1504,24 +1531,29 @@
         <register>
           <name>DMA2CNT_H</name>
           <description>DMA 2 Control</description>
-          <addressOffset>0xD2</addressOffset>
+          <addressOffset>0x22</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>DMA2CNT_H</name>
-              <description>DMA 2 Control</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>DestControl</name>
+              <description>Destination address adjustment.</description>
+              <bitRange>6-5</bitRange>
             </field>
+            <field><name>SrcControl</name><description>Source address adjustment.</description><bitRange>8-7</bitRange></field>
+            <field><name>Repeat</name><description>Repeat the transfer at the selected timing.</description><bitRange>9</bitRange></field>
+            <field><name>TransferType</name><description>Transfer width: 0=16-bit, 1=32-bit.</description><bitRange>10</bitRange></field>
+            <field><name>GamePakDRQ</name><description>Use Game Pak DRQ timing.</description><bitRange>11</bitRange></field>
+            <field><name>StartTiming</name><description>Start timing: 0=immediate, 1=VBlank, 2=HBlank, 3=special.</description><bitRange>13-12</bitRange></field>
+            <field><name>IRQEnable</name><description>Generate an interrupt when the transfer completes.</description><bitRange>14</bitRange></field>
+            <field><name>DMAEnable</name><description>Enable the DMA channel.</description><bitRange>15</bitRange></field>
           </fields>
         </register>
         <register>
           <name>DMA3SAD</name>
           <description>DMA 3 Source Address</description>
-          <addressOffset>0xD4</addressOffset>
+          <addressOffset>0x24</addressOffset>
           <size>32</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
@@ -1538,7 +1570,7 @@
         <register>
           <name>DMA3DAD</name>
           <description>DMA 3 Destination Address</description>
-          <addressOffset>0xD8</addressOffset>
+          <addressOffset>0x28</addressOffset>
           <size>32</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
@@ -1555,7 +1587,7 @@
         <register>
           <name>DMA3CNT_L</name>
           <description>DMA 3 Word Count</description>
-          <addressOffset>0xDC</addressOffset>
+          <addressOffset>0x2C</addressOffset>
           <size>16</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
@@ -1572,18 +1604,23 @@
         <register>
           <name>DMA3CNT_H</name>
           <description>DMA 3 Control</description>
-          <addressOffset>0xDE</addressOffset>
+          <addressOffset>0x2E</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>DMA3CNT_H</name>
-              <description>DMA 3 Control</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>DestControl</name>
+              <description>Destination address adjustment.</description>
+              <bitRange>6-5</bitRange>
             </field>
+            <field><name>SrcControl</name><description>Source address adjustment.</description><bitRange>8-7</bitRange></field>
+            <field><name>Repeat</name><description>Repeat the transfer at the selected timing.</description><bitRange>9</bitRange></field>
+            <field><name>TransferType</name><description>Transfer width: 0=16-bit, 1=32-bit.</description><bitRange>10</bitRange></field>
+            <field><name>GamePakDRQ</name><description>Use Game Pak DRQ timing.</description><bitRange>11</bitRange></field>
+            <field><name>StartTiming</name><description>Start timing: 0=immediate, 1=VBlank, 2=HBlank, 3=special.</description><bitRange>13-12</bitRange></field>
+            <field><name>IRQEnable</name><description>Generate an interrupt when the transfer completes.</description><bitRange>14</bitRange></field>
+            <field><name>DMAEnable</name><description>Enable the DMA channel.</description><bitRange>15</bitRange></field>
           </fields>
         </register>
       </registers>
@@ -1591,9 +1628,9 @@
     <peripheral>
       <name>Timer Registers</name>
       <description>Timer Registers</description>
-      <baseAddress>0x4000000</baseAddress>
+      <baseAddress>0x04000100</baseAddress>
       <addressBlock>
-        <offset>0x100</offset>
+        <offset>0x0</offset>
         <size>0x1E</size>
         <usage>registers</usage>
       </addressBlock>
@@ -1601,7 +1638,7 @@
         <register>
           <name>TM0CNT_L</name>
           <description>Timer 0 Counter/Reload</description>
-          <addressOffset>0x100</addressOffset>
+          <addressOffset>0x0</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
@@ -1618,24 +1655,37 @@
         <register>
           <name>TM0CNT_H</name>
           <description>Timer 0 Control</description>
-          <addressOffset>0x102</addressOffset>
+          <addressOffset>0x2</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>TM0CNT_H</name>
-              <description>Timer 0 Control</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>Prescaler</name>
+              <description>Timer prescaler: 0=1, 1=64, 2=256, 3=1024 cycles</description>
+              <bitRange>1-0</bitRange>
+            </field>
+            <field>
+              <name>Cascade</name>
+              <description>Count-up from previous timer when set</description>
+              <bitRange>2</bitRange>
+            </field>
+            <field>
+              <name>IRQEnable</name>
+              <description>Generate interrupt on overflow</description>
+              <bitRange>6</bitRange>
+            </field>
+            <field>
+              <name>Start</name>
+              <description>Start / stop timer</description>
+              <bitRange>7</bitRange>
             </field>
           </fields>
         </register>
         <register>
           <name>TM1CNT_L</name>
           <description>Timer 1 Counter/Reload</description>
-          <addressOffset>0x104</addressOffset>
+          <addressOffset>0x4</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
@@ -1652,24 +1702,37 @@
         <register>
           <name>TM1CNT_H</name>
           <description>Timer 1 Control</description>
-          <addressOffset>0x106</addressOffset>
+          <addressOffset>0x6</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>TM1CNT_H</name>
-              <description>Timer 1 Control</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>Prescaler</name>
+              <description>Timer prescaler: 0=1, 1=64, 2=256, 3=1024 cycles</description>
+              <bitRange>1-0</bitRange>
+            </field>
+            <field>
+              <name>Cascade</name>
+              <description>Count-up from previous timer when set</description>
+              <bitRange>2</bitRange>
+            </field>
+            <field>
+              <name>IRQEnable</name>
+              <description>Generate interrupt on overflow</description>
+              <bitRange>6</bitRange>
+            </field>
+            <field>
+              <name>Start</name>
+              <description>Start / stop timer</description>
+              <bitRange>7</bitRange>
             </field>
           </fields>
         </register>
         <register>
           <name>TM2CNT_L</name>
           <description>Timer 2 Counter/Reload</description>
-          <addressOffset>0x108</addressOffset>
+          <addressOffset>0x8</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
@@ -1686,24 +1749,37 @@
         <register>
           <name>TM2CNT_H</name>
           <description>Timer 2 Control</description>
-          <addressOffset>0x10A</addressOffset>
+          <addressOffset>0xA</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>TM2CNT_H</name>
-              <description>Timer 2 Control</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>Prescaler</name>
+              <description>Timer prescaler: 0=1, 1=64, 2=256, 3=1024 cycles</description>
+              <bitRange>1-0</bitRange>
+            </field>
+            <field>
+              <name>Cascade</name>
+              <description>Count-up from previous timer when set</description>
+              <bitRange>2</bitRange>
+            </field>
+            <field>
+              <name>IRQEnable</name>
+              <description>Generate interrupt on overflow</description>
+              <bitRange>6</bitRange>
+            </field>
+            <field>
+              <name>Start</name>
+              <description>Start / stop timer</description>
+              <bitRange>7</bitRange>
             </field>
           </fields>
         </register>
         <register>
           <name>TM3CNT_L</name>
           <description>Timer 3 Counter/Reload</description>
-          <addressOffset>0x10C</addressOffset>
+          <addressOffset>0xC</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
@@ -1720,17 +1796,30 @@
         <register>
           <name>TM3CNT_H</name>
           <description>Timer 3 Control</description>
-          <addressOffset>0x10E</addressOffset>
+          <addressOffset>0xE</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>TM3CNT_H</name>
-              <description>Timer 3 Control</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>Prescaler</name>
+              <description>Timer prescaler: 0=1, 1=64, 2=256, 3=1024 cycles</description>
+              <bitRange>1-0</bitRange>
+            </field>
+            <field>
+              <name>Cascade</name>
+              <description>Count-up from previous timer when set</description>
+              <bitRange>2</bitRange>
+            </field>
+            <field>
+              <name>IRQEnable</name>
+              <description>Generate interrupt on overflow</description>
+              <bitRange>6</bitRange>
+            </field>
+            <field>
+              <name>Start</name>
+              <description>Start / stop timer</description>
+              <bitRange>7</bitRange>
             </field>
           </fields>
         </register>
@@ -1739,9 +1828,9 @@
     <peripheral>
       <name>Serial Communication (1)</name>
       <description>Serial Communication (1)</description>
-      <baseAddress>0x4000000</baseAddress>
+      <baseAddress>0x04000120</baseAddress>
       <addressBlock>
-        <offset>0x120</offset>
+        <offset>0x0</offset>
         <size>0x20</size>
         <usage>registers</usage>
       </addressBlock>
@@ -1749,7 +1838,7 @@
         <register>
           <name>SIODATA32</name>
           <description>SIO Data (Normal-32bit Mode; shared with below)</description>
-          <addressOffset>0x120</addressOffset>
+          <addressOffset>0x0</addressOffset>
           <size>32</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
@@ -1766,14 +1855,14 @@
         <register>
           <name>SIOMULTI0</name>
           <description>SIO Data 0 (Parent)    (Multi-Player Mode)</description>
-          <addressOffset>0x120</addressOffset>
+          <addressOffset>0x0</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
               <name>SIOMULTI0</name>
-              <description>SIO Data 0 (Parent)    (Multi-Player Mode)</description>
+              <description>SIO Data 0 (Parent) (Multi-Player Mode)</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
               <access>read-write</access>
@@ -1783,7 +1872,7 @@
         <register>
           <name>SIOMULTI1</name>
           <description>SIO Data 1 (1st Child) (Multi-Player Mode)</description>
-          <addressOffset>0x122</addressOffset>
+          <addressOffset>0x2</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
@@ -1800,7 +1889,7 @@
         <register>
           <name>SIOMULTI2</name>
           <description>SIO Data 2 (2nd Child) (Multi-Player Mode)</description>
-          <addressOffset>0x124</addressOffset>
+          <addressOffset>0x4</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
@@ -1817,7 +1906,7 @@
         <register>
           <name>SIOMULTI3</name>
           <description>SIO Data 3 (3rd Child) (Multi-Player Mode)</description>
-          <addressOffset>0x126</addressOffset>
+          <addressOffset>0x6</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
@@ -1834,7 +1923,7 @@
         <register>
           <name>SIOCNT</name>
           <description>SIO Control Register</description>
-          <addressOffset>0x128</addressOffset>
+          <addressOffset>0x8</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
@@ -1851,13 +1940,13 @@
         <register>
           <name>SIOMLT_SEND</name>
           <description>SIO Data (Local of MultiPlayer; shared below)</description>
-          <addressOffset>0x12A</addressOffset>
+          <addressOffset>0xA</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>SIOMLT_SEND</name>
+              <name>SIOMLTSend</name>
               <description>SIO Data (Local of MultiPlayer; shared below)</description>
               <bitOffset>0</bitOffset>
               <bitWidth>16</bitWidth>
@@ -1868,7 +1957,7 @@
         <register>
           <name>SIODATA8</name>
           <description>SIO Data (Normal-8bit and UART Mode)</description>
-          <addressOffset>0x12A</addressOffset>
+          <addressOffset>0xA</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
@@ -1887,24 +1976,24 @@
     <peripheral>
       <name>Keypad Input</name>
       <description>Keypad Input</description>
-      <baseAddress>0x4000000</baseAddress>
+      <baseAddress>0x04000130</baseAddress>
       <addressBlock>
-        <offset>0x130</offset>
+        <offset>0x0</offset>
         <size>0x12</size>
         <usage>registers</usage>
       </addressBlock>
       <registers>
         <register>
           <name>KEYINPUT</name>
-          <description>Key Status</description>
-          <addressOffset>0x130</addressOffset>
+          <description>Active-low state of all keypad buttons</description>
+          <addressOffset>0x0</addressOffset>
           <size>16</size>
           <access>read-only</access>
-          <resetValue>0x0</resetValue>
+          <resetValue>0x3FF</resetValue>
           <fields>
             <field>
-              <name>Button A</name>
-              <description/>
+              <name>ButtonA</name>
+              <description>Button A state; 0=pressed, 1=released</description>
               <bitRange>0</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -1913,71 +2002,134 @@
                 </enumeratedValue>
                 <enumeratedValue>
                   <name>Released</name>
-                  <value>0x0</value>
+                  <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>Button B</name>
-              <description/>
+              <name>ButtonB</name>
+              <description>Button B state; 0=pressed, 1=released</description>
               <bitRange>1</bitRange>
             </field>
             <field>
               <name>Select</name>
-              <description/>
+              <description>Select state; 0=pressed, 1=released</description>
               <bitRange>2</bitRange>
             </field>
             <field>
               <name>Start</name>
-              <description/>
+              <description>Start state; 0=pressed, 1=released</description>
               <bitRange>3</bitRange>
             </field>
             <field>
               <name>Right</name>
-              <description/>
+              <description>Right direction pad state; 0=pressed, 1=released</description>
               <bitRange>4</bitRange>
             </field>
             <field>
               <name>Left</name>
-              <description/>
+              <description>Left direction pad state; 0=pressed, 1=released</description>
               <bitRange>5</bitRange>
             </field>
             <field>
               <name>Up</name>
-              <description/>
+              <description>Up direction pad state; 0=pressed, 1=released</description>
               <bitRange>6</bitRange>
             </field>
             <field>
               <name>Down</name>
-              <description/>
+              <description>Down direction pad state; 0=pressed, 1=released</description>
               <bitRange>7</bitRange>
             </field>
             <field>
-              <name>Button R</name>
-              <description/>
+              <name>ButtonR</name>
+              <description>Right shoulder button state; 0=pressed, 1=released</description>
               <bitRange>8</bitRange>
             </field>
             <field>
-              <name>Button L</name>
-              <description/>
+              <name>ButtonL</name>
+              <description>Left shoulder button state; 0=pressed, 1=released</description>
               <bitRange>9</bitRange>
             </field>
           </fields>
         </register>
         <register>
           <name>KEYCNT</name>
-          <description>Key Interrupt Control</description>
-          <addressOffset>0x132</addressOffset>
+          <description>Configures the keypad IRQ condition</description>
+          <addressOffset>0x2</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>KEYCNT</name>
-              <description>Key Interrupt Control</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>ButtonA</name>
+              <description>Enable interrupt on A key</description>
+              <bitRange>0</bitRange>
+            </field>
+            <field>
+              <name>ButtonB</name>
+              <description>Enable interrupt on B key</description>
+              <bitRange>1</bitRange>
+            </field>
+            <field>
+              <name>Select</name>
+              <description>Enable interrupt on Select key</description>
+              <bitRange>2</bitRange>
+            </field>
+            <field>
+              <name>Start</name>
+              <description>Enable interrupt on Start key</description>
+              <bitRange>3</bitRange>
+            </field>
+            <field>
+              <name>Right</name>
+              <description>Enable interrupt on Right key</description>
+              <bitRange>4</bitRange>
+            </field>
+            <field>
+              <name>Left</name>
+              <description>Enable interrupt on Left key</description>
+              <bitRange>5</bitRange>
+            </field>
+            <field>
+              <name>Up</name>
+              <description>Enable interrupt on Up key</description>
+              <bitRange>6</bitRange>
+            </field>
+            <field>
+              <name>Down</name>
+              <description>Enable interrupt on Down key</description>
+              <bitRange>7</bitRange>
+            </field>
+            <field>
+              <name>ButtonR</name>
+              <description>Enable interrupt on R key</description>
+              <bitRange>8</bitRange>
+            </field>
+            <field>
+              <name>ButtonL</name>
+              <description>Enable interrupt on L key</description>
+              <bitRange>9</bitRange>
+            </field>
+            <field>
+              <name>IRQEnable</name>
+              <description>Enable keypad interrupt generation</description>
+              <bitRange>14</bitRange>
+            </field>
+            <field>
+              <name>IRQCondition</name>
+              <description>0=OR of selected keys, 1=AND of selected keys</description>
+              <bitRange>15</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>OR</name>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>AND</name>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
           </fields>
         </register>
@@ -1986,74 +2138,123 @@
     <peripheral>
       <name>Serial Communication (2)</name>
       <description>Serial Communication (2)</description>
-      <baseAddress>0x4000000</baseAddress>
+      <baseAddress>0x04000134</baseAddress>
       <addressBlock>
-        <offset>0x134</offset>
+        <offset>0x0</offset>
         <size>0x40</size>
         <usage>registers</usage>
       </addressBlock>
       <registers>
         <register>
           <name>RCNT</name>
-          <description>SIO Mode Select/General Purpose Data</description>
-          <addressOffset>0x134</addressOffset>
+          <description>General-purpose I/O and mode control</description>
+          <addressOffset>0x0</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>RCNT</name>
-              <description>SIO Mode Select/General Purpose Data</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>SC</name>
+              <description>SC data / direction</description>
+              <bitRange>0</bitRange>
+            </field>
+            <field>
+              <name>SD</name>
+              <description>SD data / direction</description>
+              <bitRange>1</bitRange>
+            </field>
+            <field>
+              <name>SI</name>
+              <description>SI data / direction</description>
+              <bitRange>2</bitRange>
+            </field>
+            <field>
+              <name>SO</name>
+              <description>SO data / direction</description>
+              <bitRange>3</bitRange>
+            </field>
+            <field>
+              <name>SC_Direction</name>
+              <description>SC pin direction; 0=input, 1=output</description>
+              <bitRange>4</bitRange>
+            </field>
+            <field>
+              <name>SD_Direction</name>
+              <description>SD pin direction; 0=input, 1=output</description>
+              <bitRange>5</bitRange>
+            </field>
+            <field>
+              <name>SI_Direction</name>
+              <description>SI pin direction; 0=input, 1=output</description>
+              <bitRange>6</bitRange>
+            </field>
+            <field>
+              <name>SO_Direction</name>
+              <description>SO pin direction; 0=input, 1=output</description>
+              <bitRange>7</bitRange>
+            </field>
+            <field>
+              <name>GPIOMode</name>
+              <description>General-purpose I/O mode enable</description>
+              <bitRange>14</bitRange>
             </field>
           </fields>
         </register>
         <register>
-          <name>UNKNOWN_4000136</name>
-          <description>IR        Ancient - Infrared Register (Prototypes only)</description>
-          <addressOffset>0x136</addressOffset>
+          <name>RESERVED_4000136</name>
+          <description>Reserved / undocumented prototype register</description>
+          <addressOffset>0x2</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>UNKNOWN_4000136</name>
-              <description>IR        Ancient - Infrared Register (Prototypes only)</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>Reserved</name>
+              <description>Reserved or undocumented prototype use; no public GBA definition</description>
+              <bitRange>15-0</bitRange>
             </field>
           </fields>
         </register>
         <register>
           <name>JOYCNT</name>
-          <description>SIO JOY Bus Control</description>
-          <addressOffset>0x140</addressOffset>
+          <description>Joy Bus control</description>
+          <addressOffset>0xC</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>JOYCNT</name>
-              <description>SIO JOY Bus Control</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
-              <access>read-write</access>
+              <name>Reset</name>
+              <description>Device reset received</description>
+              <bitRange>0</bitRange>
+            </field>
+            <field>
+              <name>Receive</name>
+              <description>Receive complete</description>
+              <bitRange>1</bitRange>
+            </field>
+            <field>
+              <name>Send</name>
+              <description>Send complete</description>
+              <bitRange>2</bitRange>
+            </field>
+            <field>
+              <name>IRQEnable</name>
+              <description>Enable Joy Bus interrupt</description>
+              <bitRange>6</bitRange>
             </field>
           </fields>
         </register>
         <register>
           <name>JOY_RECV</name>
           <description>SIO JOY Bus Receive Data</description>
-          <addressOffset>0x150</addressOffset>
+          <addressOffset>0x1C</addressOffset>
           <size>32</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>JOY_RECV</name>
+              <name>JoyReceive</name>
               <description>SIO JOY Bus Receive Data</description>
               <bitOffset>0</bitOffset>
               <bitWidth>32</bitWidth>
@@ -2064,13 +2265,13 @@
         <register>
           <name>JOY_TRANS</name>
           <description>SIO JOY Bus Transmit Data</description>
-          <addressOffset>0x154</addressOffset>
+          <addressOffset>0x20</addressOffset>
           <size>32</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>JOY_TRANS</name>
+              <name>JoyTransmit</name>
               <description>SIO JOY Bus Transmit Data</description>
               <bitOffset>0</bitOffset>
               <bitWidth>32</bitWidth>
@@ -2083,9 +2284,9 @@
     <peripheral>
       <name>Interrupt, Waitstate, and Power-Down Control</name>
       <description>Interrupt, Waitstate, and Power-Down Control</description>
-      <baseAddress>0x4000000</baseAddress>
+      <baseAddress>0x04000200</baseAddress>
       <addressBlock>
-        <offset>0x200</offset>
+        <offset>0x0</offset>
         <size>0x109</size>
         <usage>registers</usage>
       </addressBlock>
@@ -2093,16 +2294,107 @@
         <register>
           <name>IE</name>
           <description>Interrupt Enable Register</description>
-          <addressOffset>0x200</addressOffset>
+          <addressOffset>0x0</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>IE</name>
-              <description>Interrupt Enable Register</description>
+              <name>VBlank</name>
+              <description>LCD V-Blank interrupt enable</description>
               <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>HBlank</name>
+              <description>LCD H-Blank interrupt enable</description>
+              <bitOffset>1</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>VCounter</name>
+              <description>LCD V-Counter Match interrupt enable</description>
+              <bitOffset>2</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Timer0</name>
+              <description>Timer 0 Overflow interrupt enable</description>
+              <bitOffset>3</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Timer1</name>
+              <description>Timer 1 Overflow interrupt enable</description>
+              <bitOffset>4</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Timer2</name>
+              <description>Timer 2 Overflow interrupt enable</description>
+              <bitOffset>5</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Timer3</name>
+              <description>Timer 3 Overflow interrupt enable</description>
+              <bitOffset>6</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Serial</name>
+              <description>Serial Communication interrupt enable</description>
+              <bitOffset>7</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Dma0</name>
+              <description>DMA 0 interrupt enable</description>
+              <bitOffset>8</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Dma1</name>
+              <description>DMA 1 interrupt enable</description>
+              <bitOffset>9</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Dma2</name>
+              <description>DMA 2 interrupt enable</description>
+              <bitOffset>10</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Dma3</name>
+              <description>DMA 3 interrupt enable</description>
+              <bitOffset>11</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Keypad</name>
+              <description>Keypad interrupt enable</description>
+              <bitOffset>12</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>GamePak</name>
+              <description>Game Pak (external IRQ source) interrupt enable</description>
+              <bitOffset>13</bitOffset>
+              <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
           </fields>
@@ -2110,16 +2402,107 @@
         <register>
           <name>IF</name>
           <description>Interrupt Request Flags / IRQ Acknowledge</description>
-          <addressOffset>0x202</addressOffset>
+          <addressOffset>0x2</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>IF</name>
-              <description>Interrupt Request Flags / IRQ Acknowledge</description>
+              <name>VBlank</name>
+              <description>LCD V-Blank interrupt request; write 1 to acknowledge</description>
               <bitOffset>0</bitOffset>
-              <bitWidth>16</bitWidth>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>HBlank</name>
+              <description>LCD H-Blank interrupt request; write 1 to acknowledge</description>
+              <bitOffset>1</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>VCounter</name>
+              <description>LCD V-Counter Match interrupt request; write 1 to acknowledge</description>
+              <bitOffset>2</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Timer0</name>
+              <description>Timer 0 Overflow interrupt request; write 1 to acknowledge</description>
+              <bitOffset>3</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Timer1</name>
+              <description>Timer 1 Overflow interrupt request; write 1 to acknowledge</description>
+              <bitOffset>4</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Timer2</name>
+              <description>Timer 2 Overflow interrupt request; write 1 to acknowledge</description>
+              <bitOffset>5</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Timer3</name>
+              <description>Timer 3 Overflow interrupt request; write 1 to acknowledge</description>
+              <bitOffset>6</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Serial</name>
+              <description>Serial Communication interrupt request; write 1 to acknowledge</description>
+              <bitOffset>7</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Dma0</name>
+              <description>DMA 0 interrupt request; write 1 to acknowledge</description>
+              <bitOffset>8</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Dma1</name>
+              <description>DMA 1 interrupt request; write 1 to acknowledge</description>
+              <bitOffset>9</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Dma2</name>
+              <description>DMA 2 interrupt request; write 1 to acknowledge</description>
+              <bitOffset>10</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Dma3</name>
+              <description>DMA 3 interrupt request; write 1 to acknowledge</description>
+              <bitOffset>11</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>Keypad</name>
+              <description>Keypad interrupt request; write 1 to acknowledge</description>
+              <bitOffset>12</bitOffset>
+              <bitWidth>1</bitWidth>
+              <access>read-write</access>
+            </field>
+            <field>
+              <name>GamePak</name>
+              <description>Game Pak (external IRQ source) interrupt request; write 1 to acknowledge</description>
+              <bitOffset>13</bitOffset>
+              <bitWidth>1</bitWidth>
               <access>read-write</access>
             </field>
           </fields>
@@ -2127,14 +2510,14 @@
         <register>
           <name>WAITCNT</name>
           <description>Game Pak Waitstate Control</description>
-          <addressOffset>0x204</addressOffset>
+          <addressOffset>0x4</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
               <name>SRAM Wait Control</name>
-              <description/>
+              <description>Game Pak SRAM access wait-state selection.</description>
               <bitRange>1-0</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -2144,8 +2527,8 @@
               </enumeratedValues>
             </field>
             <field>
-              <name>Wait State 0 First Access</name>
-              <description/>
+              <name>WaitState0FirstAccess</name>
+              <description>Game Pak wait-state 0 first-access timing.</description>
               <bitRange>3-2</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -2155,8 +2538,8 @@
               </enumeratedValues>
             </field>
             <field>
-              <name>Wait State 1 First Access</name>
-              <description/>
+              <name>WaitState1FirstAccess</name>
+              <description>Game Pak wait-state 1 first-access timing.</description>
               <bitRange>6-5</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -2166,8 +2549,8 @@
               </enumeratedValues>
             </field>
             <field>
-              <name>Wait State 2 First Access</name>
-              <description/>
+              <name>WaitState2FirstAccess</name>
+              <description>Game Pak wait-state 2 first-access timing.</description>
               <bitRange>9-8</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -2177,28 +2560,34 @@
               </enumeratedValues>
             </field>
             <field>
-              <name>PHI Terminal Output</name>
-              <description/>
+              <name>PhiOut</name>
+              <description>External cartridge clock output selection.</description>
               <bitRange>12-11</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
-                  <name>Disable</name>
+                  <name>Disabled</name>
                   <value>0x0</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
-              <name>Game Pak Type Flag</name>
-              <description/>
+              <name>GamePakPrefetch</name>
+              <description>Enable the Game Pak prefetch buffer.</description>
+              <bitRange>14</bitRange>
+            </field>
+            <field>
+              <name>GamePakTypeFlag</name>
+              <description>Read-only Game Pak type signal: 0=GBA, 1=CGB.</description>
               <bitRange>15</bitRange>
+              <access>read-only</access>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>GBA</name>
                   <value>0x0</value>
                 </enumeratedValue>
                 <enumeratedValue>
-                  <name>CGB) (IN35 signal</name>
-                  <value>0x0</value>
+                  <name>CGBMode</name>
+                  <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
@@ -2207,14 +2596,14 @@
         <register>
           <name>IME</name>
           <description>Interrupt Master Enable Register</description>
-          <addressOffset>0x208</addressOffset>
+          <addressOffset>0x8</addressOffset>
           <size>16</size>
           <access>read-write</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>Disable all interrupts</name>
-              <description/>
+              <name>IRQDisable</name>
+              <description>Master interrupt enable; forwards enabled IRQ sources when set.</description>
               <bitRange>0</bitRange>
               <enumeratedValues>
                 <enumeratedValue>
@@ -2223,7 +2612,7 @@
                 </enumeratedValue>
                 <enumeratedValue>
                   <name>See IE register</name>
-                  <value>0x0</value>
+                  <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
@@ -2231,35 +2620,31 @@
         </register>
         <register>
           <name>POSTFLG</name>
-          <description>Undocumented - Post Boot Flag</description>
-          <addressOffset>0x300</addressOffset>
+          <description>Undocumented POST flag used during cartridge boot and startup handshake</description>
+          <addressOffset>0x100</addressOffset>
           <size>8</size>
           <access>read-write</access>
-          <resetValue>0x0</resetValue>
+          <resetValue>0x1</resetValue>
           <fields>
             <field>
               <name>POSTFLG</name>
-              <description>Undocumented - Post Boot Flag</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>8</bitWidth>
-              <access>read-write</access>
+              <description>POST boot flag; read and written by startup ROM code for cartridge/boot handshake</description>
+              <bitRange>7-0</bitRange>
             </field>
           </fields>
         </register>
         <register>
           <name>HALTCNT</name>
-          <description>Undocumented - Power Down Control</description>
-          <addressOffset>0x301</addressOffset>
+          <description>Undocumented low-power halt control register; write 0x00 to enter halt, 0x01 to stop the CPU</description>
+          <addressOffset>0x101</addressOffset>
           <size>8</size>
           <access>write-only</access>
           <resetValue>0x0</resetValue>
           <fields>
             <field>
-              <name>HALTCNT</name>
-              <description>Undocumented - Power Down Control</description>
-              <bitOffset>0</bitOffset>
-              <bitWidth>8</bitWidth>
-              <access>write-only</access>
+              <name>PowerDownMode</name>
+              <description>Power-down mode: 0=Halt, 1=Stop.</description>
+              <bitRange>7</bitRange>
             </field>
           </fields>
         </register>

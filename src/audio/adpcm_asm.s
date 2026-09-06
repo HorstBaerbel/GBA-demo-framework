@@ -8,7 +8,8 @@
 //#define ADPCM_DITHER
 #define ADPCM_DITHER_SHIFT 24
 //#define ADPCM_ROUNDING
-//#define ADPCM_APPLY_HIGH_SHELF
+#define ADPCM_APPLY_HIGH_SHELF
+//#define ADPCM_USE_INDEX_TABLE
 
  .arm
  .align
@@ -169,6 +170,7 @@
     @ r6 = Current ADPCM byte (2*4 bit data)
     @ r7 = resampler position
     @ r8 = nr of samples generated
+    @ r10 = resampler step (depending on ADPCM_USE_INDEX_TABLE)
     @ r11,r12,r14 are scratch registers
     push    {lr}
     sub     r3, #1 @ r3 = nr of nibbles to decode (nr of samples - 1)
@@ -184,6 +186,9 @@
     @ because we must have output data until resamplerData.position >= RESAMPLER_POSITION_ONE
     @ we can also have no history at all for a first call
     @ this means we need at least one new sample here
+#ifndef ADPCM_USE_INDEX_TABLE
+    ldr     r10, [r2, #RESAMPLER_OFFSET_STEP]
+#endif
     ldr     r7, [r2, #RESAMPLER_OFFSET_POSITION]
     cmp     r7, #RESAMPLER_POSITION_TWO
     blt     .adpcm_channel_resample_start_below_two
@@ -207,7 +212,7 @@
     @ calculate pcmFiltered = resampler.pcmRaw + (resampler.pcmRaw >> 2) - (pcmData >> 2);
     ldrsh   r11, [r2, #RESAMPLER_OFFSET_PCM_RAW]
     add     r11, r11, asr #2
-    add     r11, r4, asr #2
+    sub     r11, r4, asr #2
     @ clamp filtered PCM data in r11 to [-32768, 32767]
     mov     r12, r11, lsl #16      @ r12 = r11 << 16
     cmp     r11, r12, asr #16      @ shift back and sign-extend r12 and compare with r11. check if r11 fits into signed 16-bit
@@ -249,8 +254,15 @@
     tst     r6, #0x08        @ ADPCM value & 8?
     subne   r4, r4, r12      @ true  -> pcmData -= delta
     addeq   r4, r4, r12      @ false -> pcmData += delta
+#ifdef ADPCM_USE_INDEX_TABLE
     ldrsb   r12, [r10, r14]  @ load index into r12 and 
     adds    r5, r5, r12      @ add to old index in r5. sets flags
+#else
+    subs    r14, #3          @ Replace the ADPCM_IndexTable_4bit lookup to free a register
+    suble   r5, r5, #1       @ (nibble & 7) - 3 <= 0 --> index -= 1
+    addgt   r5, r14, lsl #1  @ (nibble & 7) - 3 >  0 --> index += ((nibble & 7) - 3) * 2
+    cmp     r5, #0           @ index < 0 ?
+#endif
     movmi   r5, #0           @ index = index < 0 ? 0 : index
     cmp     r5, #88          @ index > 88 ?
     movgt   r5, #88          @ index = index > 88 ? 88 : index
@@ -261,7 +273,7 @@
     @ calculate pcmFiltered = resampler.pcmRaw + (resampler.pcmRaw >> 2) - (pcmData >> 2);
     ldrsh   r11, [r2, #RESAMPLER_OFFSET_PCM_RAW]
     add     r11, r11, asr #2
-    add     r11, r4, asr #2
+    sub     r11, r4, asr #2
     @ clamp filtered PCM data in r11 to [-32768, 32767]
     mov     r12, r11, lsl #16      @ r12 = r11 << 16
     cmp     r11, r12, asr #16      @ shift back and sign-extend r12 and compare with r11. check if r11 fits into signed 16-bit
@@ -288,13 +300,17 @@
 .adpcm_channel_resample_sample_output:
     @ calculate: resampler.history[0] - (((resampler.position >> (RESAMPLER_PRECISION - 8)) * diff) >> 8)
     asr     r11, r7, #RESAMPLER_PRECISION - 8
-    mul     r11, r12
+    mul     r11, r12, r11
     add     r11, r14, r11, asr #8
     mov     r11, r11, asr #8 @ sample >> 8
     strb    r11, [r1], #1    @ store PCM sample
     add     r8, #1           @ increase nr of samples generated
+#ifdef ADPCM_USE_INDEX_TABLE
     ldr     r11, [r2, #RESAMPLER_OFFSET_STEP]
     add     r7, r11
+#else    
+    add     r7, r10          @ resampler.position += resampler.step
+#endif
     cmp     r7, #RESAMPLER_POSITION_ONE
     blt     .adpcm_channel_resample_sample_output
     cmp     r3, #0 @ more nibbles?
