@@ -1,9 +1,9 @@
 #include "dxtv.h"
 
-#include "dxt_tables.h"
 #include "dxtv_constants.h"
 #include "dxtv_structs.h"
 #include "image/dxt.h"
+#include "image/dxt_tables.h"
 #include "memory/memory.h"
 #include "print/output.h"
 
@@ -134,7 +134,7 @@ namespace Video
         else
         {
             // get DXT block colors
-            dataPtr16 = DXT::getBlockColors(dataPtr16, DXT_BlockColors);
+            dataPtr16 = DXT::getBlockColors(dataPtr16, reinterpret_cast<uint16_t *>(DXT_BlockColors));
             // get pixel color indices and set pixels accordingly
             uint16_t indices = *dataPtr16++;
             // select color by 2 bit index from [c0, c1, c2, c3], then move to next line in destination vertically
@@ -186,7 +186,7 @@ namespace Video
         else
         {
             // get DXT block colors
-            dataPtr16 = DXT::getBlockColors(dataPtr16, DXT_BlockColors);
+            dataPtr16 = DXT::getBlockColors(dataPtr16, reinterpret_cast<uint16_t *>(DXT_BlockColors));
             // get pixel color indices and set pixels accordingly
             for (uint32_t i = 0; i < 8; ++i)
             {
