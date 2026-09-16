@@ -4,8 +4,10 @@
 #include "memory/memory.h"
 #include "palette.h"
 #include "print/itoa.h"
+#include "sys/video.h"
 #include "tiles.h"
-#include <sys/video.h>
+
+#include "data/font_8x8.h"
 
 #include <cstdint>
 
