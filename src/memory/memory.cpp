@@ -27,13 +27,10 @@ namespace Memory
 #ifdef DEBUG_MEMORY
 		uint32_t GUARD;
 #endif
-		struct
-		{
-			unsigned int size : 24; // size of allocated memory returned to user
-			unsigned int free : 8;	// true if the block is free memory.
-		};
-		MemoryBlock *previous; // pointer to previous block. nullptr if first block.
-		MemoryBlock *next;	   // pointer to next block. nullptr if last block.
+		unsigned int size : 24; // size of allocated memory returned to user
+		unsigned int free : 8;	// true if the block is free memory.
+		MemoryBlock *previous;	// pointer to previous block. nullptr if first block.
+		MemoryBlock *next;		// pointer to next block. nullptr if last block.
 	} __attribute__((aligned(4), packed));
 
 	void init()
