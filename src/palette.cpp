@@ -45,6 +45,46 @@ namespace Palette
         }
     }
 
+    void fadeToBlack(uint16_t *dst, const uint16_t *src, Math::fp1616_t t, uint32_t start, uint32_t nrOfEntries)
+    {
+        Math::clamp(t, Math::fp1616_t::ZERO, Math::fp1616_t::ONE);
+        t = Math::fp1616_t::ONE - t;
+        for (uint32_t i = start; i < (start + nrOfEntries); i++)
+        {
+            // get fade source color
+            int16_t rF = src[i] & 0x1F;
+            int16_t gF = (src[i] >> 5) & 0x1F;
+            int16_t bF = (src[i] >> 10) & 0x1F;
+            rF = int16_t(t * rF);
+            gF = int16_t(t * gF);
+            bF = int16_t(t * bF);
+            // write color to palette
+            dst[i] = (bF << 10) | (gF << 5) | rF;
+        }
+    }
+
+    void desaturate(uint16_t *dst, const uint16_t *src, Math::fp1616_t t, uint32_t start, uint32_t nrOfEntries)
+    {
+        Math::clamp(t, Math::fp1616_t::ZERO, Math::fp1616_t::ONE);
+        int32_t factor = t.raw() >> 6; // t in 16.10 format
+        for (uint32_t i = start; i < (start + nrOfEntries); i++)
+        {
+            // get source color
+            int32_t rF = (src[i] & 0x1F) << 10; // color component in 5.10 format
+            int32_t gF = ((src[i] >> 5) & 0x1F) << 10;
+            int32_t bF = ((src[i] >> 10) & 0x1F) << 10;
+            // calculate greyscale value. weights from CCIR 601 spec
+            int32_t grey = (int32_t(0.2989F * 1024.0F) * rF + int32_t(0.5870F * 1024.0F) * gF + int32_t(0.1140F * 1024.0F) * bF) >> 10;
+            grey = grey > (31 << 10) ? (31 << 10) : grey;
+            // interpolate between color and greyscale. add 0.5 and shift down to round
+            rF = (rF + ((factor * (grey - rF) + (1 << (10 - 1))) >> 10)) >> 10;
+            gF = (gF + ((factor * (grey - gF) + (1 << (10 - 1))) >> 10)) >> 10;
+            bF = (bF + ((factor * (grey - bF) + (1 << (10 - 1))) >> 10)) >> 10;
+            // write color to palette
+            dst[i] = (bF << 10) | (gF << 5) | rF;
+        }
+    }
+
     void crossFade(uint16_t *dst, const uint16_t *paletteA, const uint16_t *paletteB, Math::fp1616_t t, uint32_t start, uint32_t nrOfEntries)
     {
         Math::clamp(t, Math::fp1616_t::ZERO, Math::fp1616_t::ONE);

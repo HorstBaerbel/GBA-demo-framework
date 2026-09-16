@@ -52,6 +52,19 @@ namespace Palette
     /// @param nrOfEntries Number of entries to fade.
     void fadeToBlack(uint16_t *palette, Math::fp1616_t t, uint32_t start = 0, uint32_t nrOfEntries = 256);
 
+    /// @brief Fade the palette entries towards black and write to dst
+    /// @param t Fade value 0 = Black, 1 = input palette.
+    /// @param start Index to start at.
+    /// @param nrOfEntries Number of entries to fade.
+    void fadeToBlack(uint16_t *dst, const uint16_t *src, Math::fp1616_t t, uint32_t start = 0, uint32_t nrOfEntries = 256);
+
+    /// @brief Set saturation of palette entries and write to dst.
+    /// This is not a conversion to HSV, but a quick and dirty fade to grey.
+    /// @param t Saturation value 0 = Greyscale, 1 = input value.
+    /// @param start Index to start at.
+    /// @param nrOfEntries Number of entries to fade.
+    void desaturate(uint16_t *dst, const uint16_t *src, Math::fp1616_t t, uint32_t start = 0, uint32_t nrOfEntries = 256);
+
     /// @brief Cross-fade between two palettes.
     /// @param dst Output palette.
     /// @param paletteA Input palette A.
