@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.21)
 
 project(framework)
 
@@ -7,7 +7,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/3ds-cmake/cmake)
 # Add the cmake folder to the modules paths, so that we can use the compiler flags
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
-if (GBA)
+if(GBA)
 	message("Building for GBA")
 	# ASM must be enabled to support .S files
 	enable_language(ASM)

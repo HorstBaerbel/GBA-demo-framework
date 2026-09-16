@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.21)
 
 project(tests_gba)
 
@@ -20,11 +20,11 @@ LIST(APPEND TARGET_LIB_DIRS
 )
 
 LIST(APPEND TARGET_LIBS
-    gbafw
+    gbadfw
 )
 
-link_directories(${TARGET_LIB_DIRS})
-include_directories(${TARGET_INCLUDE_DIRS})
-add_executable(${PROJECT_NAME}.elf ${TARGET_SOURCES}) # Create the elf file
-add_gba_executable(${PROJECT_NAME}.elf) # Generate the .gba from the elf
-target_link_libraries(${PROJECT_NAME}.elf LINK_PUBLIC ${TARGET_LIBS}) # Link the application
+add_executable(${PROJECT_NAME} ${TARGET_SOURCES}) # Create the elf file
+add_gba_executables(${PROJECT_NAME} "TEST" "TEST" "WR" 1) # Generate the .gba from the elf. See: https://problemkaputt.de/gbatek-gba-cartridge-header.htm
+target_include_directories(${PROJECT_NAME} PRIVATE ${TARGET_INCLUDE_DIRS})
+target_link_directories(${PROJECT_NAME} PRIVATE ${TARGET_LIB_DIRS})
+target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${TARGET_LIBS}) # Link the application

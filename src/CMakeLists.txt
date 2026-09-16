@@ -1,22 +1,23 @@
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.21)
 
-project(gbafw)
+project(gbadfw)
 
-file(GLOB_RECURSE TARGET_SOURCES *.cpp *.s)
+file(GLOB_RECURSE FW_SOURCES *.c *.cpp *.s)
 
-LIST(APPEND TARGET_INCLUDE_DIRS
+LIST(APPEND FW_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/data
 	${DEVKITPRO}/libgba/include
 	${DEVKITARM}/arm-none-eabi/include
 )
 
-LIST(APPEND TARGET_LIBS
+LIST(APPEND FW_LIBS
 	${DEVKITPRO}/libgba/lib
 )
 
-link_directories(${TARGET_LIBS})
-include_directories(${TARGET_INCLUDE_DIRS})
-add_library(${PROJECT_NAME} STATIC ${TARGET_SOURCES})
-target_link_libraries(${PROJECT_NAME} mm) # link maxmod
+add_library(${PROJECT_NAME} STATIC ${FW_SOURCES})
+target_include_directories(${PROJECT_NAME} PRIVATE ${FW_INCLUDE_DIRS})
+target_link_directories(${PROJECT_NAME} PRIVATE ${FW_LIBS})
+target_link_libraries(${PROJECT_NAME} mm) # Link MaxMOD
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
