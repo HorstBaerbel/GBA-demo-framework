@@ -13,10 +13,10 @@
 
  .arm
  .align
- .global LZ77UnCompWrite16bit_ASM
- .global LZ77UnCompWrite8bit_ASM
- .type LZ77UnCompWrite16bit_ASM,function
- .type LZ77UnCompWrite8bit_ASM,function
+ .global LZ77UnCompWrite16bit
+ .global LZ77UnCompWrite8bit
+ .type LZ77UnCompWrite16bit,function
+ .type LZ77UnCompWrite8bit,function
 #ifdef __NDS__
  .section .itcm, "ax", %progbits
 #else
@@ -40,8 +40,8 @@
 @unless you don't trust the data coming in...
 @#define PREVENT_OOB_READS
 
-LZ77UnCompWrite16bit_ASM:
-LZ77UnCompWrite8bit_ASM:
+LZ77UnCompWrite16bit:
+LZ77UnCompWrite8bit:
     stmfd sp!, {r3 - r8}
 
     @ Read header word:
@@ -254,14 +254,14 @@ LZ77UnCompWrite8bit_ASM:
 
 .arm
  .align
- .global BIOSUnCompGetSize_ASM
- .type BIOSUnCompGetSize_ASM,function
+ .global BIOSUnCompGetSize
+ .type BIOSUnCompGetSize,function
 #ifdef __NDS__
  .section .itcm, "ax", %progbits
 #else
  .section .iwram, "ax", %progbits
 #endif
-BIOSUnCompGetSize_ASM:
+BIOSUnCompGetSize:
     @ Read header word:
     @ bit0-3:  reserved
     @ bit4-7:  compressed type (1 for LZ77)
