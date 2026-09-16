@@ -1,4 +1,4 @@
-#include <print/print.h>
+#include <print/output.h>
 //#include <random.h>
 #include <math/fp32.h>
 
@@ -9,6 +9,7 @@ namespace Test
 {
 
 	using namespace Math;
+	using namespace Debug;
 
 	void math_fp32()
 	{

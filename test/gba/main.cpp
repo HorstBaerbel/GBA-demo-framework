@@ -9,9 +9,9 @@ int main()
 {
     // Lets set some cool waitstates
     MemCtrl::RegWaitCnt = MemCtrl::WaitCntFast;
-    MemCtrl::RegWaitEwram = MemCtrl::WaitEwramFast;
+    MemCtrl::RegIntMemCnt = MemCtrl::WaitEwramFast;
     // Clear memory and initialize interrupts
-    irqInit();
+    Irq::init();
     // Set up video mode 4, no sprites
     Graphics::setMode(MODE_4 | BG2_ON);
     // Start internal timer

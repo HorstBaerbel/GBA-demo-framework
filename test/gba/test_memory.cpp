@@ -1,5 +1,5 @@
 #include <memory/memory.h>
-#include <print/print.h>
+#include <print/output.h>
 
 //disable GCC warnings for using char * here...
 #pragma GCC diagnostic ignored "-Wwrite-strings"
@@ -8,6 +8,7 @@ namespace Test
 {
 
     using namespace Memory;
+    using namespace Debug;
 
     struct Block
     {
@@ -23,7 +24,6 @@ namespace Test
 
     void malloc_and_free(void *(*mallocFunc)(uint32_t), const int (&orderMalloc)[NR_OF_BLOCKS], const int (&orderFree)[NR_OF_BLOCKS])
     {
-        Memory::init();
         for (int i = 0; i < NR_OF_BLOCKS; ++i)
         {
             TestBlocks[orderMalloc[i]].adress = mallocFunc(TestBlocks[orderMalloc[i]].size);

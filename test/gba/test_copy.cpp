@@ -1,9 +1,9 @@
-#include <time.h>
 #include <graphics.h>
 #include <memory/dma.h>
 #include <memory/memory.h>
-#include <print/print.h>
+#include <print/output.h>
 #include <sys/syscall.h>
+#include <time.h>
 
 // disable GCC warnings for using char * here...
 #pragma GCC diagnostic ignored "-Wwrite-strings"
@@ -11,10 +11,11 @@
 namespace Test
 {
 
+    using namespace Debug;
+
     void copy()
     {
         printf("Copy function tests...\n");
-        Memory::init();
         constexpr uint32_t vramCount = 240 * 160 / 4;
         constexpr uint32_t bufferCount = 1024;
         constexpr uint32_t bufferSize = bufferCount * sizeof(uint32_t);
