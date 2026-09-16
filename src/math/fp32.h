@@ -211,6 +211,14 @@ namespace Math
 		template <class B = int, typename std::enable_if<!std::is_same<B, int32_t>::value>::type...>
 		fp32_t &operator/=(int16_t b) { return *this /= (int32_t)b; }
 
+		template <class B = int, typename std::enable_if<!std::is_same<B, int32_t>::value>::type...>
+		friend inline void swap(fp32_t<F> &a, fp32_t<F> &b)
+		{
+			auto temp = a;
+			a = b;
+			b = temp;
+		}
+
 		// Comparison ------------------------------------------------------------------------------------------------
 		friend inline bool operator==(fp32_t<F> a, fp32_t<F> b) { return a.value == b.value; }
 		friend inline bool operator!=(fp32_t<F> a, fp32_t<F> b) { return a.value != b.value; }
@@ -255,15 +263,16 @@ namespace Math
 		static const fp32_t<F> ONE_OVER_PI_2;
 	} __attribute__((packed));
 
-	using fp824_t = fp32_t<24>;	 //8.24
-	using fp1616_t = fp32_t<16>; //16.16
-	using fp248_t = fp32_t<8>;	 //24.8
+	using fp824_t = fp32_t<24>;	 // 8.24
+	using fp1616_t = fp32_t<16>; // 16.16
+	using fp248_t = fp32_t<8>;	 // 24.8
 
 	// arithmetic -----------------------------------------------------------------------------------------------
 
 #include "fp32_arith.h"
-#include "fp32_trig.h"
-#include "fp32_minmax.h"
 #include "fp32_lerp.h"
+#include "fp32_minmax.h"
+#include "fp32_random.h"
+#include "fp32_trig.h"
 
 } // namespace Math

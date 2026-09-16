@@ -148,6 +148,14 @@ namespace Math
 		template <class B = int, typename std::enable_if<!std::is_same<B, int32_t>::value>::type...>
 		fp16_t &operator/=(int16_t b) { return *this /= (int32_t)b; }
 
+		template <class B = int, typename std::enable_if<!std::is_same<B, int32_t>::value>::type...>
+		friend inline void swap(fp16_t<F> &a, fp16_t<F> &b)
+		{
+			auto temp = a;
+			a = b;
+			b = temp;
+		}
+
 		// Comparison ------------------------------------------------------------------------------------------------
 		friend inline bool operator==(fp16_t<F> a, fp16_t<F> b) { return a.value == b.value; }
 		friend inline bool operator!=(fp16_t<F> a, fp16_t<F> b) { return a.value != b.value; }
@@ -192,9 +200,9 @@ namespace Math
 		static const fp16_t<F> ONE_OVER_PI_2;
 	} __attribute__((packed));
 
-	using fp412_t = fp16_t<12>; //4.12
-	using fp88_t = fp16_t<8>;	//8.8
-	using fp124_t = fp16_t<4>;	//12.4
+	using fp412_t = fp16_t<12>; // 4.12
+	using fp88_t = fp16_t<8>;	// 8.8
+	using fp124_t = fp16_t<4>;	// 12.4
 
 	// arithmetic -----------------------------------------------------------------------------------------------
 

@@ -116,6 +116,30 @@ namespace Sprites
         }
     }
 
+    auto createHorizontal(Sprite2D *sprites, uint32_t nrOfSprites, int32_t x, int32_t y, uint32_t spriteIndex, uint32_t tileIndex, SizeCode size, ColorDepth depth, uint32_t paletteIndex, uint32_t matrixIndex) -> void
+    {
+        create(sprites, nrOfSprites, spriteIndex, tileIndex, size, depth, paletteIndex, matrixIndex);
+        auto px = x;
+        for (uint32_t i = spriteIndex; i < (spriteIndex + nrOfSprites); ++i)
+        {
+            sprites[i].x = px;
+            sprites[i].y = y;
+            px += Tiles::HorizontalTilesForSizeCode[static_cast<uint32_t>(size)] * 8;
+        }
+    }
+
+    auto createVertical(Sprite2D *sprites, uint32_t nrOfSprites, int32_t x, int32_t y, uint32_t spriteIndex, uint32_t tileIndex, SizeCode size, ColorDepth depth, uint32_t paletteIndex, uint32_t matrixIndex) -> void
+    {
+        create(sprites, nrOfSprites, spriteIndex, tileIndex, size, depth, paletteIndex, matrixIndex);
+        auto py = y;
+        for (uint32_t i = spriteIndex; i < (spriteIndex + nrOfSprites); ++i)
+        {
+            sprites[i].x = x;
+            sprites[i].y = py;
+            py += Tiles::VerticalTilesForSizeCode[static_cast<uint32_t>(size)] * 8;
+        }
+    }
+
     void copyToOAM(const Sprite2D &sprite)
     {
         auto &obj = reinterpret_cast<OBJATTR *>(OAM)[sprite.index];
@@ -208,7 +232,7 @@ namespace Sprites
 
     void copyTileData16(const Sprite2D *sprite, const uint32_t *tileData)
     {
-        copyTileData16(sprite, tileData, 1);
+        copyTileData16(sprite, 1, tileData);
     }
 
     void copyTileData16(const Sprite2D *sprites, uint32_t nrOfSprites, const uint32_t *tileData)
@@ -219,7 +243,7 @@ namespace Sprites
         {
             const auto &sprite = sprites[i];
             const uint32_t bytesPerSprite = (uint32_t(Tiles::TileCountForSizeCode[(uint32_t)sprite.size]) * 64) >> 1;
-            Memory::memcpy32(Sprites::TILE_INDEX_TO_MEM<uint32_t>(sprite.tileIndex), srcData + offsetInSrcData, bytesPerSprite >> 2);
+            Memory::memcpy32(Sprites::TILE_INDEX_TO_MEM16(sprite.tileIndex), srcData + offsetInSrcData, bytesPerSprite >> 2);
             offsetInSrcData += bytesPerSprite;
         }
     }
@@ -227,7 +251,7 @@ namespace Sprites
     void copyTileData256(const Sprite2D *sprite, const uint32_t *tileData)
     {
         uint32_t tileCount = Tiles::TileCountForSizeCode[(uint32_t)sprite->size];
-        Memory::memcpy32(Sprites::TILE_INDEX_TO_MEM256<uint32_t>(sprite->tileIndex), tileData, sizeof(Tiles::Tile256) / 4 * tileCount);
+        Memory::memcpy32(Sprites::TILE_INDEX_TO_MEM256(sprite->tileIndex), tileData, sizeof(Tiles::Tile256) / 4 * tileCount);
     }
 
     void copyTileData256(const Sprite2D *sprites, uint32_t nrOfSprites, const uint32_t *bitmapData, uint32_t bitmapWidth, uint32_t xStep, uint32_t yStep)

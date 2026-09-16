@@ -1,52 +1,50 @@
 #include "scene.h"
+#include "sound/player.h"
 #include "time.h"
-#include "sound/sound.h"
 
 // #define DEBUG_SCENE
 #ifdef DEBUG_SCENE
 #include "debug_print.h"
 #endif
 
-// Define this to control scenes with the keypad (skip etc.)
-// #define SCENE_CONTROL
 #if defined(KEYSDOWN_IN_DATA) || defined(SCENE_CONTROL)
-#include "input.h"
+#include "sys/input.h"
 #endif
 
 namespace Scene
 {
 
-    void play(const Entry *entries, uint32_t nrOfEntries, uint32_t startIndex)
+    void play(const Entry *entries, uint32_t nrOfEntries, uint32_t startIndex, bool loopScene)
     {
-        const Sound::Effect *currentEffect = nullptr;
+        const Player::Effect *currentEffect = nullptr;
         int16_t currentSongNr = -1;
         int32_t currentSongPosition = -1;
-        for (uint32_t i = startIndex; i < nrOfEntries; ++i)
+        for (uint32_t sceneIndex = startIndex; sceneIndex < nrOfEntries; ++sceneIndex)
         {
-            const auto &entry = entries[i];
+            const auto &entry = entries[sceneIndex];
 #ifdef DEBUG_SCENE
             printf("Playing scene %s", entry.name);
 #endif
             // set up player
             if (currentSongNr != entry.songNr && entry.songNr >= 0)
             {
-                // Sound::stopEffect();
-                Sound::playSong(entry.songNr);
+                // Player::stopEffect();
+                Player::playSong(entry.songNr);
                 currentSongNr = entry.songNr;
             }
             if (currentSongPosition != entry.songPosition && entry.songPosition >= 0)
             {
-                Sound::setSongPosition(entry.songPosition);
+                Player::setSongPosition(entry.songPosition);
                 currentSongPosition = entry.songPosition;
             }
             if (currentEffect != entry.effect && entry.effect != nullptr)
             {
-                // Sound::stopSong();
-                Sound::playEffect(entry.effect);
+                // Player::stopSong();
+                Player::playEffect(entry.effect);
                 currentEffect = entry.effect;
             }
             // set up start / end time
-            const Math::fp1616_t startTime = Math::fp1616_t::fromRaw(Time::now());
+            const Math::fp1616_t startTime = Time::now();
             const Math::fp1616_t endTime = startTime + entry.duration;
             // set up data
             Data sceneData;
@@ -57,7 +55,7 @@ namespace Scene
             if (entry.setup != nullptr)
             {
 #ifdef DEBUG_SCENE
-                printf("Running setup");
+                printf("Running setup for scene %d", sceneIndex);
 #endif
                 entry.setup(sceneData);
             }
@@ -65,9 +63,9 @@ namespace Scene
             if (entry.loop != nullptr)
             {
 #ifdef DEBUG_SCENE
-                printf("Running loop");
+                printf("Running loop for scene %d", sceneIndex);
 #endif
-                while (Math::fp1616_t::fromRaw(Time::now()) < endTime || entry.duration <= 0)
+                while (Math::fp1616_t::fromRaw(Time::now()) < endTime || entry.duration <= 0 || loopScene)
                 {
 #if defined(KEYSDOWN_IN_DATA) || defined(SCENE_CONTROL)
                     scanKeys();
@@ -78,33 +76,32 @@ namespace Scene
                     sceneData.t = Math::fp1616_t::ONE - (endTime - Math::fp1616_t::fromRaw(Time::now())) / sceneData.duration;
                     entry.loop(sceneData);
 #ifdef SCENE_CONTROL
-                    if (sceneData.keysDown & KEY_START && i > 0)
+                    if (sceneData.keysDown & KEY_START && sceneIndex > 0)
                     {
                         // skip to start
-                        i = 0;
-                        Time::setTime(sceneData.startTime);
+                        sceneIndex = -1;
+                        currentEffect = nullptr;
+                        currentSongNr = -1;
+                        currentSongPosition = -1;
 #ifdef DEBUG_SCENE
                         printf("Skipping to first scene");
 #endif
                         break;
                     }
-                    else if (sceneData.keysDown & KEY_LEFT && i > 0)
+                    else if (sceneData.keysDown & KEY_LEFT && sceneIndex > 0)
                     {
-                        // skip backwards
-                        i--;
-                        Time::setTime(sceneData.startTime);
+                        // skip backwards (sceneIndex will be increased in for statement)
+                        sceneIndex -= 2;
 #ifdef DEBUG_SCENE
-                        printf("Skipping to scene %d", i);
+                        printf("Skipping to scene %d", sceneIndex);
 #endif
                         break;
                     }
-                    else if (sceneData.keysDown & KEY_RIGHT && i < nrOfEntries - 1)
+                    else if (sceneData.keysDown & KEY_RIGHT && sceneIndex < nrOfEntries - 1)
                     {
-                        // skip forward
-                        i++;
-                        Time::setTime(sceneData.startTime);
+                        // skip forward (sceneIndex will be increased in for statement)
 #ifdef DEBUG_SCENE
-                        printf("Skipping to scene %d", i);
+                        printf("Skipping to scene %d", sceneIndex);
 #endif
                         break;
                     }

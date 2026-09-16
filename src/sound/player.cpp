@@ -278,8 +278,8 @@ namespace Player
         // We also need to call mmFrame every frame we display, so connect it to our handler
         Graphics::callAtVblank((void (*)())frame);
         // Maxmod requires the vblank interrupt to reset sound DMA. Link the VBlank interrupt to mmVBlank, and enable it.
-        irqSet(IRQMask::IRQ_VBLANK, mmVBlank);
-        irqEnable(IRQMask::IRQ_VBLANK);
+        Irq::setHandler(Irq::Mask::VBlank, mmVBlank);
+        Irq::enable(Irq::Mask::VBlank);
         // Initialise maxmod with soundbank and 8 channels
         // mmInitDefault((mm_addr)soundbank, PlayerModChannels);
         mm_gba_system system;

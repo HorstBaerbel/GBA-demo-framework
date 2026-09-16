@@ -6,7 +6,7 @@
 namespace Effect_Mosaic
 {
 
-    void toggleMosaic(Target target, bool enable)
+    void toggle(Target target, bool enable)
     {
         volatile uint16_t *reg = reinterpret_cast<volatile uint16_t *>(REG_BASE + 8 + uint32_t(target));
         *reg = enable ? *reg | 0x40 : *reg & ~0x40;
@@ -14,7 +14,7 @@ namespace Effect_Mosaic
 
     void setMosaicBG(uint16_t bgH, uint16_t bgV)
     {
-        REG_MOSAIC = (REG_MOSAIC & 0xFF00) | ((bgV & 0xF) << 4) | (bgV & 0xF);
+        REG_MOSAIC = (REG_MOSAIC & 0xFF00) | ((bgV & 0xF) << 4) | (bgH & 0xF);
     }
 
     void setMosaicOBJ(uint16_t objH, uint16_t objV)

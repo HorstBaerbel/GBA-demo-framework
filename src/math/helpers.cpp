@@ -3,6 +3,10 @@
 template <>
 uint32_t countLeadingZeros(uint32_t x)
 {
+    if (x == 0)
+    {
+        return 32;
+    }
     uint32_t exp = 32;
     if (x & 0xffff0000)
     {
@@ -32,6 +36,10 @@ uint32_t countLeadingZeros(uint32_t x)
 template <>
 uint32_t countLeadingZeros(uint16_t x)
 {
+    if (x == 0)
+    {
+        return 16;
+    }
     uint32_t exp = 16;
     if (x & 0xff00)
     {
@@ -56,6 +64,10 @@ uint32_t countLeadingZeros(uint16_t x)
 template <>
 uint32_t countTrailingZeros(uint32_t x)
 {
+    if (x == 0)
+    {
+        return 32;
+    }
     uint32_t exp = 0;
     if ((x & 0x0000ffff) == 0)
     {
@@ -85,6 +97,10 @@ uint32_t countTrailingZeros(uint32_t x)
 template <>
 uint32_t countTrailingZeros(uint16_t x)
 {
+    if (x == 0)
+    {
+        return 16;
+    }
     uint32_t exp = 0;
     if ((x & 0x00ff) == 0)
     {

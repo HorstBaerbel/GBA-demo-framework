@@ -14,14 +14,15 @@ namespace Effect_Mosaic
     };
 
     /// @brief Toggle mosaicing on / off for specific target.
-    void toggleMosaic(Target target, bool enable);
+    void toggle(Target target, bool enable);
 
-    /// @brief set mosaic values for Backgrounds. Values are in range [0-15]. 0 == disabled.
+    /// @brief set mosaic values for backgrounds. Values are in range [0-15]. 0 == disabled.
     void setMosaicBG(uint16_t bgH, uint16_t bgV);
 
-    /// @brief set mosaic values for Sprites. Values are in range [0-15]. 0 == disabled.
+    /// @brief set mosaic values for sprites. Values are in range [0-15]. 0 == disabled.
     void setMosaicOBJ(uint16_t objH, uint16_t objV);
 
+    /// @brief Reset moasaic values for sprites and backgrounds
     void clear();
 
 }

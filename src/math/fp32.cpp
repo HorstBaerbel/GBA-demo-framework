@@ -1,5 +1,7 @@
 #include "fp32.h"
 
+#include "random.h"
+
 namespace Math
 {
 
@@ -46,4 +48,9 @@ namespace Math
 	template<> const fp32_t<24> fp32_t<24>::ONE_OVER_PI = fp32_t<24>(1.0f / 3.1415926535f);
 	template<> const fp32_t<24> fp32_t<24>::ONE_OVER_PI_2 = fp32_t<24>(1.0f / (2.0f * 3.1415926535f));
 
+	fp1616_t random(fp1616_t from, fp1616_t to)
+	{
+		fp1616_t range = to - from;
+		return from + (range * fp1616_t::fromRaw(((int64_t)::random<uint16_t>() << fp1616_t::BITSF) / __UINT16_MAX__));
+	}
 }

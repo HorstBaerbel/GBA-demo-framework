@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sound/sound.h"
+#include "sound/player.h"
 
 #include <cstdint>
 
@@ -39,6 +39,6 @@ namespace Volume
     bool isBass();
 
     /// @brief Process song volume messages from player
-    void handleSongEvent(Sound::SongEvent event, int32_t parameter);
+    void handleSongEvent(Player::SongEvent event, int32_t parameter);
 
 } //namespace Sound

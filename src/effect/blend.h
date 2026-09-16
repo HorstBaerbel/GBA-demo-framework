@@ -37,6 +37,9 @@ namespace Effect_Blend
         MODE_BLACK = (3 << 6)  /// Fade to black.
     };
 
+    /// @brief Combines a Target and Mode flag
+    inline uint16_t operator|(Target a, Mode b) { return static_cast<uint16_t>(a) | static_cast<uint16_t>(b); }
+
     enum class Direction : uint16_t
     {
         FADE_TO,           /// Fade from current state to "to" state.

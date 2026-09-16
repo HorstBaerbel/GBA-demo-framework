@@ -9,7 +9,7 @@
 
 #endif
 
-#include "print/print.h"
+#include "print/output.h"
 
 // Define this to build a FFT DIT swizzle table and output it to console
 // #define BUILD_SWIZZLE_TABLE

@@ -20,12 +20,12 @@ namespace Math
 
         mat2x2_t() {}
         /*template <typename R>
-		mat2x2_t(const mat2x2_t<R> & b) { *this = b; }
-		template <class B = int, typename std::enable_if<!std::is_same<B, int32_t>::value>::type...>
-		mat2x2_t(int m11, int m12, int m21, int m22) : m({{m11, m12}, {m21, m22}}) {}
-		mat2x2_t(int32_t m11, int32_t m12, int32_t m21, int32_t m22) : m({{m11, m12}, {m21, m22}}) {}
+        mat2x2_t(const mat2x2_t<R> & b) { *this = b; }
+        template <class B = int, typename std::enable_if<!std::is_same<B, int32_t>::value>::type...>
+        mat2x2_t(int m11, int m12, int m21, int m22) : m({{m11, m12}, {m21, m22}}) {}
+        mat2x2_t(int32_t m11, int32_t m12, int32_t m21, int32_t m22) : m({{m11, m12}, {m21, m22}}) {}
         mat2x2_t(T m11, T m12, T m21, T m22) : m({{m11, m12}, {m21, m22}}) {}
-		mat2x2_t(float m11, float m12, float m21, float m22) : m({{m11, m12}, {m21, m22}}) {}
+        mat2x2_t(float m11, float m12, float m21, float m22) : m({{m11, m12}, {m21, m22}}) {}
         constexpr mat2x2_t(std::initializer_list<T> l) : m(l) {}*/
         mat2x2_t(const vec2_t<T> &r1, const vec2_t<T> &r2) : m{r1, r2} {}
 
@@ -122,7 +122,7 @@ namespace Math
 
         mat2x2_t &transpose()
         {
-            std::swap(m[1], m[2]);
+            swap(m[1], m[2]);
             return *this;
         }
         mat2x2_t transposed() const { return mat2x2_t({{m[0], m[2]}, {m[1], m[3]}}); }
@@ -195,12 +195,12 @@ namespace Math
 
         mat3x3_t() {}
         /*template <typename R>
-		mat3x3_t(const mat3x3_t<R> & b) { *this = b; }
-		template <class B = int, typename std::enable_if<!std::is_same<B, int32_t>::value>::type...>
-		mat3x3_t(int m11, int m12, int m13, int m21, int m22, int m23, int m31, int m32, int m33) : m({m11, m12, m13, m21, m22, m23, m31, m32, m33}) {}
-		mat3x3_t(int32_t m11, int32_t m12, int32_t m13, int32_t m21, int32_t m22, int32_t m23, int32_t m31, int32_t m32, int32_t m33) : m({m11, m12, m13, m21, m22, m23, m31, m32, m33}) {}
+        mat3x3_t(const mat3x3_t<R> & b) { *this = b; }
+        template <class B = int, typename std::enable_if<!std::is_same<B, int32_t>::value>::type...>
+        mat3x3_t(int m11, int m12, int m13, int m21, int m22, int m23, int m31, int m32, int m33) : m({m11, m12, m13, m21, m22, m23, m31, m32, m33}) {}
+        mat3x3_t(int32_t m11, int32_t m12, int32_t m13, int32_t m21, int32_t m22, int32_t m23, int32_t m31, int32_t m32, int32_t m33) : m({m11, m12, m13, m21, m22, m23, m31, m32, m33}) {}
         mat3x3_t(T m11, T m12, T m13, T m21, T m22, T m23, T m31, T m32, T m33) : m({m11, m12, m13, m21, m22, m23, m31, m32, m33}) {}
-		mat3x3_t(float m11, float m12, float m13, float m21, float m22, float m23, float m31, float m32, float m33) : m({m11, m12, m13, m21, m22, m23, m31, m32, m33}) {}
+        mat3x3_t(float m11, float m12, float m13, float m21, float m22, float m23, float m31, float m32, float m33) : m({m11, m12, m13, m21, m22, m23, m31, m32, m33}) {}
         constexpr mat3x3_t(std::initializer_list<T> l) : m(l) {}*/
         mat3x3_t(const vec3_t<T> &r1, const vec3_t<T> &r2, const vec3_t<T> &r3) : m{r1, r2, r3} {}
 
@@ -299,14 +299,15 @@ namespace Math
 
         mat3x3_t &transpose()
         {
-            std::swap(m[1], m[3]);
-            std::swap(m[2], m[6]);
-            std::swap(m[5], m[7]);
+            swap(m[1], m[3]);
+            swap(m[2], m[6]);
+            swap(m[5], m[7]);
             return *this;
         }
         mat3x3_t transposed() const { return mat3x3_t(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]); }
 
         T determinant() const { return m[0] * (m[4] * m[8] - m[5] * m[7]) - m[1] * (m[3] * m[8] - m[5] * m[6]) + m[2] * (m[3] * m[7] - m[4] * m[6]); }
+
         mat3x3_t &invert()
         {
             T tmp[9];
@@ -338,11 +339,13 @@ namespace Math
             m[8] = invDet * tmp[8];
             return *this;
         }
+
         mat3x3_t inverse() const
         {
             mat3x3_t tmp(*this);
             return tmp.invert();
         }
+
         mat3x3_t inverseTranspose() const
         {
             mat3x3_t tmp(*this);
@@ -350,6 +353,10 @@ namespace Math
             tmp.transpose();
             return tmp;
         }
+
+        /// @brief Return inverse matrix if it is orthogonal and has a uniform scale.
+        /// Scales the matrix by the inverse of the norm of row 0 and transposes it
+        /// @return Inverse matrix
         mat3x3_t inverseOrthogonalUniformScale() const
         {
             T scale = m[0].norm();
@@ -362,6 +369,10 @@ namespace Math
             tmp *= scale;
             return tmp;
         }
+
+        /// @brief Return transposed inverse matrix if it is orthogonal and has a uniform scale.
+        /// Scales the matrix by the inverse of the norm of row 0
+        /// @return Transposed inverse matrix
         mat3x3_t inverseTransposeOrthogonalUniformScale() const
         {
             T scale = m[0].norm();
@@ -387,12 +398,12 @@ namespace Math
 
         mat3x4_t() {}
         /*template <typename R>
-		mat3x4_t(const mat3x4_t<R> & b) { *this = b; }
-		template <class B = int, typename std::enable_if<!std::is_same<B, int32_t>::value>::type...>
-		mat3x4_t(int m11, int m12, int m13, int m14, int m21, int m22, int m23, int m24, int m31, int m32, int m33, int m34) : m({{m11, m12, m13, m14}, {m21, m22, m23, m24}, {m31, m32, m33, m34}}) {}
-		mat3x4_t(int32_t m11, int32_t m12, int32_t m13, int32_t m14, int32_t m21, int32_t m22, int32_t m23, int32_t m24, int32_t m31, int32_t m32, int32_t m33, int32_t m34) : m({{m11, m12, m13, m14}, {m21, m22, m23, m24}, {m31, m32, m33, m34}}) {}
+        mat3x4_t(const mat3x4_t<R> & b) { *this = b; }
+        template <class B = int, typename std::enable_if<!std::is_same<B, int32_t>::value>::type...>
+        mat3x4_t(int m11, int m12, int m13, int m14, int m21, int m22, int m23, int m24, int m31, int m32, int m33, int m34) : m({{m11, m12, m13, m14}, {m21, m22, m23, m24}, {m31, m32, m33, m34}}) {}
+        mat3x4_t(int32_t m11, int32_t m12, int32_t m13, int32_t m14, int32_t m21, int32_t m22, int32_t m23, int32_t m24, int32_t m31, int32_t m32, int32_t m33, int32_t m34) : m({{m11, m12, m13, m14}, {m21, m22, m23, m24}, {m31, m32, m33, m34}}) {}
         mat3x4_t(T m11, T m12, T m13, T m14, T m21, T m22, T m23, T m24, T m31, T m32, T m33, T m34) : m({{m11, m12, m13, m14}, {m21, m22, m23, m24}, {m31, m32, m33, m34}}) {}
-		mat3x4_t(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24, float m31, float m32, float m33, float m34) : m({{m11, m12, m13, m14}, {m21, m22, m23, m24}, {m31, m32, m33, m34}}) {}*/
+        mat3x4_t(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24, float m31, float m32, float m33, float m34) : m({{m11, m12, m13, m14}, {m21, m22, m23, m24}, {m31, m32, m33, m34}}) {}*/
         mat3x4_t(const vec4_t<T> &r1, const vec4_t<T> &r2, const vec4_t<T> &r3) : m{r1, r2, r3} {}
         mat3x4_t(const mat3x3_t<T> &r) : m{{r.m[0].x, r.m[0].y, r.m[0].z, 0}, {r.m[1].x, r.m[1].y, r.m[1].z, 0}, {r.m[2].x, r.m[2].y, r.m[2].z, 0}} {}
 
@@ -509,6 +520,9 @@ namespace Math
 
         T determinant() const { return m[0] * (m[4] * m[8] - m[5] * m[7]) - m[1] * (m[3] * m[8] - m[5] * m[6]) + m[2] * (m[3] * m[7] - m[4] * m[6]); }
 
+        /// @brief Return inverse matrix if it is orthogonal and has a uniform scale.
+        /// Scales the matrix by the inverse of the norm of row 0 and transposes it
+        /// @return Inverse matrix
         mat3x3_t<T> inverseOrthogonalUniformScale() const
         {
             T scale = m[0].norm();
@@ -521,6 +535,10 @@ namespace Math
             tmp *= scale;
             return tmp;
         }
+
+        /// @brief Return transposed inverse matrix if it is orthogonal and has a uniform scale.
+        /// Scales the matrix by the inverse of the norm of row 0 and transposes it
+        /// @return Transposed inverse matrix
         mat3x4_t inverseTransposeOrthogonalUniformScale() const
         {
             T scale = m[0].norm();
@@ -551,12 +569,12 @@ namespace Math
 
         mat4x4_t() {}
         /*template <typename R>
-		mat4x4_t(const mat4x4_t<R> & b) { *this = b; }
-		template <class B = int, typename std::enable_if<!std::is_same<B, int32_t>::value>::type...>
-		mat4x4_t(int m11, int m12, int m13, int m14, int m21, int m22, int m23, int m24, int m31, int m32, int m33, int m34, int m41, int m42, int m43, int m44) : m({m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44}) {}
-		mat4x4_t(int32_t m11, int32_t m12, int32_t m13, int32_t m14, int32_t m21, int32_t m22, int32_t m23, int32_t m24, int32_t m31, int32_t m32, int32_t m33, int32_t m34, int32_t m41, int32_t m42, int32_t m43, int32_t m44) : m({m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44}) {}
+        mat4x4_t(const mat4x4_t<R> & b) { *this = b; }
+        template <class B = int, typename std::enable_if<!std::is_same<B, int32_t>::value>::type...>
+        mat4x4_t(int m11, int m12, int m13, int m14, int m21, int m22, int m23, int m24, int m31, int m32, int m33, int m34, int m41, int m42, int m43, int m44) : m({m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44}) {}
+        mat4x4_t(int32_t m11, int32_t m12, int32_t m13, int32_t m14, int32_t m21, int32_t m22, int32_t m23, int32_t m24, int32_t m31, int32_t m32, int32_t m33, int32_t m34, int32_t m41, int32_t m42, int32_t m43, int32_t m44) : m({m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44}) {}
         mat4x4_t(T m11, T m12, T m13, T m14, T m21, T m22, T m23, T m24, T m31, T m32, T m33, T m34, T m41, T m42, T m43, T m44) : m({m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44}) {}
-		mat4x4_t(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24, float m31, float m32, float m33, float m34, float m41, float m42, float m43, float m44) : m({m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44}) {}
+        mat4x4_t(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24, float m31, float m32, float m33, float m34, float m41, float m42, float m43, float m44) : m({m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44}) {}
         constexpr mat4x4_t(std::initializer_list<T> l) : m(l) {}*/
         mat4x4_t(const vec4_t<T> &r1, const vec4_t<T> &r2, const vec4_t<T> &r3, const vec4_t<T> &r4) : m{r1, r2, r3, r4} {}
 
@@ -662,6 +680,7 @@ namespace Math
             *this = identity;
             return *this;
         }
+
         mat4x4_t &setZero()
         {
             *this = zero;
@@ -670,32 +689,38 @@ namespace Math
 
         mat4x4_t &transpose()
         {
-            std::swap(m[1], m[4]);
-            std::swap(m[2], m[8]);
-            std::swap(m[3], m[12]);
-            std::swap(m[6], m[9]);
-            std::swap(m[7], m[13]);
-            std::swap(m[11], m[14]);
+            swap(m[1], m[4]);
+            swap(m[2], m[8]);
+            swap(m[3], m[12]);
+            swap(m[6], m[9]);
+            swap(m[7], m[13]);
+            swap(m[11], m[14]);
             return *this;
         }
+
         mat4x4_t transposed() const { return mat4x4_t(m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]); }
 
         T determinant() const { return m[0] * (m[4] * m[8] - m[5] * m[7]) - m[1] * (m[3] * m[8] - m[5] * m[6]) + m[2] * (m[3] * m[7] - m[4] * m[6]); }
+
         mat4x4_t &invert()
         {
             return *this;
         }
+
         mat4x4_t inverse() const
         {
             mat4x4_t tmp(*this);
             return tmp.invert();
         }
+
+        static mat4x4_t fromClip(const T &fov, const T &aspect, const T &near, const T &far) { return mat4x4_t({fov * aspect, 0, 0, 0}, {0, fov, 0, 0}, {0, 0, (far + near) / (far - near), 1}, {0, 0, 0, (2 * near * far) / (near - far)}); }
+
     } __attribute__((aligned(4), packed));
 
-    using fp1616mat2x2_t = mat2x2_t<fp1616_t>; //2x2 16.16 matrix (2D rotation)
-    using fp1616mat3x3_t = mat3x3_t<fp1616_t>; //3x3 16.16 matrix (3D rotation / normal matrix)
-    using fp1616mat3x4_t = mat3x4_t<fp1616_t>; //3x4 16.16 matrix (3D world transform)
-    using fp1616mat4x4_t = mat4x4_t<fp1616_t>; //4x4 16.16 matrix (3D perspective transform)
+    using fp1616mat2x2_t = mat2x2_t<fp1616_t>; // 2x2 16.16 matrix (2D rotation)
+    using fp1616mat3x3_t = mat3x3_t<fp1616_t>; // 3x3 16.16 matrix (3D rotation / normal matrix)
+    using fp1616mat3x4_t = mat3x4_t<fp1616_t>; // 3x4 16.16 matrix (3D world / view transform)
+    using fp1616mat4x4_t = mat4x4_t<fp1616_t>; // 4x4 16.16 matrix (3D perspective transform)
 
 #include "mat_arith.h"
 #include "mat_vec.h"

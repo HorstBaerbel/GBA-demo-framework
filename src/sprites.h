@@ -18,19 +18,19 @@ namespace Sprites
     auto const TileMem256{reinterpret_cast<Tiles::Tile256 *>(SpriteTileMem)};
 
     /// @brief 16-color sprite tile index to memory address
-    template <typename T>
-    constexpr T *TILE_INDEX_TO_MEM(uint32_t tileIndex)
+    template <typename T = uint32_t>
+    constexpr T *TILE_INDEX_TO_MEM16(uint32_t tileIndex)
     {
         // sprite tile INDEX is the same in 4 and 8 bit mode. yeah, wtf.
         return reinterpret_cast<T *>(SpriteTileMem + ((uint32_t(tileIndex)) * 8 * 4));
     }
 
     /// @brief 256-color sprite tile index to memory address
-    template <typename T>
+    template <typename T = uint32_t>
     constexpr T *TILE_INDEX_TO_MEM256(uint32_t tileIndex)
     {
         // sprite tile INDEX is the same in 4 and 8 bit mode. yeah, wtf.
-        return TILE_INDEX_TO_MEM<T>(tileIndex);
+        return TILE_INDEX_TO_MEM16<T>(tileIndex);
     }
 
     /// @brief Sprite type
@@ -111,18 +111,24 @@ namespace Sprites
         Priority priority = Priority::Prio0;
         bool doubleSize = false;
         uint8_t matrixIndex = 0;
-        AffineData matrix;
+        AffineData matrix = {};
     } __attribute__((aligned(4), packed));
 
     /// @brief Fill a Sprite2D struct with data. Will create a regular sprite
     auto create(uint32_t spriteIndex, int32_t x, int32_t y, uint32_t tileIndex = 0, SizeCode size = SizeCode::Size8x8, ColorDepth depth = ColorDepth::Depth16, uint32_t paletteIndex = 0, Mode mode = Mode::Normal, bool visible = true) -> Sprite2D;
     /// @brief Fill Sprite2D structs with data, calculating tile numbers for each sprite based on size and depth. Will create a regular sprite
     auto create(Sprite2D *sprites, uint32_t nrOfSprites, uint32_t spriteIndex = 0, uint32_t tileIndex = 0, SizeCode size = SizeCode::Size8x8, ColorDepth depth = ColorDepth::Depth16, uint32_t paletteIndex = 0, uint32_t matrixIndex = 0) -> void;
+    /// @brief Fill Sprite2D structs with data, calculating tile numbers for each sprite based on size and depth. Will create a regular sprite.
+    /// Will also connect sprites horizontally base on size, starting at x,y.
+    auto createHorizontal(Sprite2D *sprites, uint32_t nrOfSprites, int32_t x, int32_t y, uint32_t spriteIndex = 0, uint32_t tileIndex = 0, SizeCode size = SizeCode::Size8x8, ColorDepth depth = ColorDepth::Depth16, uint32_t paletteIndex = 0, uint32_t matrixIndex = 0) -> void;
+    /// @brief Fill Sprite2D structs with data, calculating tile numbers for each sprite based on size and depth. Will create a regular sprite.
+    /// Will also connect sprites vertically base on size, starting at x,y.
+    auto createVertical(Sprite2D *sprites, uint32_t nrOfSprites, int32_t x, int32_t y, uint32_t spriteIndex = 0, uint32_t tileIndex = 0, SizeCode size = SizeCode::Size8x8, ColorDepth depth = ColorDepth::Depth16, uint32_t paletteIndex = 0, uint32_t matrixIndex = 0) -> void;
 
     /// @brief Copy tile data for sprite to VRAM.
     void copyTileData16(const Sprite2D *sprite, const uint32_t *tileData);
     /// @brief Copy tile data for multiple sprites from bitmap to VRAM.
-    void copyTileData16(const Sprite2D *sprites, const uint32_t *tileData, uint32_t nrOfSprites = 1);
+    void copyTileData16(const Sprite2D *sprites, uint32_t nrOfSprites, const uint32_t *tileData);
     /// @brief Copy tile data for sprite to VRAM.
     void copyTileData256(const Sprite2D *sprite, const uint32_t *tileData);
     /// @brief Copy data from larger bitmap to tile data in VRAM. Data must be in tile format
@@ -146,8 +152,10 @@ namespace Sprites
     /// @brief Check if a sprite is visible inside bounds [0,right] horizontally and [0,bottom] vertically
     bool isInside(const Sprite2D &sprite, uint32_t right = 239, uint32_t bottom = 159);
 
+    // ----- Functions to be used in vblank -----
+
     /// @brief Set only the visible portion of the sprite to OAM. Call only in vblank.
-    void setVisibleOAM(const Sprite2D *sprite);
+    void setVisibleOAM(const Sprite2D &sprite);
     /// @brief Set only the visible portion of the sprite to OAM. Call only in vblank.
     void setVisibleOAM(uint16_t index, bool visible, bool affine = false);
 

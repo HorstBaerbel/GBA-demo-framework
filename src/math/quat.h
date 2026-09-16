@@ -57,10 +57,10 @@ namespace Math
         quat_t &operator*=(const quat_t &b)
         {
             auto tmp = q;
-            q.x = tmp.x * b.w + tmp.y * b.z - tmp.z * b.y + tmp.w * b.x;
-            q.y = -tmp.x * b.z + tmp.y * b.w + tmp.z * b.x + tmp.w * b.y;
-            q.z = tmp.x * b.y - tmp.y * b.x + tmp.z * b.w + tmp.w * b.z;
-            q.w = -tmp.x * b.x - tmp.y * b.y - tmp.z * b.z + tmp.w * b.w;
+            q.x = tmp.x * b.q.w + tmp.y * b.q.z - tmp.z * b.q.y + tmp.w * b.q.x;
+            q.y = -tmp.x * b.q.z + tmp.y * b.q.w + tmp.z * b.q.x + tmp.w * b.q.y;
+            q.z = tmp.x * b.q.y - tmp.y * b.q.x + tmp.z * b.q.w + tmp.w * b.q.z;
+            q.w = -tmp.x * b.q.x - tmp.y * b.q.y - tmp.z * b.q.z + tmp.w * b.q.w;
             return *this;
         }
         quat_t &operator*=(T b)
@@ -71,10 +71,10 @@ namespace Math
         quat_t &operator/=(const quat_t &b)
         {
             auto tmp = q;
-            q.x = tmp.x * b.w - tmp.y * b.z + tmp.z * b.y - tmp.w * b.x;
-            q.y = tmp.x * b.z + tmp.y * b.w - tmp.z * b.x - tmp.w * b.y;
-            q.z = -tmp.x * b.y + tmp.y * b.x + tmp.z * b.w - tmp.w * b.z;
-            q.w = tmp.x * b.x + tmp.y * b.y + tmp.z * b.z + tmp.w * b.w;
+            q.x = tmp.x * b.q.w - tmp.y * b.q.z + tmp.z * b.q.y - tmp.w * b.q.x;
+            q.y = tmp.x * b.q.z + tmp.y * b.q.w - tmp.z * b.q.x - tmp.w * b.q.y;
+            q.z = -tmp.x * b.q.y + tmp.y * b.q.x + tmp.z * b.q.w - tmp.w * b.q.z;
+            q.w = tmp.x * b.q.x + tmp.y * b.q.y + tmp.z * b.q.z + tmp.w * b.q.w;
             return *this;
         }
         quat_t &operator/=(T b)

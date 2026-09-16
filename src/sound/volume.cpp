@@ -43,10 +43,10 @@ namespace Volume
         m_volume_025s = m_volume_025s < 0 ? 0 : (m_volume_025s > VolumeMax ? VolumeMax : m_volume_025s);
     }
 
-    void handleSongEvent(Sound::SongEvent event, int32_t parameter)
+    void handleSongEvent(Player::SongEvent event, int32_t parameter)
     {
         // First process the messages we care about
-        if (event == Sound::SongEvent::SongMessage)
+        if (event == Player::SongEvent::SongMessage)
         {
             switch (parameter)
             {

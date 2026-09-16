@@ -19,7 +19,7 @@ namespace DXT
             for (uint32_t blockX = 0; blockX < width / 4; blockX++)
             {
                 // get DXT block colors
-                colorPtr = getBlockColors(colorPtr, DXT_BlockColors);
+                colorPtr = getBlockColors(colorPtr, reinterpret_cast<uint16_t *>(DXT_BlockColors));
                 // get pixel color indices and set pixels accordingly
                 uint32_t indices = *indexPtr++; // we can ONLY read a word here, because the encoder reverses the bits and stores two half-words!
                 auto blockDst = blockLineDst;
