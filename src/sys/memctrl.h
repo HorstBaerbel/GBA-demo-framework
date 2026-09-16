@@ -49,5 +49,5 @@ namespace MemCtrl
     /// If so, sets that value, else falls back to WaitEwramNormal.
     /// @param value Wait state value
     /// @return Returns true if the value is usable and was set, false otherwise.
-    auto setIntMemCnt(uint16_t value) -> bool;
+    auto setIntMemCnt(uint32_t value) -> bool;
 }

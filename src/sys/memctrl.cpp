@@ -70,7 +70,7 @@ namespace MemCtrl
         IntMemCntDataMagic + 15,
     };
 
-    IWRAM_FUNC auto setIntMemCnt(uint16_t value) -> bool
+    IWRAM_FUNC auto setIntMemCnt(uint32_t value) -> bool
     {
         RegIntMemCnt = value;
         // check sequential reads
