@@ -102,6 +102,16 @@ namespace Tiles
     /// @brief Screen map value to flip tile vertically
     constexpr uint16_t FlipVertical = 1 << 11;
 
+    /// @brief Write random values to tile data
+    void randomTileData(Tile16 *tileMem, uint32_t nrOfTiles, bool noZeroColor = false);
+
+    /// @brief Write random values to map data for text (NON rotate/scale backgrounds)
+    /// @param mapMem Map memory to fill
+    /// @param nrOfTiles Number of map entries to fill. Must be divisible by 2
+    /// @param paletteIndex Palette index for 16-color modes
+    /// @param pow2ModValue Power-of-2 modulo value for random values. Must be in [1,2,4,8,16,32,64,128,256,512,1024]!
+    void randomMapData(uint16_t *mapMem, uint32_t nrOfTiles, uint8_t paletteIndex = 0, uint32_t pow2ModValue = 1024);
+
     /// @brief Blit linear buffer to tile data
     /// @param dst Destination tile data. Must be consecutive
     /// @param src Source data. Linear and consecutive
