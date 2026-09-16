@@ -1,6 +1,7 @@
 #include "itoa.h"
 
 static const constexpr char ITOA_CHARS[] = "fedcba9876543210123456789abcdef";
+static const constexpr char FPTOA_CHARS[] = "0123456789----------";
 
 char *itoa(uint32_t value, char *result, uint32_t base)
 {
@@ -154,7 +155,6 @@ char *btoa(bool value, char *result)
 
 char *fptoa(int32_t value, char *result, uint32_t BITSF, uint32_t precision)
 {
-	static const char chars[] = "0123456789----------";
 	// make value absolute
 	int32_t tmp_value = static_cast<uint32_t>(value < 0 ? -value : value);
 	int32_t intPart = tmp_value >> BITSF;
@@ -165,7 +165,7 @@ char *fptoa(int32_t value, char *result, uint32_t BITSF, uint32_t precision)
 	{
 		tmp_value = intPart;
 		intPart /= 10;
-		*ptr++ = chars[tmp_value - intPart * 10];
+		*ptr++ = FPTOA_CHARS[tmp_value - intPart * 10];
 	} while (intPart);
 	// apply negative sign
 	if (value < 0)
@@ -187,7 +187,7 @@ char *fptoa(int32_t value, char *result, uint32_t BITSF, uint32_t precision)
 	do
 	{
 		fractPart *= 10;
-		*fracEnd++ = chars[fractPart >> BITSF];
+		*fracEnd++ = FPTOA_CHARS[fractPart >> BITSF];
 		fractPart &= ((1 << BITSF) - 1);
 	} while (fractPart);
 	// if rounding is wanted, round backwards from end

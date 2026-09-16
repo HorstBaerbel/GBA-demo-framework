@@ -7,8 +7,6 @@
 
 namespace Debug
 {
-
-	constexpr int MaxPrintBufferSize = 128;
 	static char PrintBuffer[MaxPrintBufferSize] = {0};
 
 #define MGBA_REG_DEBUG_ENABLE (volatile uint16_t *)0x4FFF780
@@ -46,11 +44,11 @@ namespace Debug
 		#endif
 	*/
 
-	void printf(const char *fmt, ...)
+	void snprintf(char *buf, size_t bufsz, const char *fmt, ...)
 	{
 		va_list args;
 		va_start(args, fmt);
-		char *buffer = PrintBuffer;
+		char *buffer = buf;
 		buffer[0] = '\0';
 		bool expectType = false;
 		while (*fmt != '\0')
@@ -106,7 +104,7 @@ namespace Debug
 				else if (*fmt == 's')
 				{
 					auto s = va_arg(args, const char *);
-					while (*s != '\0' && (buffer - PrintBuffer) < MaxPrintBufferSize)
+					while (*s != '\0' && static_cast<size_t>(buffer - buf) < bufsz)
 					{
 						*buffer++ = *s++;
 					}
@@ -129,13 +127,18 @@ namespace Debug
 			}
 			++fmt;
 			// find new end of string
-			while (*buffer != '\0' && (buffer - PrintBuffer) < MaxPrintBufferSize)
+			while (*buffer != '\0' && static_cast<size_t>(buffer - buf) < bufsz)
 			{
 				buffer++;
 			}
 		}
 		va_end(args);
-		print(PrintBuffer);
 	}
 
+	void printf(const char *fmt, ...)
+	{
+		va_list args;
+		snprintf(PrintBuffer, MaxPrintBufferSize, fmt, args);
+		print(PrintBuffer);
+	}
 }
