@@ -44,7 +44,7 @@ namespace Scene
                 currentEffect = entry.effect;
             }
             // set up start / end time
-            const Math::fp1616_t startTime = Time::now();
+            const Math::fp1616_t startTime = Math::fp1616_t::fromRaw(Time::now());
             const Math::fp1616_t endTime = startTime + entry.duration;
             // set up data
             Data sceneData;
