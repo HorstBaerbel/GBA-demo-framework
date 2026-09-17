@@ -111,7 +111,7 @@ namespace Effect_Blend
         v2 = v2 > 16 ? 16 : v2;
         // enable targets and effect and set values
         REG_BLDCNT = static_cast<uint16_t>(targets1) | static_cast<uint16_t>(targets2) | static_cast<uint16_t>(Mode::MODE_ALPHA);
-        REG_BLDY = (v2 << 8) | v1;
+        REG_BLDALPHA = (v2 << 8) | v1;
     }
 
     void clear()
