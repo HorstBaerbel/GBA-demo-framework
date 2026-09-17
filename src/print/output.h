@@ -12,7 +12,7 @@ namespace Debug
     void print(const char *s);
 
     /// @brief Print a formatted string to a buffer
-    void snprintf(char *buf, size_t bufsz, const char *fmt, ...);
+    void vsnprintf(char *buf, size_t bufsz, const char *fmt, va_list args);
 
     /// @brief Print a formatted string to emulator
     void printf(const char *fmt, ...);

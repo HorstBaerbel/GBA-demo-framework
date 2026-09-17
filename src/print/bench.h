@@ -45,7 +45,7 @@ namespace Debug
 #define TIME_SECTION_START() Debug::startTimer();
 
 /// @brief End timing of a section and print averaged runtime duration in ms
-/// @param interval Sampling / averaging interval in seconds
+/// @param interval Sampling / averaging interval in seconds as a 16.16 fixed-point value
 /// @param printFunc Function that should print the section time, e.g. printf()
 /// @param printString Format string that should be passed to printFunc, e.g. "%.2fms"
 /// @note Function will pass the accumulated time in ms to the printFunc as a 16.16 fixed-point value.

@@ -44,10 +44,8 @@ namespace Debug
 		#endif
 	*/
 
-	void snprintf(char *buf, size_t bufsz, const char *fmt, ...)
+	void vsnprintf(char *buf, size_t bufsz, const char *fmt, va_list args)
 	{
-		va_list args;
-		va_start(args, fmt);
 		char *buffer = buf;
 		buffer[0] = '\0';
 		bool expectType = false;
@@ -132,13 +130,14 @@ namespace Debug
 				buffer++;
 			}
 		}
-		va_end(args);
 	}
 
 	void printf(const char *fmt, ...)
 	{
 		va_list args;
-		snprintf(PrintBuffer, MaxPrintBufferSize, fmt, args);
+		va_start(args, fmt);
+		vsnprintf(PrintBuffer, MaxPrintBufferSize, fmt, args);
+		va_end(args);
 		print(PrintBuffer);
 	}
 }
