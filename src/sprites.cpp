@@ -120,7 +120,7 @@ namespace Sprites
     {
         create(sprites, nrOfSprites, spriteIndex, tileIndex, size, depth, paletteIndex, matrixIndex);
         auto px = x;
-        for (uint32_t i = spriteIndex; i < (spriteIndex + nrOfSprites); ++i)
+        for (uint32_t i = 0; i < nrOfSprites; ++i)
         {
             sprites[i].x = px;
             sprites[i].y = y;
@@ -132,7 +132,7 @@ namespace Sprites
     {
         create(sprites, nrOfSprites, spriteIndex, tileIndex, size, depth, paletteIndex, matrixIndex);
         auto py = y;
-        for (uint32_t i = spriteIndex; i < (spriteIndex + nrOfSprites); ++i)
+        for (uint32_t i = 0; i < nrOfSprites; ++i)
         {
             sprites[i].x = x;
             sprites[i].y = py;
