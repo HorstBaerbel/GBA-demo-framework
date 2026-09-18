@@ -6,10 +6,10 @@
 
 #include <cstdint>
 
-/// @brief Full-fledged module / effect player using MaxMOD
+/// @brief Full-fledged module / effect player using Maxmod
 ///
 /// ----- General info -----
-/// MaxMOD always plays as stereo. It uses Timer 0, DMA 1 + 2.
+/// Maxmod always plays as stereo. It uses Timer 0, DMA 1 + 2.
 /// Its mixxing and wave buffers are put into IWRAM. Size depends on the mxing frequency and number of supported channels.
 /// It also needs to be called on Vblank consistently, thus it is called on Vblank IRQ. All other Vblank handler must come after that.
 ///
@@ -17,7 +17,7 @@
 /// To generate a soundbank for the init() function, add your .wav, .mod, .xm files to your
 /// CMakeLists.txt, e.g. like so:
 ///
-/// # List all the MaxMod-compatible music files in the ./music directory
+/// # List all the Maxmod-compatible music files in the ./music directory
 /// file(GLOB_RECURSE MUSIC_FILES
 ///	    ./music/*
 /// )
@@ -46,17 +46,33 @@
 /// ModulePlayer::removeAtSongEvent(yourHandlerFunction);
 namespace ModulePlayer
 {
-    enum class LoopMode
+    /// @brief Song loop mode
+    enum class LoopMode : uint8_t
     {
         None,    // Default. No looping
         LoopAll, // Loop all songs in soundbank
         LoopOne  // Loop single song
     };
 
+    /// @brief Player mixing frequency
+    enum class MixFrequency : uint8_t
+    {
+        Frequency_8kHz,  // = 8121 Hz
+        Frequency_10kHz, // = 10512 Hz
+        Frequency_13kHz, // = 13379 Hz
+        Frequency_16kHz, // = 15768 Hz
+        Frequency_18kHz, // = 18157 Hz
+        Frequency_21kHz, // = 21024 Hz
+        Frequency_27kHz, // = 26758 Hz
+        Frequency_31kHz  // = 31536 Hz
+    };
+
     /// @brief Initialize player. Call this before using the player!
-    /// @param soundbank MaxMod binary soundbank data from soundbank_bin.h
+    /// @param soundbank Maxmod binary soundbank data from soundbank_bin.h
     /// @param nrOfSongs Number of songs in soundbank. Use MSL_NSONGS from soundbank.h
-    void init(const void *soundbank, uint32_t nrOfSongs);
+    /// @param frequency Mixing frequency of player. Higher = Higher quality, but higher memory and CPU usage
+    /// @param channels Overall combined module and effect channels. Maximum is 32.
+    void init(const void *soundbank, uint32_t nrOfSongs, MixFrequency frequency = MixFrequency::Frequency_21kHz, uint32_t channels = 8);
 
     /// @brief Get numer of files / modules available to player (from soundbank.bin)
     uint32_t getSongCount();
@@ -70,10 +86,13 @@ namespace ModulePlayer
     /// @brief Set song / soundbank loop mode
     void setLoopMode(LoopMode mode);
 
-    /// @brief Length of sound buffer returned in mixingBuffer()
-    constexpr uint32_t getWaveBufferLength();
+    /// @brief Mixing frequency of player in Hz
+    uint32_t getMixFrequencyHz();
 
-    /// @brief Mixing buffer data from player
+    /// @brief Length of sound buffer returned in getWaveBuffer()
+    uint32_t getWaveBufferLength();
+
+    /// @brief Stereo mixing buffer data from player at mixing frequency
     const int8_t *getWaveBuffer();
 
     /// @brief Play sound effect from soundbank.bin
@@ -130,7 +149,7 @@ namespace ModulePlayer
 
     //--- spectrum -----------------------------------------------------------------------------
 
-    /// @brief Calculate spectrum from MaxMOD play buffer
+    /// @brief Calculate spectrum from Maxmod play buffer
     void updateSpectrum();
 
     /// @brief Get current spectrum. Use update() to calculate

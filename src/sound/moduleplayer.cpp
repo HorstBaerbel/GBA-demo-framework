@@ -3,12 +3,14 @@
 #include "memory/memory.h"
 #include "sys/interrupts.h"
 
-// #define DEBUG_PLAYER
-#ifdef DEBUG_PLAYER
-#include "print/print.h"
+// #define DEBUG_MODULEPLAYER
+#ifdef DEBUG_MODULEPLAYER
+#include "print/output.h"
 #endif
 
-#ifdef CHECK_CPU_TIME
+// #define MODULEPLAYER_CPU_TIME
+#ifdef MODULEPLAYER_CPU_TIME
+#include "print/output.h"
 #include "time.h"
 #endif
 
@@ -17,28 +19,41 @@
 namespace ModulePlayer
 {
 
-    constexpr mm_mixmode PlayerMixFrequency = MM_MIX_21KHZ; // Player mixxing frequency
-    constexpr uint32_t PlayerMixLength = MM_MIXLEN_21KHZ;   // Length of player mixing buffer in bytes
-    constexpr uint32_t PlayerMixChannels = 8;               // number of simultaneously mixed channels (MOD + effects)
-    constexpr uint32_t PlayerModChannels = 8;               // number of simultaneously rendered channels in MOD
+    /// @brief Map mix frequency enum to frequency in Hz
+    static const uint16_t MixFrequency2Hz[] = {
+        8121,
+        10512,
+        13379,
+        15768,
+        18157,
+        21024,
+        26758,
+        31536};
 
-    IWRAM_DATA ALIGN(4) int8_t m_mixingBuffer[PlayerMixLength];
-    IWRAM_DATA ALIGN(4) int8_t m_maxmodBuffer[PlayerModChannels * (MM_SIZEOF_MODCH + MM_SIZEOF_ACTCH + MM_SIZEOF_MIXCH) + PlayerMixLength];
+    /// @brief Map mix frequency to Maxmod mix buffer length
+    static const uint16_t MixFrequency2MixLength[] = {
+        MM_MIXLEN_8KHZ,
+        MM_MIXLEN_10KHZ,
+        MM_MIXLEN_13KHZ,
+        MM_MIXLEN_16KHZ,
+        MM_MIXLEN_18KHZ,
+        MM_MIXLEN_21KHZ,
+        MM_MIXLEN_27KHZ,
+        MM_MIXLEN_31KHZ};
 
-    EWRAM_DATA LoopMode m_loopMode = LoopMode::None;
-    EWRAM_DATA uint32_t m_nrOfSongs = 0;
-    EWRAM_DATA int32_t m_currentSongNr = -1;
+    IWRAM_DATA uint16_t m_nrOfSongs = 0;
+    IWRAM_DATA int16_t m_currentSongNr = -1;
+    IWRAM_DATA LoopMode m_loopMode = LoopMode::None;
+
+    IWRAM_DATA uint16_t m_mixFrequencyHz = 21024;      // Player mixing frequency
+    IWRAM_DATA uint16_t m_mixLength = MM_MIXLEN_21KHZ; // Length of player mixing buffer in bytes
+    IWRAM_DATA uint16_t m_modChannels = 8;             // Number of simultaneously mixed channels (MOD + effects)
+    IWRAM_DATA int8_t *m_mixingBuffer = nullptr;       // Pointer to mixing buffer
+    IWRAM_DATA int8_t *m_modBuffer = nullptr;          // Pointer to MOD buffer
+    IWRAM_DATA int8_t *m_waveBuffer = nullptr;         // Pointer to waveform buffer
+
     IWRAM_DATA Math::fp1616_t m_lastFrameCall = 0;
     IWRAM_DATA Math::fp1616_t m_playedDuration = 0;
-
-#ifdef CHECK_CPU_TIME
-    Math::fp1616_t m_cpuTime = 0;
-
-    Math::fp1616_t getCpuTimeS()
-    {
-        return m_cpuTime;
-    }
-#endif
 
     //--- song events -----------------------------------------------------------------------------
 
@@ -74,7 +89,7 @@ namespace ModulePlayer
 
     void songEvent(SongEvent event, int32_t parameter)
     {
-#ifdef DEBUG_PLAYER
+#ifdef DEBUG_MODULEPLAYER
         printf("Sending song event %d, parameter %d", static_cast<uint32_t>(event), parameter);
 #endif
         for (uint32_t i = 0; i < m_nrOfSongEventFunctions; i++)
@@ -89,8 +104,8 @@ namespace ModulePlayer
 
     unsigned int eventHandler(const unsigned int message, unsigned int parameter)
     {
-#ifdef DEBUG_PLAYER
-        printf("MaxMod event 0x%x, parameter %d", static_cast<uint32_t>(message), static_cast<uint32_t>(parameter));
+#ifdef DEBUG_MODULEPLAYER
+        printf("Maxmod event 0x%x, parameter %d", static_cast<uint32_t>(message), static_cast<uint32_t>(parameter));
 #endif
         if (message == MMCB_SONGMESSAGE)
         {
@@ -137,19 +152,24 @@ namespace ModulePlayer
     void setLoopMode(LoopMode mode)
     {
         m_loopMode = mode;
-#ifdef DEBUG_PLAYER
-        printf("Sound::loopMode() = %d", static_cast<uint32_t>(m_loopMode));
+#ifdef DEBUG_MODULEPLAYER
+        printf("ModulePlayer::loopMode() = %d", static_cast<uint32_t>(m_loopMode));
 #endif
     }
 
-    constexpr uint32_t getWaveBufferLength()
+    uint32_t getMixFrequencyHz()
     {
-        return PlayerMixLength;
+        return m_mixFrequencyHz;
+    }
+
+    uint32_t getWaveBufferLength()
+    {
+        return m_mixLength;
     }
 
     const int8_t *getWaveBuffer()
     {
-        return m_maxmodBuffer + (PlayerModChannels * (MM_SIZEOF_MODCH + MM_SIZEOF_ACTCH + MM_SIZEOF_MIXCH));
+        return m_waveBuffer;
     }
 
     //---play control--------------------------------------------------------------
@@ -157,24 +177,24 @@ namespace ModulePlayer
     Effect::Handle playEffect(const Effect *effect)
     {
         auto handle = mmEffectEx((mm_sound_effect *)effect);
-#ifdef DEBUG_PLAYER
-        printf("Sound::playEffect(%d) -> Handle %d", effect->id, handle);
+#ifdef DEBUG_MODULEPLAYER
+        printf("ModulePlayer::playEffect(%d) -> Handle %d", effect->id, handle);
 #endif
         return handle;
     }
 
     void stopEffect(Effect::Handle handle)
     {
-#ifdef DEBUG_PLAYER
-        printf("Sound::stopEffect(%d)", handle);
+#ifdef DEBUG_MODULEPLAYER
+        printf("ModulePlayer::stopEffect(%d)", handle);
 #endif
         mmEffectCancel(handle);
     }
 
     void playSong(int32_t songNr)
     {
-#ifdef DEBUG_PLAYER
-        printf("Sound::play(%d)", songNr);
+#ifdef DEBUG_MODULEPLAYER
+        printf("ModulePlayer::playSong(%d)", songNr);
 #endif
         if (songNr >= 0 && songNr < static_cast<int32_t>(m_nrOfSongs))
         {
@@ -191,8 +211,8 @@ namespace ModulePlayer
 
     void setSongPosition(uint32_t position)
     {
-#ifdef DEBUG_PLAYER
-        printf("Sound::setSongPosition(%d)", position);
+#ifdef DEBUG_MODULEPLAYER
+        printf("ModulePlayer::setSongPosition(%d)", position);
 #endif
         mmPosition(position);
     }
@@ -224,8 +244,8 @@ namespace ModulePlayer
 
     void pause()
     {
-#ifdef DEBUG_PLAYER
-        printf("Sound::pause(), Module playing: ", static_cast<int32_t>(mmActive()));
+#ifdef DEBUG_MODULEPLAYER
+        printf("ModulePlayer::pause(), Module playing: ", static_cast<int32_t>(mmActive()));
 #endif
         mmPause();
         songEvent(SongEvent::SongPaused, m_currentSongNr);
@@ -233,8 +253,8 @@ namespace ModulePlayer
 
     void resume()
     {
-#ifdef DEBUG_PLAYER
-        printf("Sound::resume(), Module playing: ", static_cast<int32_t>(mmActive()));
+#ifdef DEBUG_MODULEPLAYER
+        printf("ModulePlayer::resume(), Module playing: ", static_cast<int32_t>(mmActive()));
 #endif
         mmResume();
         songEvent(SongEvent::SongResumed, m_currentSongNr);
@@ -242,8 +262,8 @@ namespace ModulePlayer
 
     void stop()
     {
-#ifdef DEBUG_PLAYER
-        printf("Sound::stop(), Module playing: ", static_cast<int32_t>(mmActive()));
+#ifdef DEBUG_MODULEPLAYER
+        printf("ModulePlayer::stop(), Module playing: ", static_cast<int32_t>(mmActive()));
 #endif
         mmStop();
         songEvent(SongEvent::SongStopped, m_currentSongNr);
@@ -252,8 +272,8 @@ namespace ModulePlayer
 
     IWRAM_FUNC void frame()
     {
-#ifdef CHECK_CPU_TIME
-        auto startTime = Math::fp1616_t::fromRaw(Time::now());
+#ifdef MODULEPLAYER_CPU_TIME
+        auto startTime = Time::now();
 #endif
         mmFrame();
         auto now = Math::fp1616_t::fromRaw(Time::now());
@@ -262,17 +282,33 @@ namespace ModulePlayer
             m_playedDuration += now - m_lastFrameCall;
         }
         m_lastFrameCall = now;
-#ifdef CHECK_CPU_TIME
-        m_cpuTime = now - startTime;
+#ifdef MODULEPLAYER_CPU_TIME
+        static IWRAM_DATA int32_t sectionDuration = 0;
+        static IWRAM_DATA int32_t sectionCount = 0;
+        sectionDuration += Time::now() - startTime;
+        sectionCount++;
+        if (sectionDuration >= (2 << 16))
+        {
+            Debug::printf("ModulePlayer frame: %.2f", (sectionDuration * 1000) / sectionCount);
+            sectionDuration = 0;
+            sectionCount = 0;
+        }
 #endif
     }
 
-    void init(const void *soundbank, uint32_t nrOfSongs)
+    void init(const void *soundbank, uint32_t nrOfSongs, MixFrequency frequency, uint32_t channels)
     {
-#ifdef DEBUG_PLAYER
-        printf("Songs: %d\n", nrOfSongs);
+#ifdef DEBUG_MODULEPLAYER
+        static const printf("Soundbank: 0x%x, Songs: %d, Mix frequency: %d, Channels: %d", soundbank, nrOfSongs, MixFrequency2Hz[static_cast<uint16_t>(frequency)], channels);
 #endif
         m_nrOfSongs = nrOfSongs;
+        m_mixFrequencyHz = MixFrequency2Hz[static_cast<uint16_t>(frequency)];
+        m_modChannels = channels;
+        // allocate buffers
+        m_mixLength = MixFrequency2MixLength[static_cast<uint16_t>(frequency)];
+        m_mixingBuffer = Memory::malloc_IWRAM<int8_t>(m_mixLength);
+        m_modBuffer = Memory::malloc_IWRAM<int8_t>(m_modChannels * (MM_SIZEOF_MODCH + MM_SIZEOF_ACTCH + MM_SIZEOF_MIXCH) + m_mixLength);
+        m_waveBuffer = m_modBuffer + m_modChannels * (MM_SIZEOF_MODCH + MM_SIZEOF_ACTCH + MM_SIZEOF_MIXCH);
         // Give our vblank handler to maxmod, so it gets called after sound processing
         mmSetVBlankHandler(reinterpret_cast<void *>(Graphics::vblankHandler()));
         // We also need to call mmFrame every frame we display, so connect it to our handler
@@ -280,17 +316,16 @@ namespace ModulePlayer
         // Maxmod requires the vblank interrupt to reset sound DMA. Link the VBlank interrupt to mmVBlank, and enable it.
         Irq::setHandler(Irq::Mask::VBlank, mmVBlank);
         Irq::enable(Irq::Mask::VBlank);
-        // Initialise maxmod with soundbank and 8 channels
-        // mmInitDefault((mm_addr)soundbank, PlayerModChannels);
+        // Initialise Maxmod with soundbank
         mm_gba_system system;
-        system.mixing_mode = PlayerMixFrequency;
-        system.mod_channel_count = PlayerModChannels;
-        system.mix_channel_count = PlayerModChannels;
-        system.module_channels = (mm_addr)(m_maxmodBuffer + 0);
-        system.active_channels = (mm_addr)(m_maxmodBuffer + (PlayerModChannels * MM_SIZEOF_MODCH));
-        system.mixing_channels = (mm_addr)(m_maxmodBuffer + (PlayerModChannels * (MM_SIZEOF_MODCH + MM_SIZEOF_ACTCH)));
+        system.mixing_mode = static_cast<mm_mixmode>(frequency);
+        system.mod_channel_count = m_modChannels;
+        system.mix_channel_count = m_modChannels;
+        system.module_channels = (mm_addr)m_modBuffer;
+        system.active_channels = (mm_addr)(m_modBuffer + (m_modChannels * MM_SIZEOF_MODCH));
+        system.mixing_channels = (mm_addr)(m_modBuffer + (m_modChannels * (MM_SIZEOF_MODCH + MM_SIZEOF_ACTCH)));
         system.mixing_memory = (mm_addr)m_mixingBuffer;
-        system.wave_memory = (mm_addr)(m_maxmodBuffer + (PlayerModChannels * (MM_SIZEOF_MODCH + MM_SIZEOF_ACTCH + MM_SIZEOF_MIXCH)));
+        system.wave_memory = (mm_addr)m_waveBuffer;
         system.soundbank = (mm_addr)soundbank;
         mmInit(&system);
         // Register our event handler to call if a song event occurrs
@@ -301,7 +336,7 @@ namespace ModulePlayer
 
     void updateSpectrum()
     {
-        Spectrum::update(getWaveBuffer(), getWaveBuffer() + PlayerMixLength / 2, PlayerMixLength / 2);
+        Spectrum::update(getWaveBuffer(), getWaveBuffer() + m_mixLength / 2, m_mixLength / 2);
     }
 
     const Spectrum::Bands &getSpectrum()

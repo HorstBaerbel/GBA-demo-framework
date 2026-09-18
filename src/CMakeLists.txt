@@ -18,6 +18,6 @@ LIST(APPEND FW_LIBS
 add_library(${PROJECT_NAME} STATIC ${FW_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${FW_INCLUDE_DIRS})
 target_link_directories(${PROJECT_NAME} PRIVATE ${FW_LIBS})
-target_link_libraries(${PROJECT_NAME} mm) # Link MaxMOD
+target_link_libraries(${PROJECT_NAME} mm) # Link Maxmod
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
