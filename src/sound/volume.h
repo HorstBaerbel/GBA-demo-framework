@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sound/player.h"
+#include "sound/moduleplayer.h"
 
 #include <cstdint>
 

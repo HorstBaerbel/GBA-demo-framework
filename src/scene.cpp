@@ -1,5 +1,5 @@
 #include "scene.h"
-#include "sound/player.h"
+#include "sound/moduleplayer.h"
 #include "time.h"
 
 // #define DEBUG_SCENE
