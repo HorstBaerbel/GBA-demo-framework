@@ -2,10 +2,10 @@
 
 #include <cstdint>
 
-namespace Player
+namespace ModulePlayer
 {
 
-    /// @brief Define a sound effect to be played using Player::playEffect()
+    /// @brief Define a sound effect to be played using ModulePlayer::playEffect()
     struct Effect
     {
         using Handle = uint16_t;

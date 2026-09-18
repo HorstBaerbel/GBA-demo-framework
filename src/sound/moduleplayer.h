@@ -6,7 +6,14 @@
 
 #include <cstdint>
 
-/// @brief Module / effect player functions
+/// @brief Full-fledged module / effect player using MaxMOD
+///
+/// ----- General info -----
+/// MaxMOD always plays as stereo. It uses Timer 0, DMA 1 + 2.
+/// Its mixxing and wave buffers are put into IWRAM. Size depends on the mxing frequency and number of supported channels.
+/// It also needs to be called on Vblank consistently, thus it is called on Vblank IRQ. All other Vblank handler must come after that.
+///
+/// ----- Generating sound files -----
 /// To generate a soundbank for the init() function, add your .wav, .mod, .xm files to your
 /// CMakeLists.txt, e.g. like so:
 ///
@@ -23,20 +30,21 @@
 ///
 /// and call:
 ///
-/// Player::init((const void *)&soundbank_bin, MSL_NSONGS);
+/// ModulePlayer::init((const void *)&soundbank_bin, MSL_NSONGS);
 ///
-/// somewhere. You should be able to Player::playSong()s now.
+/// somewhere. You should be able to ModulePlayer::playSong()s now.
 ///
+/// ----- Song events for synchronization / volume information -----
 /// The player will send events when a song is started, has ended or was paused.
 /// You can also add messages to the module by adding SFx (or mod/xm EFx) effects. These values will be forwarded as song events too.
 /// To receive song events, register a handler (up to 4) using:
 ///
-/// Player::callAtSongEvent(yourHandlerFunction);
+/// ModulePlayer::callAtSongEvent(yourHandlerFunction);
 ///
 /// When you don't need the handler anymore, deregister it using:
 ///
-/// Player::removeAtSongEvent(yourHandlerFunction);
-namespace Player
+/// ModulePlayer::removeAtSongEvent(yourHandlerFunction);
+namespace ModulePlayer
 {
     enum class LoopMode
     {

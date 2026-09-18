@@ -14,12 +14,11 @@
 /// To make this work, initialize and register the song event handler somewhere:
 ///
 /// Volume::init();
-/// Sound::callAtSongEvent(Volume::handleSongEvent);
+/// ModulePlayer::callAtSongEvent(Volume::handleSongEvent);
 ///
 /// somewhere.
 namespace Volume
 {
-
     /// @brief Initialize volume calculation. Call this before using!
     void init();
 
@@ -39,6 +38,5 @@ namespace Volume
     bool isBass();
 
     /// @brief Process song volume messages from player
-    void handleSongEvent(Player::SongEvent event, int32_t parameter);
-
-} //namespace Sound
+    void handleSongEvent(ModulePlayer::SongEvent event, int32_t parameter);
+}

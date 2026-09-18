@@ -1,4 +1,4 @@
-#include "sound/player.h"
+#include "sound/moduleplayer.h"
 #include "graphics.h"
 #include "memory/memory.h"
 #include "sys/interrupts.h"
@@ -14,7 +14,7 @@
 
 #include <maxmod.h>
 
-namespace Player
+namespace ModulePlayer
 {
 
     constexpr mm_mixmode PlayerMixFrequency = MM_MIX_21KHZ; // Player mixxing frequency

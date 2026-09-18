@@ -29,7 +29,7 @@ namespace Scene
     {
         const char *name = nullptr;              /// Name of the scene for debug purposes.
         Math::fp1616_t duration = 0;             /// Duration of the scene in the demo.
-        const Player::Effect *effect = nullptr;  /// Sound effect played at start of scene. Nullptr means no effect.
+        const ModulePlayer::Effect *effect = nullptr; /// Sound effect played at start of scene. Nullptr means no effect.
         int32_t songNr = -1;                     /// Song that will be played when scene is running. -1 means nothing is done.
         int32_t songPosition = -1;               /// Song position that will be set when scene is running. -1 means nothing is done.
         void (*setup)(const Data &) = nullptr;   /// Initialize all your data / gfx etc. here when the scene starts.

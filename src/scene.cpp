@@ -16,7 +16,7 @@ namespace Scene
 
     void play(const Entry *entries, uint32_t nrOfEntries, uint32_t startIndex, bool loopScene)
     {
-        const Player::Effect *currentEffect = nullptr;
+        const ModulePlayer::Effect *currentEffect = nullptr;
         int16_t currentSongNr = -1;
         int32_t currentSongPosition = -1;
         for (uint32_t sceneIndex = startIndex; sceneIndex < nrOfEntries; ++sceneIndex)
@@ -28,19 +28,19 @@ namespace Scene
             // set up player
             if (currentSongNr != entry.songNr && entry.songNr >= 0)
             {
-                // Player::stopEffect();
-                Player::playSong(entry.songNr);
+                // ModulePlayer::stopEffect();
+                ModulePlayer::playSong(entry.songNr);
                 currentSongNr = entry.songNr;
             }
             if (currentSongPosition != entry.songPosition && entry.songPosition >= 0)
             {
-                Player::setSongPosition(entry.songPosition);
+                ModulePlayer::setSongPosition(entry.songPosition);
                 currentSongPosition = entry.songPosition;
             }
             if (currentEffect != entry.effect && entry.effect != nullptr)
             {
-                // Player::stopSong();
-                Player::playEffect(entry.effect);
+                // ModulePlayer::stopSong();
+                ModulePlayer::playEffect(entry.effect);
                 currentEffect = entry.effect;
             }
             // set up start / end time
