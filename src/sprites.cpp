@@ -243,7 +243,7 @@ namespace Sprites
         {
             const auto &sprite = sprites[i];
             const uint32_t bytesPerSprite = (uint32_t(Tiles::TileCountForSizeCode[(uint32_t)sprite.size]) * 64) >> 1;
-            Memory::memcpy32(Sprites::TILE_INDEX_TO_MEM16(sprite.tileIndex), srcData + offsetInSrcData, bytesPerSprite >> 2);
+            Memory::memcpy32(Sprites::TILE_INDEX_TO_MEM(sprite.tileIndex), srcData + offsetInSrcData, bytesPerSprite >> 2);
             offsetInSrcData += bytesPerSprite;
         }
     }
@@ -251,7 +251,7 @@ namespace Sprites
     void copyTileData256(const Sprite2D *sprite, const uint32_t *tileData)
     {
         uint32_t tileCount = Tiles::TileCountForSizeCode[(uint32_t)sprite->size];
-        Memory::memcpy32(Sprites::TILE_INDEX_TO_MEM256(sprite->tileIndex), tileData, sizeof(Tiles::Tile256) / 4 * tileCount);
+        Memory::memcpy32(Sprites::TILE_INDEX_TO_MEM(sprite->tileIndex), tileData, sizeof(Tiles::Tile256) / 4 * tileCount);
     }
 
     void copyTileData256(const Sprite2D *sprites, uint32_t nrOfSprites, const uint32_t *bitmapData, uint32_t bitmapWidth, uint32_t xStep, uint32_t yStep)
@@ -262,7 +262,7 @@ namespace Sprites
             const auto &sprite = sprites[i];
             const uint32_t bytesPerTileLine = Tiles::HorizontalTilesForSizeCode[(uint32_t)sprite.size] * 8 * 8; // 8 bytes per tile line, 8 lines
             const uint32_t nrOfTileLines = Tiles::VerticalTilesForSizeCode[(uint32_t)sprite.size];
-            auto dstData = Sprites::TILE_INDEX_TO_MEM256<uint32_t>(sprite.tileIndex);
+            auto dstData = Sprites::TILE_INDEX_TO_MEM<uint32_t>(sprite.tileIndex);
             auto srcData = bitmapData + ((i * xStep * 8 + i * yStep * srcTileLineStride) >> 2);
             for (uint32_t y = 0; y < nrOfTileLines; ++y)
             {

@@ -17,20 +17,13 @@ namespace Sprites
     /// @brief Sprite tile memory interpreted as 256 color tiles
     auto const TileMem256{reinterpret_cast<Tiles::Tile256 *>(SpriteTileMem)};
 
-    /// @brief 16-color sprite tile index to memory address
+    /// @brief 16-/256-color sprite tile index to memory address
+    // Sprite tile INDEX is the same in 4 and 8 bit mode. yeah, wtf.
     template <typename T = uint32_t>
-    constexpr T *TILE_INDEX_TO_MEM16(uint32_t tileIndex)
+    constexpr T *TILE_INDEX_TO_MEM(uint32_t tileIndex)
     {
         // sprite tile INDEX is the same in 4 and 8 bit mode. yeah, wtf.
         return reinterpret_cast<T *>(SpriteTileMem + ((uint32_t(tileIndex)) * 8 * 4));
-    }
-
-    /// @brief 256-color sprite tile index to memory address
-    template <typename T = uint32_t>
-    constexpr T *TILE_INDEX_TO_MEM256(uint32_t tileIndex)
-    {
-        // sprite tile INDEX is the same in 4 and 8 bit mode. yeah, wtf.
-        return TILE_INDEX_TO_MEM16<T>(tileIndex);
     }
 
     /// @brief Sprite type
