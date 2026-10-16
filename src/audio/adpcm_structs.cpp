@@ -6,7 +6,6 @@
 
 namespace Audio
 {
-
         auto AdpcmFrameHeader::write(void *dst, const AdpcmFrameHeader &header) -> void
         {
                 static_assert(sizeof(AdpcmFrameHeader) % 4 == 0, "Size of frame header must be a multiple of 4 bytes");
