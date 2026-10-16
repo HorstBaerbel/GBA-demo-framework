@@ -13,42 +13,43 @@ namespace DXT
         const uint32_t nrOfBlocks = width / 4 * height / 4;
         auto colorPtr = src;
         auto indexPtr = reinterpret_cast<const uint32_t *>(src + nrOfBlocks * 8 / 4);
+        auto blockColorPtr = reinterpret_cast<uint16_t *>(DXT_BlockColors);
         for (uint32_t blockY = 0; blockY < height / 4; blockY++)
         {
             auto blockLineDst = dst;
             for (uint32_t blockX = 0; blockX < width / 4; blockX++)
             {
                 // get DXT block colors
-                colorPtr = getBlockColors(colorPtr, reinterpret_cast<uint16_t *>(DXT_BlockColors));
+                colorPtr = getBlockColors(colorPtr, blockColorPtr);
                 // get pixel color indices and set pixels accordingly
                 uint32_t indices = *indexPtr++; // we can ONLY read a word here, because the encoder reverses the bits and stores two half-words!
                 auto blockDst = blockLineDst;
                 // select color by 2 bit index from [c0, c1, c2, c3]
-                *blockDst++ = DXT_BlockColors[(indices >> 0) & 0x3];
-                *blockDst++ = DXT_BlockColors[(indices >> 2) & 0x3];
-                *blockDst++ = DXT_BlockColors[(indices >> 4) & 0x3];
-                *blockDst++ = DXT_BlockColors[(indices >> 6) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 0) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 2) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 4) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 6) & 0x3];
                 // move to next line in destination vertically
                 blockDst += DstStride16;
                 // select color by 2 bit index from [c0, c1, c2, c3]
-                *blockDst++ = DXT_BlockColors[(indices >> 8) & 0x3];
-                *blockDst++ = DXT_BlockColors[(indices >> 10) & 0x3];
-                *blockDst++ = DXT_BlockColors[(indices >> 12) & 0x3];
-                *blockDst++ = DXT_BlockColors[(indices >> 14) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 8) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 10) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 12) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 14) & 0x3];
                 // move to next line in destination vertically
                 blockDst += DstStride16;
                 // select color by 2 bit index from [c0, c1, c2, c3]
-                *blockDst++ = DXT_BlockColors[(indices >> 16) & 0x3];
-                *blockDst++ = DXT_BlockColors[(indices >> 18) & 0x3];
-                *blockDst++ = DXT_BlockColors[(indices >> 20) & 0x3];
-                *blockDst++ = DXT_BlockColors[(indices >> 22) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 16) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 18) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 20) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 22) & 0x3];
                 // move to next line in destination vertically
                 blockDst += DstStride16;
                 // select color by 2 bit index from [c0, c1, c2, c3]
-                *blockDst++ = DXT_BlockColors[(indices >> 24) & 0x3];
-                *blockDst++ = DXT_BlockColors[(indices >> 26) & 0x3];
-                *blockDst++ = DXT_BlockColors[(indices >> 28) & 0x3];
-                *blockDst++ = DXT_BlockColors[(indices >> 30) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 24) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 26) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 28) & 0x3];
+                *blockDst++ = blockColorPtr[(indices >> 30) & 0x3];
                 // move to next block in destination horizontally
                 blockLineDst += BlockStride16;
             }
