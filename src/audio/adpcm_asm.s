@@ -55,7 +55,7 @@
     @ clamp PCM data in r3 to [-32768, 32767]
     mov     r7, r3, lsl #16     @ r7 = r3 << 16
     cmp     r3, r7, asr #16     @ shift back and sign-extend r7 and compare with r3. check if r3 fits into signed 16-bit
-    eorne   r3, r3, r8, asr #31 @ extract sign bit of r3. xor with r8 and apply to saturate
+    eorne   r3, r8, r3, asr #31 @ extract sign bit of r3. xor with r8 and apply to saturate
 #ifdef ADPCM_ROUNDING
     add     r7, r3, #128 @ r7 = pcmData + 128
     mov     r7, r7, asr #8 @ r7 = (pcmData + 128) >> 8
@@ -95,7 +95,7 @@
     @ clamp PCM data in r3 to [-32768, 32767]
     mov     r7, r3, lsl #16     @ r7 = r3 << 16
     cmp     r3, r7, asr #16     @ shift back and sign-extend r7 and compare with r3. check if r3 fits into signed 16-bit
-    eorne   r3, r3, r8, asr #31 @ extract sign bit of r3. xor with r8 and apply to saturate
+    eorne   r3, r8, r3, asr #31 @ extract sign bit of r3. xor with r8 and apply to saturate
 #ifdef ADPCM_ROUNDING
     add     r7, r3, #128 @ r7 = pcmData + 128
     mov     r7, r7, asr #8 @ r7 = (pcmData + 128) >> 8
@@ -131,7 +131,7 @@
     @ clamp PCM data in r3 to [-32768, 32767]
     mov     r7, r3, lsl #16     @ r7 = r3 << 16
     cmp     r3, r7, asr #16     @ shift back and sign-extend r7 and compare with r3. check if r3 fits into signed 16-bit
-    eorne   r3, r3, r8, asr #31 @ extract sign bit of r3. xor with r8 and apply to saturate
+    eorne   r3, r8, r3, asr #31 @ extract sign bit of r3. xor with r8 and apply to saturate
 #ifdef ADPCM_ROUNDING
     add     r7, r3, #128 @ r7 = pcmData + 128
     mov     r7, r7, asr #8 @ r7 = (pcmData + 128) >> 8
@@ -216,8 +216,8 @@
     @ clamp filtered PCM data in r11 to [-32768, 32767]
     mov     r12, r11, lsl #16      @ r12 = r11 << 16
     cmp     r11, r12, asr #16      @ shift back and sign-extend r12 and compare with r11. check if r11 fits into signed 16-bit
-    mvn     r14, #0x80000000       @ r11 = 0x7FFFFFFF
-    eorne   r11, r11, r14, asr #31 @ extract sign bit of r11. xor with r14 and apply to saturate
+    mvn     r14, #0x8000           @ r11 = 0x7FFFFFFF
+    eorne   r11, r14, r11, asr #31 @ extract sign bit of r11. xor with r14 and apply to saturate
     strh    r11, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1] @ store filtered PCM to resampler history
     strh    r4, [r2, #RESAMPLER_OFFSET_PCM_RAW]        @ store raw sample to resampler
 #else
@@ -277,16 +277,16 @@
     @ clamp filtered PCM data in r11 to [-32768, 32767]
     mov     r12, r11, lsl #16      @ r12 = r11 << 16
     cmp     r11, r12, asr #16      @ shift back and sign-extend r12 and compare with r11. check if r11 fits into signed 16-bit
-    mvn     r14, #0x80000000       @ r11 = 0x7FFFFFFF
-    eorne   r11, r11, r14, asr #31 @ extract sign bit of r11. xor with r14 and apply to saturate
+    mvn     r14, #0x8000           @ r11 = 0x7FFFFFFF
+    eorne   r11, r14, r11, asr #31 @ extract sign bit of r11. xor with r14 and apply to saturate
     strh    r11, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1] @ store filtered PCM to resampler history
     strh    r4, [r2, #RESAMPLER_OFFSET_PCM_RAW]        @ store raw sample to resampler
 #else
     @ clamp PCM data in r4 to [-32768, 32767]
     mov     r12, r4, lsl #16     @ r12 = r4 << 16
     cmp     r4, r12, asr #16     @ shift back and sign-extend r12 and compare with r4. check if r4 fits into signed 16-bit
-    mvn     r14, #0x80000000     @ r14 = 0x7FFFFFFF
-    eorne   r4, r4, r14, asr #31 @ extract sign bit of r4. xor with r14 and apply to saturate
+    mvn     r14, #0x8000         @ r14 = 0x7FFFFFFF
+    eorne   r4, r14, r4, asr #31 @ extract sign bit of r4. xor with r14 and apply to saturate
     strh    r4, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1]
 #endif
     sub     r7, #RESAMPLER_POSITION_ONE
