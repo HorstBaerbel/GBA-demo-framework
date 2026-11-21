@@ -223,9 +223,7 @@
 .adpcm_channel_resample_loop_setup:
     @ build byte load operation for patching depending on nr of nibbles
     add     r14, pc, #.adpcm_channel_resample_byteload - . - 8
-    mov     r12, #0x04D00000      @ r12 = 0x04D00000
-    orr     r12, r12, #0x6000     @ r12 = 0x04D06000
-    orr     r12, r12, #0x0001     @ r12 = 0x04D06001 (ldreqb r6, [r0], #1)
+    ldr     r12, =#0x04D06001     @ r12 = 0x04D06001
     tst     r3, #1                @ check if nr of nibbles is even
     orrne   r12, r12, #0x10000000 @ r12 = 0x14D06001 (ldrneb r6, [r0], #1)
     str     r12, [r14]            @ patch instruction
