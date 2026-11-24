@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 project(gbadfw)
 
-file(GLOB_RECURSE FW_SOURCES *.c *.cpp *.s)
+file(GLOB_RECURSE CONFIGURE_DEPENDS FW_SOURCES *.c *.cpp *.s)
 
 LIST(APPEND FW_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}
