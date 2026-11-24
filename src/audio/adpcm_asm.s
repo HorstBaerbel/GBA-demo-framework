@@ -160,31 +160,29 @@
     @ r2: resampler channel data (preserved)
     @ r3: number of samples to decode (trashed)
     @ r9: adress of ADPCM_DeltaTable_4bit
-    @ r10: adress of ADPCM_IndexTable_4bit
     @ ------------------------------
     @ In function:
     @ r4 = PCM data
-    @ r5 = Current ADPCM index
+    @ r5 = Current ADPCM index * 2*8 (uint16_t * number of tables)
     @ r6 = Current ADPCM byte (2*4 bit data)
     @ r7 = resampler position
-    @ r8 = nr of samples generated
-    @ r10 = resampler step
+    @ r8 = resampler step
+    @ r10 = size of index table (in bytes)
     @ r11,r12,r14 are scratch registers
-    push    {lr}
+    push    {r1, lr}
     sub     r3, #1 @ r3 = nr of nibbles to decode (nr of samples - 1)
     @ load first verbatim PCM sample to r4
     ldrb    r4, [r0], #1        @ load lower byte
     ldrsb   r12, [r0], #1       @ load higher byte and sign-extend
     orr     r4, r4, r12, lsl #8 @ combine the two
     @ load first index to r5
-    ldrb    r5, [r0], #1        @ load lower byte
-    ldrsb   r12, [r0], #1       @ load higher byte and sign-extend
-    orr     r5, r5, r12, lsl #8 @ combine the two
+    ldrb    r5, [r0], #2        @ load lower byte only (index always in [0,88]) and advance
+    lsl     r5, #4              @ convert index to byte offset (8 hwords per index = 16 bytes)
     @ we can have history from previous calls, but at most one sample,
     @ because we must have output data until resamplerData.position >= RESAMPLER_POSITION_ONE
     @ we can also have no history at all for a first call
     @ this means we need at least one new sample here
-    ldr     r10, [r2, #RESAMPLER_OFFSET_STEP]
+    ldr     r8, [r2, #RESAMPLER_OFFSET_STEP]
     ldr     r7, [r2, #RESAMPLER_OFFSET_POSITION]
     cmp     r7, #RESAMPLER_POSITION_TWO
     blt     .adpcm_channel_resample_start_below_two
@@ -210,9 +208,9 @@
     add     r11, r11, asr #2
     sub     r11, r4, asr #2
     @ clamp filtered PCM data in r11 to [-32768, 32767]
-    mov     r12, r11, lsl #16      @ r12 = r11 << 16
-    cmp     r11, r12, asr #16      @ shift back and sign-extend r12 and compare with r11. check if r11 fits into signed 16-bit
-    mvn     r14, #0x8000           @ r11 = 0x7FFFFFFF
+    mov     r14, r11, lsl #16      @ r14 = r11 << 16
+    cmp     r11, r14, asr #16      @ shift back and sign-extend r14 and compare with r11. check if r11 fits into signed 16-bit
+    mvn     r14, #0x8000           @ r11 = 0x7FFF
     eorne   r11, r14, r11, asr #31 @ extract sign bit of r11. xor with r14 and apply to saturate
     strh    r11, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1] @ store filtered PCM to resampler history
     strh    r4, [r2, #RESAMPLER_OFFSET_PCM_RAW]        @ store raw sample to resampler
@@ -220,6 +218,7 @@
     strh    r4, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1]
 #endif
     sub     r7, #RESAMPLER_POSITION_ONE
+    mov     r10, #2 * 8 * 88      @ calculate size of index table
 .adpcm_channel_resample_loop_setup:
     @ build byte load operation for patching depending on nr of nibbles
     add     r14, pc, #.adpcm_channel_resample_byteload - . - 8
@@ -227,8 +226,6 @@
     tst     r3, #1                @ check if nr of nibbles is even
     orrne   r12, r12, #0x10000000 @ r12 = 0x14D06001 (ldrneb r6, [r0], #1)
     str     r12, [r14]            @ patch instruction
-    @ clear nr of samples generated
-    mov     r8, #0
 .adpcm_channel_resample_loop:
     @ check if we need to decode more input samples or emit output samples
     cmp     r7, #RESAMPLER_POSITION_ONE
@@ -241,24 +238,21 @@
         @ ldrneb r6, [r0], #1 for odd r3
         @ ldreqb r6, [r0], #1 for even r3
     @ decode nibble
-    and     r14, r6, #0x07   @ r14 = nibble & 7 
-    mov     r12, r5, lsl #4  @ r12 = index * 2 * 8, because uint16_t and 8 entries per index
-    add     r12, r14, lsl #1 @ r12 = index * 2 * 8 + (nibble & 7) * 2
-    ldrh    r12, [r9, r12]   @ load delta to r12
-    subs    r14, #3          @ (nibble & 7) - 3
-    suble   r5, r5, #1       @ (nibble & 7) - 3 <= 0 --> index -= 1
-    addgt   r5, r14, lsl #1  @ (nibble & 7) - 3 >  0 --> index += ((nibble & 7) - 3) * 2
-    cmp     r5, #0           @ index < 0 ?
-    movmi   r5, #0           @ index = index < 0 ? 0 : index
-    cmp     r5, #88          @ index > 88 ?
-    movgt   r5, #88          @ index = index > 88 ? 88 : index
-    lsrs    r6, #4           @ r6 >>= 4 (shift in next nibble) through carry. Also test if ADPCM value & 8?
-    subcs   r4, r4, r12      @ true  -> pcmData -= delta
-    addcc   r4, r4, r12      @ false -> pcmData += delta
+    and     r14, r6, #0x07       @ r14 = nibble & 7 
+    add     r12, r5, r14, lsl #1 @ r12 = index * 2*8 + (nibble & 7) * 2
+    ldrh    r12, [r9, r12]       @ load delta to r12
+    subs    r14, #3              @ (nibble & 7) - 3
+    suble   r5, r5, #2 * 8       @ (nibble & 7) - 3 <= 0 --> index -= 1 (* 2*8)
+    addgt   r5, r14, lsl #5      @ (nibble & 7) - 3 >  0 --> index += ((nibble & 7) - 3) * 2 (* 2*8)
+    cmp     r5, r10              @ index > index table size ?
+    bichi   r5, r10, r5, asr #31 @ index = clamp(index, 0, index table size)
+    lsrs    r6, #4               @ r6 >>= 4 (shift in next nibble) through carry. Also test if ADPCM value & 8?
+    subcs   r4, r4, r12          @ true  -> pcmData -= delta
+    addcc   r4, r4, r12          @ false -> pcmData += delta
     @ clamp PCM data in r4 to [-32768, 32767]
     mov     r12, r4, lsl #16     @ r12 = r4 << 16
     cmp     r4, r12, asr #16     @ shift back and sign-extend r12 and compare with r4. check if r4 fits into signed 16-bit
-    mvn     r14, #0x8000         @ r14 = 0x7FFFFFFF
+    mvn     r14, #0x8000         @ r14 = 0x7FFF
     eorne   r4, r14, r4, asr #31 @ extract sign bit of r4. xor with r14 and apply to saturate
     @ move new PCM data to resampler history
     ldrsh   r12, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1]
@@ -271,7 +265,7 @@
     @ clamp filtered PCM data in r11 to [-32768, 32767]
     mov     r12, r11, lsl #16      @ r12 = r11 << 16
     cmp     r11, r12, asr #16      @ shift back and sign-extend r12 and compare with r11. check if r11 fits into signed 16-bit
-    mvn     r14, #0x8000           @ r11 = 0x7FFFFFFF
+    mvn     r14, #0x8000           @ r11 = 0x7FFF
     eorne   r11, r14, r11, asr #31 @ extract sign bit of r11. xor with r14 and apply to saturate
     strh    r11, [r2, #RESAMPLER_OFFSET_PCM_HISTORY_1] @ store filtered PCM to resampler history
     strh    r4, [r2, #RESAMPLER_OFFSET_PCM_RAW]        @ store raw sample to resampler
@@ -293,14 +287,14 @@
     add     r11, r14, r11, asr #8
     mov     r11, r11, asr #8 @ sample >> 8
     strb    r11, [r1], #1    @ store PCM sample
-    add     r8, #1           @ increase nr of samples generated  
-    add     r7, r10          @ resampler.position += resampler.step
+    add     r7, r8           @ resampler.position += resampler.step
     cmp     r7, #RESAMPLER_POSITION_ONE
     blt     .adpcm_channel_resample_sample_output
     cmp     r3, #0 @ more nibbles?
     bgt     .adpcm_channel_resample_loop
     str     r7, [r2, #RESAMPLER_OFFSET_POSITION]
-    pop     {lr}
+    pop     {r8, lr}
+    sub     r8, r1, r8  @ calculate number of samples generated
     bx      lr
 
  .arm
@@ -322,7 +316,7 @@ ADPCMUnCompWrite8bit_8bit:
     @ returns: number of generated samples in r0
     push    {r4 - r10, lr}
     @ store constants
-    ldr     r8, =#0x7FFFFFFF @ used for clamping PCM data
+    ldr     r8, =#0x7FFF       @ used for clamping PCM data
     ldr     r9, =ADPCM_DeltaTable_4bit
     ldr     r10, =ADPCM_IndexTable_4bit
     @ load first header half-word to r4
